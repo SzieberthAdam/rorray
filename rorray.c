@@ -12,8 +12,8 @@ int main(void)
 {
     Vector2 v;
     Vector2 touchPosition = { 0, 0 };
-    Rectangle r;
-    char str[9999];
+    //Rectangle r;
+    //char str[9999];
 
     const int screenWidth = 1920;
     const int screenHeight = 1080;
@@ -23,8 +23,9 @@ int main(void)
     int currentGesture = GESTURE_NONE;
     int lastGesture = GESTURE_NONE;
 
-    unsigned char *scenarioDat = LoadFileData("scenario.dat", 65536);
-    int scenarioStrLength = GetFileLength("scenario.str");
+    unsigned int scenarioDatLength = 65536;
+    unsigned char *scenarioDat = LoadFileData("scenario.dat", &scenarioDatLength);
+    unsigned int scenarioStrLength = GetFileLength("scenario.str");
     unsigned char *scenarioStr = LoadFileData("scenario.str", &scenarioStrLength);
 
     int j = 1;
@@ -37,7 +38,7 @@ int main(void)
         }
     }
 
-    SaveFileData("scenario.datdbg", scenarioDat, 65536);
+    SaveFileData("scenario.datdbg", scenarioDat, scenarioDatLength);
    
     Rectangle factionrects[NUM_FACTIONS] = {
         {W, H * (5 + 6 * 0), W * 30 - L, H - L},
@@ -131,9 +132,7 @@ int main(void)
             v.y = factionrects[i].y;           
             DrawRectangleRec(factionrects[i], DARKGRAY);
             DrawText("State of the Republic", W, H, 20, RED);
-            sprintf(str, "%d", (int)scenarioDat[i]);
-            DrawText(str, 10 * W, 5 * i * H, 20, BLUE);
-            DrawTextEx(font, TextToUpper(scenarioStr+scenarioDat[i]), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+            DrawTextEx(font, TextToUpper((char*)(scenarioStr+scenarioDat[i])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
         }
         EndDrawing();
         //----------------------------------------------------------------------------------
