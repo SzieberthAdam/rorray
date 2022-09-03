@@ -18,6 +18,8 @@ int main(void)
     const int screenWidth = 1920;
     const int screenHeight = 1080;
 
+    unsigned int scenarioStrPos[512] = {0};
+
     Font font;
 
     int currentGesture = GESTURE_NONE;
@@ -28,18 +30,16 @@ int main(void)
     unsigned int scenarioStrLength = GetFileLength("scenario.str");
     unsigned char *scenarioStr = LoadFileData("scenario.str", &scenarioStrLength);
 
-    int j = 1;
-    for (int i=0 ; i < scenarioStrLength; i++)
+    unsigned int j = 1;
+    for (unsigned int i=1 ; i < scenarioStrLength; i++)
     {
-        if (scenarioStr[i] == 0)
+        if (scenarioStr[i-1] == 0)
         {
-            scenarioDat[j] = (unsigned char)i+1;
+            scenarioStrPos[j] = i;
             j += 1;
         }
     }
-
-    SaveFileData("scenario.datdbg", scenarioDat, scenarioDatLength);
-   
+  
     Rectangle factionrects[NUM_FACTIONS] = {
         {W, H * (5 + 6 * 0), W * 30 - L, H - L},
         {W, H * (5 + 6 * 1), W * 30 - L, H - L},
@@ -131,8 +131,15 @@ int main(void)
             v.x = factionrects[i].x + FONTSPACING;
             v.y = factionrects[i].y;           
             DrawRectangleRec(factionrects[i], DARKGRAY);
-            DrawText("State of the Republic", W, H, 20, RED);
-            DrawTextEx(font, TextToUpper((char*)(scenarioStr+scenarioDat[i])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+            DrawTextEx(font, TextToUpper((char*)(scenarioStr+scenarioStrPos[i])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+            for (int j = 0; j < 29; j++)
+            {
+                if ((int)scenarioDat[j] == i+1)
+                {
+                    v.y += H;
+                    DrawTextEx(font, TextToUpper((char*)(scenarioStr+scenarioStrPos[6+j])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+                }
+            }
         }
         EndDrawing();
         //----------------------------------------------------------------------------------
