@@ -1,0 +1,70 @@
+$ Out
+T 00000000000
+:  0 #  0 # Out : 0
+
+$ Table
+T 00000000001
+:  0 #  0 # Table : 0
+
+$ Box
+T 00000000010
+:  0 #  0 # Table : 0
+
+$ Board
+T 00000000011
+:  0 #  0 # Table : 0
+
+$ Rules
+T 00000000100
+:  0 #  0 # Rules : 0
+
+$ Discard
+T 00000000111
+:  0 #  0 # Discard : 0
+
+$ Deck
+T 00000001
+:  0 #  0 # Board : 0
+
+$ Player
+T 00000010
+:  0 #  0 # Out : 0
+:  1 #  0 # Table : 1
+:  2 #  0 # Table : 2
+:  3 #  0 # Table : 3
+:  4 #  0 # Table : 4
+:  5 #  0 # Table : 5
+:  6 #  0 # Table : 6
+:  7 #  0 # Table : 7
+
+$ Faction Hand
+T 00000011
+:  1 #  0 # Player : 1
+:  2 #  0 # Player : 2
+:  3 #  0 # Player : 3
+:  4 #  0 # Player : 4
+:  5 #  0 # Player : 5
+:  6 #  0 # Player : 6
+
+$ Family Card
+T 00001
+:  1 #  0 # Deck : 0
+:  2 #  0 # Deck : 0
+:  3 #  0 # Deck : 0
+:  4 #  0 # Deck : 0
+:  5 #  0 # Deck : 0
+:  6 #  0 # Deck : 0
+:  7 #  0 # Deck : 0
+:  8 #  0 # Deck : 0
+:  9 #  0 # Deck : 0
+: 10 #  0 # Deck : 0
+: 11 #  0 # Deck : 0
+: 12 #  0 # Deck : 0
+: 13 #  0 # Deck : 0
+: 14 #  0 # Deck : 0
+: 15 #  0 # Deck : 0
+: 16 #  0 # Deck : 0
+: 17 #  0 # Deck : 0
+: 18 #  0 # Deck : 0
+: 19 #  0 # Deck : 0
+: 20 #  0 # Deck : 0

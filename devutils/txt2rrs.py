@@ -10,10 +10,10 @@ def txtstr2rrsbytes(txtstr):
 
 if __name__ == "__main__":
 
-    usage = """Usage: python txt2rrs.py [scenario.txt]"""
+    usage = """Usage: python txt2rrs.py [scenario-rrs.txt]"""
 
     if len(sys.argv) == 1:
-        txt_path = pathlib.Path("scenario.txt")
+        txt_path = pathlib.Path("scenario-rrs.txt")
     else:
         try:
             txt_path = pathlib.Path(sys.argv[1])
@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     rrsbytes = txtstr2rrsbytes(txtstr)
 
-    with txt_path.with_suffix(".rrs").open("wb") as _f:
+    with (txt_path.parent / "scenario.rrs").open("wb") as _f:
         c = _f.write(rrsbytes)
 
     assert c == len(rrsbytes)
