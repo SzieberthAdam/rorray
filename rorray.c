@@ -26,9 +26,9 @@ int main(void)
     int lastGesture = GESTURE_NONE;
 
     unsigned int scenarioDatLength = 65536;
-    unsigned char *scenarioDat = LoadFileData("scenario.dat", &scenarioDatLength);
-    unsigned int scenarioStrLength = GetFileLength("scenario.str");
-    unsigned char *scenarioStr = LoadFileData("scenario.str", &scenarioStrLength);
+    unsigned char *scenarioDat = LoadFileData("./myscn/scenario.rrd", &scenarioDatLength);
+    unsigned int scenarioStrLength = GetFileLength("./myscn/scenario.rrs");
+    unsigned char *scenarioStr = LoadFileData("./myscn/scenario.rrs", &scenarioStrLength);
 
     unsigned int j = 1;
     for (unsigned int i=1 ; i < scenarioStrLength; i++)
@@ -137,7 +137,7 @@ int main(void)
                 if ((int)scenarioDat[j] == i+1)
                 {
                     v.y += H;
-                    DrawTextEx(font, TextToUpper((char*)(scenarioStr+scenarioStrPos[6+j])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+                    DrawTextEx(font, (char*)(scenarioStr+scenarioStrPos[6+j]), v, font.baseSize*1.0f, FONTSPACING, WHITE);
                 }
             }
         }
