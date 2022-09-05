@@ -1,0 +1,56 @@
+00000000000000          NUL (Other Virtual; Null / Nowhere / None / Empty)
+00000000000001          GOD (Other Virtual; Game Itself / God (Game Master) Mode as Player Location)
+000000VVVVVVVV          GAM (Other Settings; Game Settings) 1 < VVVVVVVV
+000001 NNN VVVVV        SET (Other Settings; Player Settings)
+000010 NNN VVVVV        RUL (Other Settings; Era Specific Rules)
+0000110000  VVVV        STA (Other; Rome; State; Game State)
+0000110001 NN VV        DI6 (Other Physical; Dice)
+000011001 NNN VV        PLA (Other Physical; Player / Faction Hand)
+00001101 NNNN VV        DE1 (Other Location; Deck Pool #1)
+00001110 NNNN VV        DE2 (Other Location; Deck Pool #2)
+000011110                                                                                       ? dead senators numbered (support repopulating rome)
+000011111 00            
+000011111 01 000        BRD (Other Physical; Board)
+000011111 01 001        DIS (Other Board.Area; Discards)
+000011111 01 010        DRA (Other Board.Area; Draw Pile)
+000011111 01 011        
+000011111 01 100        LE0 (Other Board.Area.Forces0.Legion; Force Pool - Legion)
+000011111 01 101                                                                                ? veteran force pool
+000011111 01 110        FL0 (Other Board.Area.Forces0.Fleet; Force Pool - Fleet)
+000011111 01 111                                                                                ? veteran fleets / common pool / disbanded
+000011111 10 000        FRM (Other Board.Area; Forum)
+000011111 10 001        TRE (Other Board.Area; Treasury)
+000011111 10 010        UNR (Other Board.Area; Unrest)
+000011111 10 011        LA1 (Other Board.Area.Laws; Active Law Cards)
+000011111 10 100        LE1 (Other Board.Area.Forces1.Legion; Active Forces - Legion)
+000011111 10 101        VE1 (Other Board.Area.Forces1.Veteran; Active Forces - Veteran)
+000011111 10 110        FL1 (Other Board.Area.Forces1.Fleet; Active Forces - Fleet)
+000011111 10 111                                                                                ? veteran fleets / common forces / disbanded
+000011111 11 000                                                                                ? common curia / exile
+000011111 11 001        LRU (Other Board.Area.Curia; Enemy Leaders without Matching War)
+000011111 11 010        REP (Other Board.Area.Curia; Repopulating Rome)
+000011111 11 011        DES (Other Board.Area.Curia; Destroyed Concessions)
+000011111 11 100        INA (Other Board.Area.Curia.Wars; Inactive Wars)
+000011111 11 101        IMM (Other Board.Area.Curia.Wars; Imminent Wars / Time Delayed Wars)
+000011111 11 110        UNP (Other Board.Area.Curia.Wars; Unprosecuted Wars)
+000011111 11 111        ACT (Other Board.Area.Curia.Wars; Active Wars)
+0001 NNNNNNNN VV        TAL (Token; Talent)
+001000000 NNN VV        BIL (Token; Land Bill)
+0010001                        
+001001 NNNNNN VV        MOR (Token; Mortality Chit)
+001010 NNNNN VVV        LEG (Token; Legion)
+001011 NNNNN VVV        FLE (Token; Fleet)
+00110                        
+00111 NNNNNN VVV        EV1 (Gray/Pink Card; Event (Gray/Pink))
+0111 NNNNNN VVVV        PRV (Blue Card; Province)
+100 NNNNNNN VVVV        INT (Red Card; Intrigue)
+101000 NNNNN VVV        CON (Red Card; Concession)
+101001 NNNNN VVV        LA0 (Red Card; Law)
+101010                        
+101011 NNNN VVVV        LR2 (Red Card; Leader (Red Card))
+10110 NNNNN VVVV        LR1 (Black Card; Leader (Black Card))
+101110                        
+101111 NNNNN VVV        EV2 (Black Card; Event (Black Card))
+110 NNNNNN VVVVV        WAR (Black Card; War)
+1110 NNNNNN VVVV        SEN (Black Card; Family Card / Senator)
+1111 NNNNNN VVVV        MAN (Red Card; Statesman)
