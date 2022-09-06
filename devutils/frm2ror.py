@@ -60,7 +60,7 @@ def frmstrpass1(frmstr):
             keynrbits = d[key][2] = sum(1 for c in keyfrm if c=="N")
             keyvalbits = d[key][3] = sum(1 for c in keyfrm if c=="V")
             assert keyidbits + keynrbits + keyvalbits == len(keyfrm)
-            keyrefaddr = d[key][0] = keyidval << (keynrbits + keyvalbits)
+            keyrefaddr = d[key][0] = (keyidval << (keynrbits + keyvalbits)) * VAL_SIZE
         elif sline.startswith("L "):
             n = str2int(sline[2:].split()[0].strip())
             keymaxn = d[key][4] = max(n, (d[key][4] or 0))
@@ -98,19 +98,19 @@ def frmstr2rorarrofbytes(*args):
         elif sline.startswith("V "):
             a = tuple(str2int(s.strip()) for s in sline[2:].split())
             n, v, val = a
-            addr = keyrefaddr + (n << keyvalbits) + v
-            b[VAL_SIZE * addr : VAL_SIZE * addr + VAL_SIZE] = divmod(val, 256)
-            # print(f'0x{VAL_SIZE * addr:0>4X} <- 0x{val:0>4X}')
+            addr = keyrefaddr + ((n << keyvalbits) + v) * VAL_SIZE
+            b[addr : addr + VAL_SIZE] = divmod(val, 256)
+            # print(f'0x{addr:0>4X} <- 0x{val:0>4X}')
         elif sline.startswith("L "):
             a = [s.strip() for s in sline[2:].split()]
             n = str2int(a[0])
-            addr = keyrefaddr + (n << keyvalbits)
+            addr = keyrefaddr + (n << keyvalbits) * VAL_SIZE
             linkkey = a[1]
             linkn = (str2int(a[2]) if len(a) == 3 else 0)
             linkrefaddr, _, _, linkvalbits, _, _ = d[linkkey]
-            linkaddr = linkrefaddr + (linkn << linkvalbits)
-            b[VAL_SIZE * addr : VAL_SIZE * addr + VAL_SIZE] = divmod(linkaddr, 256)
-            # print(f'0x{VAL_SIZE * addr:0>4X} <- 0x{linkaddr:0>4X}')
+            linkaddr = linkrefaddr + (linkn << linkvalbits) * VAL_SIZE
+            b[addr : addr + VAL_SIZE] = divmod(linkaddr, 256)
+            # print(f'0x{addr:0>4X} <- 0x{linkaddr:0>4X}')
         elif sline.startswith("S "):
             a = [s.strip() for s in sline[2:].split()]
             n = str2int(a[0])
@@ -150,6 +150,8 @@ def frmstr2rorhstr(*args):
         entitycount, keys, d, mainbytes, stringbytes = args
 
     lines = [
+        f'#define RORH_VAL_SIZE {VAL_SIZE}',
+
         f'#define RORH_MAINLENGTH {len(mainbytes)}',
         f'#define RORH_STRINGLENGTH {len(stringbytes)}',
         "",

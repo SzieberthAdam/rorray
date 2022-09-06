@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "raylib.h"
 
 #include "rorfile.h"
@@ -15,7 +17,7 @@ int main(void)
     Vector2 v;
     Vector2 touchPosition = { 0, 0 };
     //Rectangle r;
-    //char str[9999];
+    char str[9999];
 
     const int screenWidth = 1920;
     const int screenHeight = 1080;
@@ -123,7 +125,32 @@ int main(void)
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
 
         DrawFPS(screenWidth-100, 10);  
-               
+
+        int i = 1;
+        int j = 1;
+        //TextFormat(str, "V = %X", RORH_SEN_REF_ADDR);
+        sprintf(str, "%X", scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ]);
+        DrawText(str, 400, 400, 20, BLUE);
+        sprintf(str, "%X", (((RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)) >> 8));
+        DrawText(str, 400, 500, 20, BLUE);
+        sprintf(str, "%X", (unsigned char)(((RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)) >> 8));
+        DrawText(str, 500, 500, 20, BLUE);
+        sprintf(str, "%X", scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE + 1 ]);
+        DrawText(str, 400, 600, 20, BLUE);
+        sprintf(str, "%X", (unsigned char)(((RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE )) & 0xFF));
+        DrawText(str, 400, 700, 20, BLUE);
+        sprintf(str, "%X", (((unsigned short *)scenarioRoR)[RORH_SEN_REF_ADDR / 2 + (j << RORH_SEN_VAL_BITS) ]));
+        DrawText(str, 400, 800, 20, BLUE);
+        sprintf(str, "%X", RORH_SEN_REF_ADDR / 2 + (j << RORH_SEN_VAL_BITS));
+        DrawText(str, 600, 800, 20, BLUE);
+        sprintf(str, "%X", RORH_PLA_REF_ADDR / 2 + (i << RORH_PLA_VAL_BITS));
+        DrawText(str, 400, 900, 20, BLUE);
+        sprintf(str, "%X", RORH_MAINLENGTH+scenarioStrPos[RORH_SEN_STR_IDX+j]);
+        DrawText(str, 400, 1000, 20, BLUE);        
+        sprintf(str, "%X", (scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ] == (unsigned char)(((RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)) >> 8)));
+        DrawText(str, 600, 1000, 20, BLUE);      
+
+
         for (int i = 0; i < NUM_FACTIONS; i++)
         {
             v.x = factionrects[i].x + FONTSPACING;
@@ -131,14 +158,23 @@ int main(void)
             DrawRectangleRec(factionrects[i], DARKGRAY);
             int a = RORH_MAINLENGTH + scenarioStrPos[RORH_PLA_STR_IDX + i + 1];
             DrawTextEx(font, TextToUpper((char*)(scenarioRoR+a)), v, font.baseSize*1.0f, FONTSPACING, WHITE);
-            // for (int j = 0; j < 29; j++)
-            // {
-            //     if ((int)scenarioRoR[j] == i+1)
-            //     {
-            //         v.y += H;
-            //         DrawTextEx(font, (char*)(scenarioRoR+(RORH_MAINLENGTH+scenarioStrPos[RORH_SEN_STR_IDX+j])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
-            //     }
-            // }
+
+            for (int j = 0; j < RORH_SEN_MAX_N + 1; j++)
+            {
+                //if (scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ] == RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)
+                //if (unsigned short *)(scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ]) == RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE )
+                //if (((unsigned short *)scenarioRoR[RORH_SEN_REF_ADDR / 2 + (j << RORH_SEN_VAL_BITS) ]) == RORH_PLA_REF_ADDR / 2 + (i << RORH_PLA_VAL_BITS) )
+                if (
+                    ( scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ] == (unsigned char)(((RORH_PLA_REF_ADDR + ((i+1) << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)) >> 8) ) // typecast is a must!
+                    &&
+                    ( scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE + 1 ] == (unsigned char)(((RORH_PLA_REF_ADDR + ((i+1) << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE )) & 0xFF) )
+                    //(scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE + 1 ] == RORH_PLA_REF_ADDR & 0xFF)
+                )
+                {
+                    v.y += H;
+                    DrawTextEx(font, (char*)(scenarioRoR+(RORH_MAINLENGTH+scenarioStrPos[RORH_SEN_STR_IDX+j])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+                }
+            }
         }
         EndDrawing();
         //----------------------------------------------------------------------------------
