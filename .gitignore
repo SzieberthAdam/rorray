@@ -1,2 +1,3 @@
 rorray.exe
-scenario.datdbg
+devutils/scenario.ror
+devutils/rorfile.h

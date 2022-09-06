@@ -1,0 +1,2592 @@
+
+##############
+###  INFO  ###
+##############
+
+Every entities and values are represented on 2 BYTES.
+
+Entities can be physical as well as virtual.
+
+Thus, theoretically the game can have 65536 entities.
+
+Signed integer values in [−32,767, +32,767] range.
+Unsigned integer values in [0, 65,535] range.
+Values can have 16 flags.
+Mixed structures are allowed.
+
+LSB (least significant bit) 0 bit numbering: FEDCBA98.76543210
+
+Low 12 bits (BA9876543210) contains the Entity ID.
+
+High 4 bits (FEDC) represents:
+    - if 0000 then the entity itself which you can think of as
+      item and/or location.
+    - otherwise an entity variable
+
+Every change in the game are represented by 2 x 2 = 4 BYTES.
+
+Movements: entity (2) to entity (2)
+New value: entity variable (2) is given a new value (2)
+
+
+
+##################
+###  ENTITIES  ###
+##################
+
+Bits BA represent the entity's main type:
+    - 00 : non-card
+    - 01 : other card
+    - 10 : red card
+    - 11 : black card
+
+
+
+=== non-card ===
+================
+
+Bit 98 represent:
+    - 00 : Virtual
+    - 01 : Virtual
+    - 10 : Physical Game Components
+    - 11 : Physical Markers / Chits
+
+
+--- virtual ---
+    - Settings
+
+--- Physical Game Components ---
+
+    - 0 : Box
+    - 1 : Board
+        - Forum
+        - Active Wars
+        - Unprosecuted Wars
+        - Imminent Wars
+        - Draw Pile (multiple in serial)
+        - Discard Pile
+        - Inactive Wars
+        - Curia
+            - Curia, Enemy Leaders
+            - Curia, Repopulating Rome
+            - Curia, Destroyed Concessions
+        - Force Pool
+        - Available Forces
+            - Legion
+            - Fleet
+            - Veteran
+        - Laws
+        - Land Bills (I; II, II; III, III, III)
+        - State Treasury
+        - Unrest Level
+    - 2 : Faction Hand (8)
+    - 3 : Dice
+    - 4 : Talent
+
+--- Physical Markers / Chits ---
+    - 25 Legion (Regular+Veteran)
+    - 25 Fleet
+    - 11 Major Office
+
+=== other card ===
+==================
+
+Bits 98 represent other card type:
+    - 00 : Province
+    - 10 : Event
+
+
+-- Province --
+
+Bits 76 are always 00.
+Bits 543210 represent Province ID.
+Bit 5 represent undeveloped (0) / developed (1) version.
+
+00000100.00000001 (0x0401) : Cisalpine Gaul
+00000100.00000010 (0x0402) : Further Spain
+00000100.00000011 (0x0403) : Illyricum
+00000100.00000100 (0x0404) : Nearer Spain
+00000100.00000101 (0x0405) : Sardinia-Corsica
+00000100.00000110 (0x0406) : Sicily
+00000100.00000111 (0x0407) : Africa
+00000100.00001000 (0x0408) : Asia
+00000100.00001001 (0x0409) : Cilicia-Cyprus
+00000100.00001010 (0x040A) : Greece
+00000100.00001011 (0x040B) : Narbonese Gaul
+00000100.00001100 (0x040C) : Bithynia
+00000100.00001101 (0x040D) : Crete-Cyrene
+00000100.00001110 (0x040E) : Syria
+00000100.00001111 (0x040F) : Transalpine Gaul
+
+00000100.00100001 (0x0421) : Cisalpine Gaul
+00000100.00100010 (0x0422) : Further Spain
+00000100.00100011 (0x0423) : Illyricum
+00000100.00100100 (0x0424) : Nearer Spain
+00000100.00100101 (0x0425) : Sardinia-Corsica
+00000100.00100110 (0x0426) : Sicily
+00000100.00100111 (0x0427) : Africa
+00000100.00101000 (0x0428) : Asia
+00000100.00101001 (0x0429) : Cilicia-Cyprus
+00000100.00101010 (0x042A) : Greece
+00000100.00101011 (0x042B) : Narbonese Gaul
+00000100.00101100 (0x042C) : Bithynia-Pontus
+00000100.00101101 (0x042D) : Crete-Cyrene
+00000100.00101110 (0x042E) : Syria
+00000100.00101111 (0x042F) : Transalpine Gaul
+00000100.00110000 (0x0430) : Egypt
+
+
+-- Event --
+
+Bits 43210 represent Event ID.
+Bits 65 represent seriousness. For most events this value is 0 for gray/front)
+    and 1 for pink/back version of cards. However, the results of the State of
+    the Republic speech are also represented here as special events and the
+    unique ones there are effectively some more serious versions of certain card
+    events.
+
+00000110.00000001 (0x0601) : Ally Deserts
+00000110.00000010 (0x0602) : Allied Enthusiasm
+00000110.00000011 (0x0603) : Barbarian Raids
+00000110.00000100 (0x0604) : Drought
+00000110.00000101 (0x0605) : Enemy Leader Dies
+00000110.00000110 (0x0606) : Enemy's Ally Deserts
+00000110.00000111 (0x0607) : Epidemic
+00000110.00001000 (0x0608) : Evil Omens
+00000110.00001001 (0x0609) : Internal Disorder
+00000110.00001010 (0x060A) : Manpower Shortage
+00000110.00001011 (0x060B) : Mob Violence
+00000110.00001100 (0x060C) : Natural Disaster
+00000110.00001101 (0x060D) : New Alliance
+00000110.00001110 (0x060E) : Pretender Emerges
+00000110.00001111 (0x060F) : Refuge
+00000110.00010000 (0x0610) : Rhodian Maritime Alliance
+00000110.00010001 (0x0611) : Storm at Sea
+00000110.00010010 (0x0612) : Trial of Verres
+
+00000110.00100001 (0x0621) : Roman Auxiliaries Desert
+00000110.00100010 (0x0622) : Extreme Allied Enthusiasm
+00000110.00100011 (0x0623) : Barbarian Raids Increase
+00000110.00100100 (0x0624) : Severe Drought
+00000110.00100101 (0x0625) : Enemy Sues for Peace
+00000110.00100110 (0x0626) : Enemy Mercenaries Desert
+00000110.00100111 (0x0627) : Foreign Epidemic
+00000110.00101000 (0x0628) : More Evil Omens
+00000110.00101001 (0x0629) : Increased Internal Disorder
+00000110.00101010 (0x062A) : Extreme Manpower Shortage
+00000110.00101011 (0x062B) : More Mob Violence
+00000110.00101100 (0x062C) : Widespread Natural Disaster
+00000110.00101101 (0x062D) : Another New Alliance
+00000110.00101110 (0x062E) : Pretender Victorious
+00000110.00101111 (0x062F) : Rise from Refuge
+00000110.00110000 (0x0630) : Increased Rhodian Involvemnent
+00000110.00110001 (0x0631) : Another Storm at Sea
+00000110.00110010 (0x0632) : Another Corruption Trial
+
+00000110.01001010 (0x064A) : No Recruitment
+00000110.01001011 (0x064B) : Senate Attacked
+00000110.01101011 (0x066B) : People Revolt
+
+
+=== red card ===
+================
+
+Bits 98 represent red card type:
+    - 00 : Concession
+    - 01 : Intrigue
+    - 10 : Law
+    - 11 : Statesman
+
+
+-- Concession --
+
+00001000.00000001 (0x0801) : Tax Farmer 1
+00001000.00000010 (0x0802) : Tax Farmer 2
+00001000.00000011 (0x0803) : Tax Farmer 3
+00001000.00000100 (0x0804) : Tax Farmer 4
+00001000.00000101 (0x0805) : Tax Farmer 5
+00001000.00000110 (0x0806) : Tax Farmer 6
+00001000.00000111 (0x0807) : Armaments
+00001000.00001000 (0x0808) : Egyptian Grain
+00001000.00001001 (0x0809) : Harbor Fees
+00001000.00001010 (0x080A) : Land Comissioner
+00001000.00001011 (0x080B) : Mining
+00001000.00001100 (0x080C) : Ship Building
+00001000.00001101 (0x080D) : Sicilian Grain
+
+
+-- Intrigue --
+
+Note: Gaps were added to make space for extra cards of same kind (house rule).
+
+00001001.00000001 (0x0901) : Tribune 1
+00001001.00000010 (0x0902) : Tribune 2
+00001001.00000011 (0x0903) : Tribune 3
+00001001.00000100 (0x0904) : Tribune 4
+00001001.00000101 (0x0905) : Tribune 5
+00001001.00000110 (0x0906) : Tribune 6
+00001001.00000111 (0x0907) : Tribune 7
+00001001.00001000 (0x0908) : Tribune 8
+00001001.00001001 (0x0909) : Tribune 9
+00001001.00001010 (0x090A) : Tribune 10
+00001001.00001011 (0x090B) : Tribune 11
+00001001.00001100 (0x090C) : Tribune 12
+00001001.00001101 (0x090D) : Tribune 13
+00001001.00001110 (0x090E) : Tribune 14
+00001001.00001111 (0x090F) : Tribune 15
+00001001.00010000 (0x0910) : Tribune 16
+00001001.00010001 (0x0911) : Tribune 17
+00001001.00010010 (0x0912) : Tribune 18
+00001001.00010011 (0x0913) : Tribune 19
+00001001.00010100 (0x0914) : Tribune 20
+00001001.00010101 (0x0915) : Tribune 21
+00001001.00010110 (0x0916) : Tribune 22
+00001001.00010111 (0x0917) : Tribune 23
+00001001.00100001 (0x0921) : Assassin 1
+00001001.00100010 (0x0922) : Assassin 2
+00001001.00100011 (0x0923) : Assassin 3
+00001001.00100100 (0x0924) : Assassin 4
+00001001.00100101 (0x0925) : Assassin 5
+00001001.00100110 (0x0926) : Assassin 6
+00001001.00100111 (0x0927) : Assassin 7
+00001001.00110001 (0x0931) : Influence Peddling 1
+00001001.00110010 (0x0932) : Influence Peddling 2
+00001001.00110011 (0x0933) : Influence Peddling 3
+00001001.00110100 (0x0934) : Influence Peddling 4
+00001001.01000001 (0x0941) : Murder of a Tribune 1
+00001001.01000010 (0x0942) : Murder of a Tribune 2
+00001001.01000011 (0x0943) : Murder of a Tribune 3
+00001001.01000100 (0x0944) : Murder of a Tribune 4
+00001001.01010001 (0x0951) : Secret Bodyguard 1
+00001001.01010010 (0x0952) : Secret Bodyguard 2
+00001001.01010011 (0x0953) : Secret Bodyguard 3
+00001001.01010100 (0x0954) : Secret Bodyguard 4
+00001001.01010101 (0x0955) : Secret Bodyguard 5
+00001001.01100000 (0x0960) : Blackmail
+00001001.01101001 (0x0969) : Graft 1
+00001001.01101010 (0x096A) : Graft 2
+00001001.01111000 (0x0978) : Mob Incited to Violence
+00001001.10000000 (0x0980) : Open Bodyguard
+00001001.10001000 (0x0988) : Proscription
+00001001.10010000 (0x0990) : Seduction
+00001001.10011000 (0x0998) : Circus Maximus
+00001001.10100000 (0x09A0) : Marriage
+00001001.10101001 (0x09A9) : Scandal 1
+00001001.10101010 (0x09AA) : Scandal 2
+00001001.10110000 (0x09B0) : Spolia Opima
+00001001.11110000 (0x09F0) : Appian Way (312 BC – 308 BC)
+00001001.11110001 (0x09F1) : Cleopatra VII (69 BC – 30 BC)
+00001001.11110010 (0x09F2) : Juba I (60 BC – 46 BC)
+00001001.11110011 (0x09F3) : The Ultimate Decree (52 BC)
+00001001.11110100 (0x09F4) : Ariobarzanes III (51 BC – 42 BC)
+00001001.11110101 (0x09F5) : Assassination Conspiracy (44 BC)
+00001001.11110110 (0x09F6) : Annexation of Egypt (30 BC)
+
+-- Law --
+
+00001010.00000000 (0x0A00) : Acilian Law
+00001010.00000001 (0x0A01) : Calpurnian Law
+00001010.00000010 (0x0A02) : Servilian Law
+00001010.00000011 (0x0A03) : Military Reforms
+00001010.00000100 (0x0A04) : Tradition Erodes
+00001010.00000101 (0x0A05) : Julian Law
+00001010.00000110 (0x0A06) : Plautian-Papirian Law
+00001010.00000111 (0x0A07) : Gabinian Law
+00001010.00001000 (0x0A08) : Manilian Law
+00001010.00001001 (0x0A09) : Vatinian Law
+00001010.00001010 (0x0A0A) : Military Command
+
+
+-- Statesman --
+
+00001011.00000000 (0x0B00) : [#xA] Military Leader
+00001011.00000100 (0x0B04) : [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+00001011.00000101 (0x0B05) : [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+00001011.00000111 (0x0B07) : [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+00001011.00001000 (0x0B08) : [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+00001011.00010000 (0x0B10) : [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+00001011.00010100 (0x0B14) : [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+00001011.00011100 (0x0B1C) : [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+00001011.00100000 (0x0B20) : [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+00001011.00101000 (0x0B28) : [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+00001011.00101010 (0x0B2A) : [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+00001011.01001000 (0x0B48) : [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+00001011.01001001 (0x0B49) : [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+00001011.01001100 (0x0B4C) : [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+00001011.01001101 (0x0B4D) : [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+00001011.01010100 (0x0B54) : [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+00001011.01011000 (0x0B58) : [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+00001011.01011001 (0x0B59) : [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+00001011.01011100 (0x0B5C) : [#23A] Publius Popillius Laenas (2nd century BC)
+00001011.01100000 (0x0B60) : [#24A] Spurius Cassius Viscellinus (5th century BC)
+00001011.01100100 (0x0B64) : [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+00001011.01100101 (0x0B65) : [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+00001011.01101000 (0x0B68) : [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+00001011.01101100 (0x0B6C) : [#27A] Gaius Marius (157 BC – 86 BC)
+00001011.01110000 (0x0B70) : [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+00001011.01110100 (0x0B74) : [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+00001011.01110101 (0x0B75) : [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+00001011.01111000 (0x0B78) : [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+00001011.10000000 (0x0B80) : [#32A] Marcus Antonius (83 BC – 30 BC)
+
+
+=== black card ===
+==================
+
+Bits 98 represent black card type:
+    - 00 : War / Revolt
+    - 01 : Enemy Leader
+    - 10 : Event
+    - 11 : Family Card
+
+
+-- War / Revolt --
+
+Note: Numbering follows chronological order.
+
+00001100.00000001 (0x0C01) : 1st Latin War (499 BC – 493 BC)
+00001100.00000010 (0x0C02) : Volscian War (c. 494 BC – 455 BC)
+00001100.00000011 (0x0C03) : Aequian War (c. 494 BC – 455 BC)
+00001100.00000100 (0x0C04) : Veientine War (483 BC – 435 BC)
+00001100.00000101 (0x0C05) : Siege of Veii (406 BC – 396 BC)
+00001100.00000110 (0x0C06) : Tarquinian War (358 BC – 351 BC)
+00001100.00000111 (0x0C07) : 1st Samnite War (343 BC – 341 BC)
+00001100.00001000 (0x0C08) : 2nd Latin War (340 BC – 338 BC)
+00001100.00001001 (0x0C09) : 2nd Samnite War (327 BC – 304 BC)
+00001100.00001010 (0x0C0A) : 3rd Samnite War (298 BC – 290 BC)
+00001100.00001011 (0x0C0B) : Pyrrhic War (280 BC – 272 BC)
+00001100.00001100 (0x0C0C) : 1st Punic War (264 BC – 241 BC)
+00001100.00001101 (0x0C0D) : 1st Illyrian War (229 BC – 228 BC)
+00001100.00001110 (0x0C0E) : 1st Gallic War (225 BC – 222 BC)
+00001100.00001111 (0x0C0F) : 2nd Illyrian War (220 BC – 219 BC)
+00001100.00010000 (0x0C10) : 2nd Punic War (218 BC – 201 BC)
+00001100.00010001 (0x0C11) : 1st Macedonian War (215 BC – 205 BC)
+00001100.00010010 (0x0C12) : 2nd Macedonian War (200 BC – 196 BC)
+00001100.00010011 (0x0C13) : Syrian War (192 BC – 189 BC)
+00001100.00010100 (0x0C14) : 3rd Macedonian War (171 BC – 167 BC)
+00001100.00010101 (0x0C15) : Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+00001100.00010110 (0x0C16) : 3rd Punic War (149 BC – 146 BC)
+00001100.00010111 (0x0C17) : 4th Macedonian War (149 BC – 148 BC)
+00001100.00011000 (0x0C18) : Numantine War (143 BC – 133 BC)
+00001100.00011001 (0x0C19) : 1st Sicilian Slave Revolt (135 BC – 132 BC)
+00001100.00011010 (0x0C1A) : Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+00001100.00011011 (0x0C1B) : Jugurthine War (111 BC – 105 BC)
+00001100.00011100 (0x0C1C) : 1st Cilician Pirates (104 BC – 101 BC)
+00001100.00011101 (0x0C1D) : 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+00001100.00011110 (0x0C1E) : Social War (90 BC – 88 BC)
+00001100.00011111 (0x0C1F) : 1st Mithridatic War (89 BC – 85 BC)
+00001100.00100000 (0x0C20) : 2nd Mithridatic War (83 BC – 82 BC)
+00001100.00100001 (0x0C21) : Sertorian Revolt (77 BC – 71 BC)
+00001100.00100010 (0x0C22) : 3rd Mithridatic War (74 BC – 63 BC)
+00001100.00100011 (0x0C23) : Gladiator Slave Revolt (73 BC – 71 BC)
+00001100.00100100 (0x0C24) : 2nd Cilician Pirates (67 BC – 61 BC)
+00001100.00100101 (0x0C25) : 2nd Gallic War (58 BC – 56 BC)
+00001100.00100110 (0x0C26) : Invasion of Britain (55 BC – 54 BC)
+00001100.00100111 (0x0C27) : Invasion of Germany (55 BC)
+00001100.00101000 (0x0C28) : Parthian War (53 BC)
+00001100.00101001 (0x0C29) : 3rd Gallic War (52 BC – 51 BC)
+00001100.00101010 (0x0C2A) : Alexandrine War (48 BC – 47 BC)
+00001100.00101011 (0x0C2B) : 4th Mithridatic War (Pontic War) (47 BC)
+00001100.00101100 (0x0C2C) : Moesian War (29 BC)
+00001100.00101101 (0x0C2D) : Invasion of Partha (36 BC)
+00001100.00101110 (0x0C2E) : Dalmatian War (35 BC – 34 BC)
+00001100.00101111 (0x0C2F) : Cantabrian War (28 BC – 19 BC)
+00001100.00110000 (0x0C30) : Invasion of Arabia (24 BC)
+
+
+-- Enemy Leader --
+
+00001101.00000001 (0x0D01) : Lucius Tarquinius Superbus (? – 495 BC)
+00001101.00000010 (0x0D02) : Gaius Marcius Coriolanus (? – 487 BC)
+00001101.00000011 (0x0D03) : Pyrrhus (c. 319 BC – 272 BC)
+00001101.00000100 (0x0D04) : Hamilcar (c. 275 BC – 229 BC)
+00001101.00000101 (0x0D05) : Hannibal (247 BC – 183 BC)
+00001101.00000110 (0x0D06) : Antiochus III (c. 242 BC – 187 BC)
+00001101.00000111 (0x0D07) : Philip V (238 BC – 179 BC)
+00001101.00001000 (0x0D08) : Viriathus (c. 180 BC – 139 BC)
+00001101.00001001 (0x0D09) : Mithridates VI (120 BC – 63 BC)
+00001101.00001010 (0x0D0A) : Spartacus (c. 111 BC – 71 BC)
+00001101.00001011 (0x0D0B) : Vercingetorix (82 BC – 46 BC)
+
+
+-- Event --
+
+00001110.00000001 (0x0E01) : 1st Plebian Secession (494 BC)
+00001110.00000010 (0x0E02) : Agrarian Unrest (485 BC)
+00001110.00000011 (0x0E03) : The Twelve Tables (450 BC)
+00001110.00000100 (0x0E04) : 2nd Plebian Secession (449 BC)
+00001110.00000101 (0x0E05) : Spurius Maelius (439 BC)
+00001110.00000110 (0x0E06) : Sack of Rome (390 BC)
+00001110.00000111 (0x0E07) : Plebian Revolt (287 BC)
+00001110.00001000 (0x0E08) : Gallic Raids (3rd century BC)
+00001110.00001001 (0x0E09) : Pergamene Bequest (133 BC)
+00001110.00001010 (0x0E0A) : Ptolemy Apion Bequest (96 BC)
+00001110.00001011 (0x0E0B) : Bithynian Bequest (75 BC)
+00001110.00001100 (0x0E0C) : 2nd Catiline Conspiracy (63 BC)
+00001110.00001101 (0x0E0D) : Mob Riots (53 BC)
+00001110.00001110 (0x0E0E) : Annexation of Egypt (30 BC)
+00001110.00001111 (0x0E0F) : Civil Unrest
+00001110.00010000 (0x0E10) : Republic Restored
+
+
+-- Family Card --
+
+00001111.00000001 (0x0F01) : [#1] Cornelius
+00001111.00000010 (0x0F02) : [#2] Fabius
+00001111.00000011 (0x0F03) : [#3] Valerius
+00001111.00000100 (0x0F04) : [#4] Julius
+00001111.00000101 (0x0F05) : [#5] Claudius
+00001111.00000110 (0x0F06) : [#6] Manlius
+00001111.00000111 (0x0F07) : [#7] Fulvius
+00001111.00001000 (0x0F08) : [#8] Furius
+00001111.00001001 (0x0F09) : [#9] Aurelius
+00001111.00001010 (0x0F0A) : [#10] Junius
+00001111.00001011 (0x0F0B) : [#11] Papirius
+00001111.00001100 (0x0F0C) : [#12] Acilius
+00001111.00001101 (0x0F0D) : [#13] Flaminius
+00001111.00001110 (0x0F0E) : [#14] Aelius
+00001111.00001111 (0x0F0F) : [#15] Sulpicius
+00001111.00010000 (0x0F10) : [#16] Calpurnius
+00001111.00010001 (0x0F11) : [#17] Plautius
+00001111.00010010 (0x0F12) : [#18] Quinctius
+00001111.00010011 (0x0F13) : [#19] Aemilius
+00001111.00010100 (0x0F14) : [#20] Terentius
+00001111.00010101 (0x0F15) : [#21] Servilius
+00001111.00010110 (0x0F16) : [#22] Porcius
+00001111.00010111 (0x0F17) : [#23] Popillius
+00001111.00011000 (0x0F18) : [#24] Cassius
+00001111.00011001 (0x0F19) : [#25] Sempronius
+00001111.00011010 (0x0F1A) : [#26] Octavius
+00001111.00011011 (0x0F1B) : [#27] Marius
+00001111.00011100 (0x0F1C) : [#28] Tullius
+00001111.00011101 (0x0F1D) : [#29] Licinius
+00001111.00011110 (0x0F1E) : [#30] Pompeius
+00001111.00011111 (0x0F1F) : [#31] Domitius
+00001111.00100000 (0x0F20) : [#32] Antonius
+00001111.00100001 (0x0F21) : [#33] Caecilius
+00001111.00100010 (0x0F22) : [#34] Marcius
+
+
+
+################
+###  VALUES  ###
+################
+
+
+-- Province --
+
+= FORMAT:
+
+00010100.xxxxxxxx : CONST Flags
+    - Bit 0==1 if Frontier
+00100100.xxxxxxxx : CONST Income
+    - Bits FED : UINT Personal Income roll dice count + 4
+    - Bits CBA98 : UINT Personal Income bonus + 7
+    - Bits 765 : UINT State Income roll dice count + 4
+    - Bits 43210 : UINT State Income bonus + 7
+00110100.xxxxxxxx : CONST
+    - Bits 76543210 : CONST UINT State Taxes
+01000100.xxxxxxxx : CONST Base Strength
+    - Bits FEDCBA98 : UINT Base Land Strength
+    - Bits 76543210 : UINT Base Fleet Strength
+01010100.xxxxxxxx : CONST Maximum Forces
+    - Bits FEDCBA98 : UINT Maximum Armies
+    - Bits 76543210 : UINT Maximum Fleets
+10010100.xxxxxxxx : Flags
+    - Bit 0==1 if Revolt
+11100100.xxxxxxxx : Governor
+    - Bits FEDC : UINT Term
+    - Bits BA98.76543210 : Governor Entity ID
+10110100.xxxxxxxx : Allied with War
+    - Bits BA98.76543210 : War Entity ID
+11010100.xxxxxxxx : Forces
+    - Bits FEDCBA98 : UINT Armies
+    - Bits 76543210 : UINT Fleets
+11110100.xxxxxxxx : Rebel Reinforcement
+    - Bits FEDC==0x1 if reinforcement is _in transit_
+    - Bits FEDC==0xA if reinforcement has been _added_ to the main rebel army
+    - Bits BA98.76543210 : Rebel Entity ID
+
+= DEFAULTS:
+
+00010100.00000001 (0x1401) = 0x0001 : CONST Flags, Cisalpine Gaul
+00010100.00000010 (0x1402) = 0x0001 : CONST Flags, Further Spain
+00010100.00000011 (0x1403) = 0x0001 : CONST Flags, Illyricum
+00010100.00000100 (0x1404) = 0x0001 : CONST Flags, Nearer Spain
+00010100.00000101 (0x1405) = 0x0000 : CONST Flags, Sardinia-Corsica
+00010100.00000110 (0x1406) = 0x0000 : CONST Flags, Sicily
+00010100.00000111 (0x1407) = 0x0000 : CONST Flags, Africa
+00010100.00001000 (0x1408) = 0x0000 : CONST Flags, Asia
+00010100.00001001 (0x1409) = 0x0000 : CONST Flags, Cilicia-Cyprus
+00010100.00001010 (0x140A) = 0x0001 : CONST Flags, Greece
+00010100.00001011 (0x140B) = 0x0000 : CONST Flags, Narbonese Gaul
+00010100.00001100 (0x140C) = 0x0000 : CONST Flags, Bithynia
+00010100.00001101 (0x140D) = 0x0001 : CONST Flags, Crete-Cyrene
+00010100.00001110 (0x140E) = 0x0000 : CONST Flags, Syria
+00010100.00001111 (0x140F) = 0x0001 : CONST Flags, Transalpine Gaul
+
+00000100.00100001 (0x0421) = 0x0001 : CONST Flags, Cisalpine Gaul
+00000100.00100010 (0x0422) = 0x0001 : CONST Flags, Further Spain
+00000100.00100011 (0x0423) = 0x0001 : CONST Flags, Illyricum
+00000100.00100100 (0x0424) = 0x0001 : CONST Flags, Nearer Spain
+00000100.00100101 (0x0425) = 0x0000 : CONST Flags, Sardinia-Corsica
+00000100.00100110 (0x0426) = 0x0000 : CONST Flags, Sicily
+00000100.00100111 (0x0427) = 0x0000 : CONST Flags, Africa
+00000100.00101000 (0x0428) = 0x0000 : CONST Flags, Asia
+00000100.00101001 (0x0429) = 0x0000 : CONST Flags, Cilicia-Cyprus
+00000100.00101010 (0x042A) = 0x0001 : CONST Flags, Greece
+00000100.00101011 (0x042B) = 0x0000 : CONST Flags, Narbonese Gaul
+00000100.00101100 (0x042C) = 0x0000 : CONST Flags, Bithynia
+00000100.00101101 (0x042D) = 0x0001 : CONST Flags, Crete-Cyrene
+00000100.00101110 (0x042E) = 0x0000 : CONST Flags, Syria
+00000100.00101111 (0x042F) = 0x0001 : CONST Flags, Transalpine Gaul
+00000100.00110000 (0x0430) = 0x0000 : CONST Flags, Egypt
+
+00100100.00000001 (0x2401) = 0x5656 : CONST Income, Cisalpine Gaul
+00100100.00000010 (0x2402) = 0x5456 : CONST Income, Further Spain
+00100100.00000011 (0x2403) = 0x5436 : CONST Income, Illyricum
+00100100.00000100 (0x2404) = 0x5538 : CONST Income, Nearer Spain
+00100100.00000101 (0x2405) = 0x5236 : CONST Income, Sardinia-Corsica
+00100100.00000110 (0x2406) = 0x5765 : CONST Income, Sicily
+00100100.00000111 (0x2407) = 0x5663 : CONST Income, Africa
+00100100.00001000 (0x2408) = 0x5964 : CONST Income, Asia
+00100100.00001001 (0x2409) = 0x5337 : CONST Income, Cilicia-Cyprus
+00100100.00001010 (0x240A) = 0x5865 : CONST Income, Greece
+00100100.00001011 (0x240B) = 0x5454 : CONST Income, Narbonese Gaul
+00100100.00001100 (0x240C) = 0x5355 : CONST Income, Bithynia
+00100100.00001101 (0x240D) = 0x5655 : CONST Income, Crete-Cyrene
+00100100.00001110 (0x240E) = 0x5657 : CONST Income, Syria
+00100100.00001111 (0x240F) = 0x5352 : CONST Income, Transalpine Gaul
+
+00100100.00100001 (0x2421) = 0x5A66 : CONST Income, Cisalpine Gaul
+00100100.00100010 (0x2422) = 0x5656 : CONST Income, Further Spain
+00100100.00100011 (0x2423) = 0x5757 : CONST Income, Illyricum
+00100100.00100100 (0x2424) = 0x5958 : CONST Income, Nearer Spain
+00100100.00100101 (0x2425) = 0x5638 : CONST Income, Sardinia-Corsica
+00100100.00100110 (0x2426) = 0x5B59 : CONST Income, Sicily
+00100100.00100111 (0x2427) = 0x5A58 : CONST Income, Africa
+00100100.00101000 (0x2428) = 0x5D6A : CONST Income, Asia
+00100100.00101001 (0x2429) = 0x573A : CONST Income, Cilicia-Cyprus
+00100100.00101010 (0x242A) = 0x6669 : CONST Income, Greece
+00100100.00101011 (0x242B) = 0x5858 : CONST Income, Narbonese Gaul
+00100100.00101100 (0x242C) = 0x5959 : CONST Income, Bithynia-Pontus
+00100100.00101101 (0x242D) = 0x5859 : CONST Income, Crete-Cyrene
+00100100.00101110 (0x242E) = 0x5A57 : CONST Income, Syria
+00100100.00101111 (0x242F) = 0x5758 : CONST Income, Transalpine Gaul
+00100100.00110000 (0x2430) = 0x5E6A : CONST Income, Egypt
+
+00110100.00000001 (0x3401) = 0x000F : CONST UINT State Taxes, Cisalpine Gaul
+00110100.00000010 (0x3402) = 0x000A : CONST UINT State Taxes, Further Spain
+00110100.00000011 (0x3403) = 0x0005 : CONST UINT State Taxes, Illyricum
+00110100.00000100 (0x3404) = 0x000A : CONST UINT State Taxes, Nearer Spain
+00110100.00000101 (0x3405) = 0x001E : CONST UINT State Taxes, Sardinia-Corsica
+00110100.00000110 (0x3406) = 0x0014 : CONST UINT State Taxes, Sicily
+00110100.00000111 (0x3407) = 0x0023 : CONST UINT State Taxes, Africa
+00110100.00001000 (0x3408) = 0x000A : CONST UINT State Taxes, Asia
+00110100.00001001 (0x3409) = 0x001E : CONST UINT State Taxes, Cilicia-Cyprus
+00110100.00001010 (0x340A) = 0x000A : CONST UINT State Taxes, Greece
+00110100.00001011 (0x340B) = 0x000A : CONST UINT State Taxes, Narbonese Gaul
+00110100.00001100 (0x340C) = 0x000F : CONST UINT State Taxes, Bithynia
+00110100.00001101 (0x340D) = 0x0014 : CONST UINT State Taxes, Crete-Cyrene
+00110100.00001110 (0x340E) = 0x000A : CONST UINT State Taxes, Syria
+00110100.00001111 (0x340F) = 0x000A : CONST UINT State Taxes, Transalpine Gaul
+
+00110100.00100001 (0x3421) = 0x0014 : CONST UINT State Taxes, Cisalpine Gaul
+00110100.00100010 (0x3422) = 0x000F : CONST UINT State Taxes, Further Spain
+00110100.00100011 (0x3423) = 0x000F : CONST UINT State Taxes, Illyricum
+00110100.00100100 (0x3424) = 0x000A : CONST UINT State Taxes, Nearer Spain
+00110100.00100101 (0x3425) = 0x0028 : CONST UINT State Taxes, Sardinia-Corsica
+00110100.00100110 (0x3426) = 0x001E : CONST UINT State Taxes, Sicily
+00110100.00100111 (0x3427) = 0x0032 : CONST UINT State Taxes, Africa
+00110100.00101000 (0x3428) = 0x0014 : CONST UINT State Taxes, Asia
+00110100.00101001 (0x3429) = 0x0028 : CONST UINT State Taxes, Cilicia-Cyprus
+00110100.00101010 (0x342A) = 0x0014 : CONST UINT State Taxes, Greece
+00110100.00101011 (0x342B) = 0x001E : CONST UINT State Taxes, Narbonese Gaul
+00110100.00101100 (0x342C) = 0x0014 : CONST UINT State Taxes, Bithynia-Pontus
+00110100.00101101 (0x342D) = 0x001E : CONST UINT State Taxes, Crete-Cyrene
+00110100.00101110 (0x342E) = 0x0014 : CONST UINT State Taxes, Syria
+00110100.00101111 (0x342F) = 0x0014 : CONST UINT State Taxes, Transalpine Gaul
+00110100.00110000 (0x3430) = 0x003C : CONST UINT State Taxes, Egypt
+
+01000100.00000001 (0x4401) = 0x0100 : CONST Base Strength, Cisalpine Gaul
+01000100.00000010 (0x4402) = 0x0200 : CONST Base Strength, Further Spain
+01000100.00000011 (0x4403) = 0x0200 : CONST Base Strength, Illyricum
+01000100.00000100 (0x4404) = 0x0100 : CONST Base Strength, Nearer Spain
+01000100.00000101 (0x4405) = 0x0000 : CONST Base Strength, Sardinia-Corsica
+01000100.00000110 (0x4406) = 0x0200 : CONST Base Strength, Sicily
+01000100.00000111 (0x4407) = 0x0305 : CONST Base Strength, Africa
+01000100.00001000 (0x4408) = 0x0605 : CONST Base Strength, Asia
+01000100.00001001 (0x4409) = 0x0205 : CONST Base Strength, Cilicia-Cyprus
+01000100.00001010 (0x440A) = 0x0505 : CONST Base Strength, Greece
+01000100.00001011 (0x440B) = 0x0100 : CONST Base Strength, Narbonese Gaul
+01000100.00001100 (0x440C) = 0x0205 : CONST Base Strength, Bithynia
+01000100.00001101 (0x440D) = 0x0105 : CONST Base Strength, Crete-Cyrene
+01000100.00001110 (0x440E) = 0x0405 : CONST Base Strength, Syria
+01000100.00001111 (0x440F) = 0x0300 : CONST Base Strength, Transalpine Gaul
+
+01000100.00100001 (0x4421) = 0x0200 : CONST Base Strength, Cisalpine Gaul
+01000100.00100010 (0x4422) = 0x0400 : CONST Base Strength, Further Spain
+01000100.00100011 (0x4423) = 0x0400 : CONST Base Strength, Illyricum
+01000100.00100100 (0x4424) = 0x0200 : CONST Base Strength, Nearer Spain
+01000100.00100101 (0x4425) = 0x0100 : CONST Base Strength, Sardinia-Corsica
+01000100.00100110 (0x4426) = 0x0200 : CONST Base Strength, Sicily
+01000100.00100111 (0x4427) = 0x0405 : CONST Base Strength, Africa
+01000100.00101000 (0x4428) = 0x0605 : CONST Base Strength, Asia
+01000100.00101001 (0x4429) = 0x0305 : CONST Base Strength, Cilicia-Cyprus
+01000100.00101010 (0x442A) = 0x0505 : CONST Base Strength, Greece
+01000100.00101011 (0x442B) = 0x0200 : CONST Base Strength, Narbonese Gaul
+01000100.00101100 (0x442C) = 0x0405 : CONST Base Strength, Bithynia-Pontus
+01000100.00101101 (0x442D) = 0x0205 : CONST Base Strength, Crete-Cyrene
+01000100.00101110 (0x442E) = 0x0405 : CONST Base Strength, Syria
+01000100.00101111 (0x442F) = 0x0600 : CONST Base Strength, Transalpine Gaul
+01000100.00110000 (0x4430) = 0x0307 : CONST Base Strength, Egypt
+
+01010100.00000001 (0x5401) = 0x0500 : CONST Maximum Forces, Cisalpine Gaul
+01010100.00000010 (0x5402) = 0x0500 : CONST Maximum Forces, Further Spain
+01010100.00000011 (0x5403) = 0x0500 : CONST Maximum Forces, Illyricum
+01010100.00000100 (0x5404) = 0x0500 : CONST Maximum Forces, Nearer Spain
+01010100.00000101 (0x5405) = 0x0003 : CONST Maximum Forces, Sardinia-Corsica
+01010100.00000110 (0x5406) = 0x0A05 : CONST Maximum Forces, Sicily
+01010100.00000111 (0x5407) = 0x0503 : CONST Maximum Forces, Africa
+01010100.00001000 (0x5408) = 0x0A0A : CONST Maximum Forces, Asia
+01010100.00001001 (0x5409) = 0x0003 : CONST Maximum Forces, Cilicia-Cyprus
+01010100.00001010 (0x540A) = 0x0A0A : CONST Maximum Forces, Greece
+01010100.00001011 (0x540B) = 0x0500 : CONST Maximum Forces, Narbonese Gaul
+01010100.00001100 (0x540C) = 0x0103 : CONST Maximum Forces, Bithynia
+01010100.00001101 (0x540D) = 0x0505 : CONST Maximum Forces, Crete-Cyrene
+01010100.00001110 (0x540E) = 0x0A0A : CONST Maximum Forces, Syria
+01010100.00001111 (0x540F) = 0x0500 : CONST Maximum Forces, Transalpine Gaul
+
+01010100.00100001 (0x5421) = 0x0A00 : CONST Maximum Forces, Cisalpine Gaul
+01010100.00100010 (0x5422) = 0x0A00 : CONST Maximum Forces, Further Spain
+01010100.00100011 (0x5423) = 0x0A00 : CONST Maximum Forces, Illyricum
+01010100.00100100 (0x5424) = 0x0A00 : CONST Maximum Forces, Nearer Spain
+01010100.00100101 (0x5425) = 0x0105 : CONST Maximum Forces, Sardinia-Corsica
+01010100.00100110 (0x5426) = 0x0A05 : CONST Maximum Forces, Sicily
+01010100.00100111 (0x5427) = 0x0A05 : CONST Maximum Forces, Africa
+01010100.00101000 (0x5428) = 0x0A0A : CONST Maximum Forces, Asia
+01010100.00101001 (0x5429) = 0x0105 : CONST Maximum Forces, Cilicia-Cyprus
+01010100.00101010 (0x542A) = 0x0A0A : CONST Maximum Forces, Greece
+01010100.00101011 (0x542B) = 0x0A00 : CONST Maximum Forces, Narbonese Gaul
+01010100.00101100 (0x542C) = 0x0A05 : CONST Maximum Forces, Bithynia-Pontus
+01010100.00101101 (0x542D) = 0x0A05 : CONST Maximum Forces, Crete-Cyrene
+01010100.00101110 (0x542E) = 0x0A0A : CONST Maximum Forces, Syria
+01010100.00101111 (0x542F) = 0x0A00 : CONST Maximum Forces, Transalpine Gaul
+01010100.00110000 (0x5430) = 0x080D : CONST Maximum Forces, Egypt
+
+
+-- Event --
+
+= FORMAT:
+
+00010110.00xxxxxx : CONST Flags
+    - Bit C==1 if Cumulative
+00100110.00xxxxxx : CONST TODO For Increase/Decrease Game Value
+10010110.00xxxxxx :
+    - Bits FEDC : UINT Forum Phase Counter
+    - Bit 0==1 if Active
+
+= DEFAULTS:
+
+Note (1.07.35): "Except for Epidemics, Evil Omens, Droughts, Manpower,
+    Shortages, Storms at Sea, and Mob Violence, any result matching that of a
+    pink event already in play is treated as no further effect but nonetheless
+    prevents the drawing of another Forum/Event card by that player."
+
+00010110.00000001 (0x1601) = 0x0000 : CONST Flags, Ally Deserts
+00010110.00000010 (0x1602) = 0x0000 : CONST Flags, Allied Enthusiasm
+00010110.00000011 (0x1603) = 0x0000 : CONST Flags, Barbarian Raids
+00010110.00000100 (0x1604) = 0x0000 : CONST Flags, Drought
+00010110.00000101 (0x1605) = 0x0000 : CONST Flags, Enemy Leader Dies
+00010110.00000110 (0x1606) = 0x0000 : CONST Flags, Enemy's Ally Deserts
+00010110.00000111 (0x1607) = 0x0000 : CONST Flags, Epidemic
+00010110.00001000 (0x1608) = 0x0000 : CONST Flags, Evil Omens
+00010110.00001001 (0x1609) = 0x0000 : CONST Flags, Internal Disorder
+00010110.00001010 (0x160A) = 0x0000 : CONST Flags, Manpower Shortage
+00010110.00001011 (0x160B) = 0x0000 : CONST Flags, Mob Violence
+00010110.00001100 (0x160C) = 0x0000 : CONST Flags, Natural Disaster
+00010110.00001101 (0x160D) = 0x0000 : CONST Flags, New Alliance
+00010110.00001110 (0x160E) = 0x0000 : CONST Flags, Pretender Emerges
+00010110.00001111 (0x160F) = 0x0000 : CONST Flags, Refuge
+00010110.00010000 (0x1610) = 0x0000 : CONST Flags, Rhodian Maritime Alliance
+00010110.00010001 (0x1611) = 0x0000 : CONST Flags, Storm at Sea
+00010110.00010010 (0x1612) = 0x0000 : CONST Flags, Trial of Verres
+
+00010110.00100001 (0x1621) = 0x0000 : CONST Flags, Roman Auxiliaries Desert
+00010110.00100010 (0x1622) = 0x0000 : CONST Flags, Extreme Allied Enthusiasm
+00010110.00100011 (0x1623) = 0x0000 : CONST Flags, Barbarian Raids Increase
+00010110.00100100 (0x1624) = 0x1000 : CONST Flags, Severe Drought
+00010110.00100101 (0x1625) = 0x0000 : CONST Flags, Enemy Sues for Peace
+00010110.00100110 (0x1626) = 0x0000 : CONST Flags, Enemy Mercenaries Desert
+00010110.00100111 (0x1627) = 0x1000 : CONST Flags, Foreign Epidemic
+00010110.00101000 (0x1628) = 0x1000 : CONST Flags, More Evil Omens
+00010110.00101001 (0x1629) = 0x0000 : CONST Flags, Increased Internal Disorder
+00010110.00101010 (0x162A) = 0x1000 : CONST Flags, Extreme Manpower Shortage
+00010110.00101011 (0x162B) = 0x1000 : CONST Flags, More Mob Violence
+00010110.00101100 (0x162C) = 0x0000 : CONST Flags, Widespread Natural Disaster
+00010110.00101101 (0x162D) = 0x0000 : CONST Flags, Another New Alliance
+00010110.00101110 (0x162E) = 0x0000 : CONST Flags, Pretender Victorious
+00010110.00101111 (0x162F) = 0x0000 : CONST Flags, Rise from Refuge
+00010110.00110000 (0x1630) = 0x0000 : CONST Flags, Increased Rhodian Involvemnent
+00010110.00110001 (0x1631) = 0x0000 : CONST Flags, Another Storm at Sea
+00010110.00110010 (0x1632) = 0x0000 : CONST Flags, Another Corruption Trial
+
+00010110.01001010 (0x164A) = 0x0000 : CONST Flags, No Recruitment
+00010110.01001011 (0x164B) = 0x0000 : CONST Flags, Senate Attacked
+00010110.01101011 (0x166B) = 0x0000 : CONST Flags, People Revolt
+
+
+-- Concession --
+
+= FORMAT:
+
+00011000.000xxxxx : CONST Main
+    - Bits 210 Tax Farmer destroyment value (1.09.611)
+    - Bit 4==1 if returns to Forum if depends on the exist of Land Bill(s)
+      (1.09.61)
+00101000.000xxxxx : CONST Income
+    - Bit D : FLAG BIT income multiplies per drought condition
+    - Bits BA98 : Talents immediately per Legion raised
+    - Bits 7654 : Talents immediately per Fleet raised
+    - Bits 3210 : Talents per turn
+10011000.000xxxxx : Proposal
+    - Bit C==1 if can not be proposed again during current Game Turn (1.09.61)
+    - Bits BA98.76543210 : Proposed Senator/Stateman Entity ID
+11111000.000xxxxx : Visible / Unallowed
+    - Bit 0==1 if visible for Parma faction
+    - Bit 1==1 if visible for Porta faction
+    - Bit 2==1 if visible for Corona faction
+    - Bit 3==1 if visible for Luna Crescens faction
+    - Bit 4==1 if visible for Aquila faction
+    - Bit 5==1 if visible for Manus faction
+    - Bit F==1 if Unallowed
+
+= DEFAULTS:
+
+00011000.00000001 (0x1801) = 0x0001 : CONST Main, Tax Farmer 1
+00011000.00000010 (0x1802) = 0x0002 : CONST Main, Tax Farmer 2
+00011000.00000011 (0x1803) = 0x0003 : CONST Main, Tax Farmer 3
+00011000.00000100 (0x1804) = 0x0004 : CONST Main, Tax Farmer 4
+00011000.00000101 (0x1805) = 0x0005 : CONST Main, Tax Farmer 5
+00011000.00000110 (0x1806) = 0x0006 : CONST Main, Tax Farmer 6
+00011000.00000111 (0x1807) = 0x0000 : CONST Main, Armaments
+00011000.00001000 (0x1808) = 0x0000 : CONST Main, Egyptian Grain
+00011000.00001001 (0x1809) = 0x0000 : CONST Main, Harbor Fees
+00011000.00001010 (0x180A) = 0x0010 : CONST Main, Land Comissioner
+00011000.00001011 (0x180B) = 0x0000 : CONST Main, Mining
+00011000.00001100 (0x180C) = 0x0000 : CONST Main, Ship Building
+00011000.00001101 (0x180D) = 0x0000 : CONST Main, Sicilian Grain
+
+00101000.00000001 (0x2801) = 0x0002 : CONST Income, Tax Farmer 1
+00101000.00000010 (0x2802) = 0x0002 : CONST Income, Tax Farmer 2
+00101000.00000011 (0x2803) = 0x0002 : CONST Income, Tax Farmer 3
+00101000.00000100 (0x2804) = 0x0002 : CONST Income, Tax Farmer 4
+00101000.00000101 (0x2805) = 0x0002 : CONST Income, Tax Farmer 5
+00101000.00000110 (0x2806) = 0x0002 : CONST Income, Tax Farmer 6
+00101000.00000111 (0x2807) = 0x0200 : CONST Income, Armaments
+00101000.00001000 (0x2808) = 0x2005 : CONST Income, Egyptian Grain
+00101000.00001001 (0x2809) = 0x0003 : CONST Income, Harbor Fees
+00101000.00001010 (0x280A) = 0x0003 : CONST Income, Land Comissioner
+00101000.00001011 (0x280B) = 0x0003 : CONST Income, Mining
+00101000.00001100 (0x280C) = 0x0030 : CONST Income, Ship Building
+00101000.00001101 (0x280D) = 0x2004 : CONST Income, Sicilian Grain
+
+
+-- Intrigue --
+
+= FORMAT:
+
+00011001.xxxxxxxx : CONST Flags & Era
+    - Bits EDC : Era
+    - Bit 1==1 if Pontifex Maximus cannot be elected until this Leader is discarded.
+    - Bit 0==1 if Leader
+10011001.00xxxxxx : CONST Disaster / Standoff
+    - Bits FEDC : Disaster 1 Value - 3
+    - Bits BA98 : Disaster 2 Value - 3
+    - Bits 7654 : Standoff 1 Value - 3
+    - Bits 3210 : Standoff 2 Value - 3
+10101001.00xxxxxx : CONST Matching War 1 & 2
+    - Bits DCBA98 : Matching War 1 Entity ID
+    - Bits 543210 : Matching War 2 Entity ID
+10111001.00xxxxxx : CONST Matching War 3 & 4
+    - Bits DCBA98 : Matching War 3 Entity ID
+    - Bits 543210 : Matching War 4 Entity ID
+11001001.00xxxxxx : CONST Destroys / Allows Concession 1 & 2
+    - Bits FE==11 if Destroys Concession 1
+    - Bits FE==10 if Destroys Tax Farmer Concession 1
+    - Bits FE==01 if Allows Concession 1
+    - Bits DCBA98 : Destroys Concession 1 Entity ID
+    - Bits 76==11 if Destroys Concession 2
+    - Bits 76==10 if Destroys Tax Farmer Concession 2
+    - Bits 76==01 if Allows Concession 2
+    - Bits 543210 : Destroys Concession 2 Entity ID
+11111001.xxxxxxxx : Visible
+    - Bit 0==1 if visible for Parma faction
+    - Bit 1==1 if visible for Porta faction
+    - Bit 2==1 if visible for Corona faction
+    - Bit 3==1 if visible for Luna Crescens faction
+    - Bit 4==1 if visible for Aquila faction
+    - Bit 5==1 if visible for Manus faction
+
+= DEFAULTS:
+
+00011001.00000001 (0x1901) = 0x3000 : CONST Flags & Era, Tribune 1
+00011001.00000010 (0x1902) = 0x3000 : CONST Flags & Era, Tribune 2
+00011001.00000011 (0x1903) = 0x3000 : CONST Flags & Era, Tribune 3
+00011001.00000100 (0x1904) = 0x3000 : CONST Flags & Era, Tribune 4
+00011001.00000101 (0x1905) = 0x3000 : CONST Flags & Era, Tribune 5
+00011001.00000110 (0x1906) = 0x3000 : CONST Flags & Era, Tribune 6
+00011001.00000111 (0x1907) = 0x3000 : CONST Flags & Era, Tribune 7
+00011001.00001000 (0x1908) = 0x3000 : CONST Flags & Era, Tribune 8
+00011001.00001001 (0x1909) = 0x3000 : CONST Flags & Era, Tribune 9
+00011001.00001010 (0x190A) = 0x4000 : CONST Flags & Era, Tribune 10
+00011001.00001011 (0x190B) = 0x4000 : CONST Flags & Era, Tribune 11
+00011001.00001100 (0x190C) = 0x4000 : CONST Flags & Era, Tribune 12
+00011001.00001101 (0x190D) = 0x4000 : CONST Flags & Era, Tribune 13
+00011001.00001110 (0x190E) = 0x4000 : CONST Flags & Era, Tribune 14
+00011001.00001111 (0x190F) = 0x4000 : CONST Flags & Era, Tribune 15
+00011001.00010000 (0x1910) = 0x4000 : CONST Flags & Era, Tribune 16
+00011001.00010001 (0x1911) = 0x4000 : CONST Flags & Era, Tribune 17
+00011001.00010010 (0x1912) = 0x5000 : CONST Flags & Era, Tribune 18
+00011001.00010011 (0x1913) = 0x5000 : CONST Flags & Era, Tribune 19
+00011001.00010100 (0x1914) = 0x5000 : CONST Flags & Era, Tribune 20
+00011001.00010101 (0x1915) = 0x5000 : CONST Flags & Era, Tribune 21
+00011001.00010110 (0x1916) = 0x6000 : CONST Flags & Era, Tribune 22
+00011001.00010111 (0x1917) = 0x6000 : CONST Flags & Era, Tribune 23
+00011001.00011000 (0x1918) = 0x1000 : CONST Flags & Era, Tribune 24
+00011001.00100001 (0x1921) = 0x3000 : CONST Flags & Era, Assassin 1
+00011001.00100010 (0x1922) = 0x4000 : CONST Flags & Era, Assassin 2
+00011001.00100011 (0x1923) = 0x4000 : CONST Flags & Era, Assassin 3
+00011001.00100100 (0x1924) = 0x5000 : CONST Flags & Era, Assassin 4
+00011001.00100101 (0x1925) = 0x5000 : CONST Flags & Era, Assassin 5
+00011001.00100110 (0x1926) = 0x5000 : CONST Flags & Era, Assassin 6
+00011001.00100111 (0x1927) = 0x6000 : CONST Flags & Era, Assassin 7
+00011001.00110001 (0x1931) = 0x3000 : CONST Flags & Era, Influence Peddling 1
+00011001.00110010 (0x1932) = 0x4000 : CONST Flags & Era, Influence Peddling 2
+00011001.00110011 (0x1933) = 0x5000 : CONST Flags & Era, Influence Peddling 3
+00011001.00110100 (0x1934) = 0x6000 : CONST Flags & Era, Influence Peddling 4
+00011001.01000001 (0x1941) = 0x4000 : CONST Flags & Era, Murder of a Tribune 1
+00011001.01000010 (0x1942) = 0x4000 : CONST Flags & Era, Murder of a Tribune 2
+00011001.01000011 (0x1943) = 0x5000 : CONST Flags & Era, Murder of a Tribune 3
+00011001.01000100 (0x1944) = 0x6000 : CONST Flags & Era, Murder of a Tribune 4
+00011001.01010001 (0x1951) = 0x3000 : CONST Flags & Era, Secret Bodyguard 1
+00011001.01010010 (0x1952) = 0x4000 : CONST Flags & Era, Secret Bodyguard 2
+00011001.01010011 (0x1953) = 0x4000 : CONST Flags & Era, Secret Bodyguard 3
+00011001.01010100 (0x1954) = 0x5000 : CONST Flags & Era, Secret Bodyguard 4
+00011001.01010101 (0x1955) = 0x6000 : CONST Flags & Era, Secret Bodyguard 5
+00011001.01100000 (0x1960) = 0x3000 : CONST Flags & Era, Blackmail
+00011001.01101001 (0x1969) = 0x4000 : CONST Flags & Era, Graft 1
+00011001.01101010 (0x196A) = 0x5000 : CONST Flags & Era, Graft 2
+00011001.01111000 (0x1978) = 0x4000 : CONST Flags & Era, Mob Incited to Violence
+00011001.10000000 (0x1980) = 0x5000 : CONST Flags & Era, Open Bodyguard
+00011001.10001000 (0x1988) = 0x5000 : CONST Flags & Era, Proscription
+00011001.10010000 (0x1990) = 0x3000 : CONST Flags & Era, Seduction
+00011001.10011000 (0x1998) = 0x1000 : CONST Flags & Era, Circus Maximus
+00011001.10100000 (0x19A0) = 0x1000 : CONST Flags & Era, Marriage
+00011001.10101001 (0x19A9) = 0x6000 : CONST Flags & Era, Scandal 1
+00011001.10101010 (0x19AA) = 0x1000 : CONST Flags & Era, Scandal 2
+00011001.10110000 (0x19B0) = 0x1000 : CONST Flags & Era, Spolia Opima
+00011001.11110000 (0x19F0) = 0x1000 : CONST Flags & Era, Appian Way (312 BC – 308 BC)
+00011001.11110001 (0x19F1) = 0x5001 : CONST Flags & Era, Cleopatra VII (69 BC – 30 BC)
+00011001.11110010 (0x19F2) = 0x6000 : CONST Flags & Era, Juba I (60 BC – 46 BC)
+00011001.11110011 (0x19F3) = 0x6000 : CONST Flags & Era, The Ultimate Decree (52 BC)
+00011001.11110100 (0x19F4) = 0x6000 : CONST Flags & Era, Ariobarzanes III (51 BC – 42 BC)
+00011001.11110101 (0x19F5) = 0x6000 : CONST Flags & Era, Assassination Conspiracy (44 BC)
+00011001.11110110 (0x19F6) = 0x6000 : CONST Flags & Era, Annexation of Egypt (30 BC)
+
+10001001.00000001 (0x8901) = 0x0000 : CONST Disaster, Tribune 1
+10001001.00000010 (0x8902) = 0x0000 : CONST Disaster, Tribune 2
+10001001.00000011 (0x8903) = 0x0000 : CONST Disaster, Tribune 3
+10001001.00000100 (0x8904) = 0x0000 : CONST Disaster, Tribune 4
+10001001.00000101 (0x8905) = 0x0000 : CONST Disaster, Tribune 5
+10001001.00000110 (0x8906) = 0x0000 : CONST Disaster, Tribune 6
+10001001.00000111 (0x8907) = 0x0000 : CONST Disaster, Tribune 7
+10001001.00001000 (0x8908) = 0x0000 : CONST Disaster, Tribune 8
+10001001.00001001 (0x8909) = 0x0000 : CONST Disaster, Tribune 9
+10001001.00001010 (0x890A) = 0x0000 : CONST Disaster, Tribune 10
+10001001.00001011 (0x890B) = 0x0000 : CONST Disaster, Tribune 11
+10001001.00001100 (0x890C) = 0x0000 : CONST Disaster, Tribune 12
+10001001.00001101 (0x890D) = 0x0000 : CONST Disaster, Tribune 13
+10001001.00001110 (0x890E) = 0x0000 : CONST Disaster, Tribune 14
+10001001.00001111 (0x890F) = 0x0000 : CONST Disaster, Tribune 15
+10001001.00010000 (0x8910) = 0x0000 : CONST Disaster, Tribune 16
+10001001.00010001 (0x8911) = 0x0000 : CONST Disaster, Tribune 17
+10001001.00010010 (0x8912) = 0x0000 : CONST Disaster, Tribune 18
+10001001.00010011 (0x8913) = 0x0000 : CONST Disaster, Tribune 19
+10001001.00010100 (0x8914) = 0x0000 : CONST Disaster, Tribune 20
+10001001.00010101 (0x8915) = 0x0000 : CONST Disaster, Tribune 21
+10001001.00010110 (0x8916) = 0x0000 : CONST Disaster, Tribune 22
+10001001.00010111 (0x8917) = 0x0000 : CONST Disaster, Tribune 23
+10001001.00011000 (0x8918) = 0x0000 : CONST Disaster, Tribune 24
+10001001.00100001 (0x8921) = 0x0000 : CONST Disaster, Assassin 1
+10001001.00100010 (0x8922) = 0x0000 : CONST Disaster, Assassin 2
+10001001.00100011 (0x8923) = 0x0000 : CONST Disaster, Assassin 3
+10001001.00100100 (0x8924) = 0x0000 : CONST Disaster, Assassin 4
+10001001.00100101 (0x8925) = 0x0000 : CONST Disaster, Assassin 5
+10001001.00100110 (0x8926) = 0x0000 : CONST Disaster, Assassin 6
+10001001.00100111 (0x8927) = 0x0000 : CONST Disaster, Assassin 7
+10001001.00110001 (0x8931) = 0x0000 : CONST Disaster, Influence Peddling 1
+10001001.00110010 (0x8932) = 0x0000 : CONST Disaster, Influence Peddling 2
+10001001.00110011 (0x8933) = 0x0000 : CONST Disaster, Influence Peddling 3
+10001001.00110100 (0x8934) = 0x0000 : CONST Disaster, Influence Peddling 4
+10001001.01000001 (0x8941) = 0x0000 : CONST Disaster, Murder of a Tribune 1
+10001001.01000010 (0x8942) = 0x0000 : CONST Disaster, Murder of a Tribune 2
+10001001.01000011 (0x8943) = 0x0000 : CONST Disaster, Murder of a Tribune 3
+10001001.01000100 (0x8944) = 0x0000 : CONST Disaster, Murder of a Tribune 4
+10001001.01010001 (0x8951) = 0x0000 : CONST Disaster, Secret Bodyguard 1
+10001001.01010010 (0x8952) = 0x0000 : CONST Disaster, Secret Bodyguard 2
+10001001.01010011 (0x8953) = 0x0000 : CONST Disaster, Secret Bodyguard 3
+10001001.01010100 (0x8954) = 0x0000 : CONST Disaster, Secret Bodyguard 4
+10001001.01010101 (0x8955) = 0x0000 : CONST Disaster, Secret Bodyguard 5
+10001001.01100000 (0x8960) = 0x0000 : CONST Disaster, Blackmail
+10001001.01101001 (0x8969) = 0x0000 : CONST Disaster, Graft 1
+10001001.01101010 (0x896A) = 0x0000 : CONST Disaster, Graft 2
+10001001.01111000 (0x8978) = 0x0000 : CONST Disaster, Mob Incited to Violence
+10001001.10000000 (0x8980) = 0x0000 : CONST Disaster, Open Bodyguard
+10001001.10001000 (0x8988) = 0x0000 : CONST Disaster, Proscription
+10001001.10010000 (0x8990) = 0x0000 : CONST Disaster, Seduction
+10001001.10011000 (0x8998) = 0x0000 : CONST Disaster, Circus Maximus
+10001001.10100000 (0x89A0) = 0x0000 : CONST Disaster, Marriage
+10001001.10101001 (0x89A9) = 0x0000 : CONST Disaster, Scandal 1
+10001001.10101010 (0x89AA) = 0x0000 : CONST Disaster, Scandal 2
+10001001.10110000 (0x89B0) = 0x0000 : CONST Disaster, Spolia Opima
+10001001.11110000 (0x89F0) = 0x0000 : CONST Disaster, Appian Way (312 BC – 308 BC)
+10001001.11110001 (0x89F1) = 0x1D00 : CONST Disaster, Cleopatra VII (69 BC – 30 BC)
+10001001.11110010 (0x89F2) = 0x0000 : CONST Disaster, Juba I (60 BC – 46 BC)
+10001001.11110011 (0x89F3) = 0x0000 : CONST Disaster, The Ultimate Decree (52 BC)
+10001001.11110100 (0x89F4) = 0x0000 : CONST Disaster, Ariobarzanes III (51 BC – 42 BC)
+10001001.11110101 (0x89F5) = 0x0000 : CONST Disaster, Assassination Conspiracy (44 BC)
+10001001.11110110 (0x89F6) = 0x0000 : CONST Disaster, Annexation of Egypt (30 BC)
+
+10011001.00000001 (0x9901) = 0x0000 : CONST Standoff, Tribune 1
+10011001.00000010 (0x9902) = 0x0000 : CONST Standoff, Tribune 2
+10011001.00000011 (0x9903) = 0x0000 : CONST Standoff, Tribune 3
+10011001.00000100 (0x9904) = 0x0000 : CONST Standoff, Tribune 4
+10011001.00000101 (0x9905) = 0x0000 : CONST Standoff, Tribune 5
+10011001.00000110 (0x9906) = 0x0000 : CONST Standoff, Tribune 6
+10011001.00000111 (0x9907) = 0x0000 : CONST Standoff, Tribune 7
+10011001.00001000 (0x9908) = 0x0000 : CONST Standoff, Tribune 8
+10011001.00001001 (0x9909) = 0x0000 : CONST Standoff, Tribune 9
+10011001.00001010 (0x990A) = 0x0000 : CONST Standoff, Tribune 10
+10011001.00001011 (0x990B) = 0x0000 : CONST Standoff, Tribune 11
+10011001.00001100 (0x990C) = 0x0000 : CONST Standoff, Tribune 12
+10011001.00001101 (0x990D) = 0x0000 : CONST Standoff, Tribune 13
+10011001.00001110 (0x990E) = 0x0000 : CONST Standoff, Tribune 14
+10011001.00001111 (0x990F) = 0x0000 : CONST Standoff, Tribune 15
+10011001.00010000 (0x9910) = 0x0000 : CONST Standoff, Tribune 16
+10011001.00010001 (0x9911) = 0x0000 : CONST Standoff, Tribune 17
+10011001.00010010 (0x9912) = 0x0000 : CONST Standoff, Tribune 18
+10011001.00010011 (0x9913) = 0x0000 : CONST Standoff, Tribune 19
+10011001.00010100 (0x9914) = 0x0000 : CONST Standoff, Tribune 20
+10011001.00010101 (0x9915) = 0x0000 : CONST Standoff, Tribune 21
+10011001.00010110 (0x9916) = 0x0000 : CONST Standoff, Tribune 22
+10011001.00010111 (0x9917) = 0x0000 : CONST Standoff, Tribune 23
+10011001.00011000 (0x9918) = 0x0000 : CONST Standoff, Tribune 24
+10011001.00100001 (0x9921) = 0x0000 : CONST Standoff, Assassin 1
+10011001.00100010 (0x9922) = 0x0000 : CONST Standoff, Assassin 2
+10011001.00100011 (0x9923) = 0x0000 : CONST Standoff, Assassin 3
+10011001.00100100 (0x9924) = 0x0000 : CONST Standoff, Assassin 4
+10011001.00100101 (0x9925) = 0x0000 : CONST Standoff, Assassin 5
+10011001.00100110 (0x9926) = 0x0000 : CONST Standoff, Assassin 6
+10011001.00100111 (0x9927) = 0x0000 : CONST Standoff, Assassin 7
+10011001.00110001 (0x9931) = 0x0000 : CONST Standoff, Influence Peddling 1
+10011001.00110010 (0x9932) = 0x0000 : CONST Standoff, Influence Peddling 2
+10011001.00110011 (0x9933) = 0x0000 : CONST Standoff, Influence Peddling 3
+10011001.00110100 (0x9934) = 0x0000 : CONST Standoff, Influence Peddling 4
+10011001.01000001 (0x9941) = 0x0000 : CONST Standoff, Murder of a Tribune 1
+10011001.01000010 (0x9942) = 0x0000 : CONST Standoff, Murder of a Tribune 2
+10011001.01000011 (0x9943) = 0x0000 : CONST Standoff, Murder of a Tribune 3
+10011001.01000100 (0x9944) = 0x0000 : CONST Standoff, Murder of a Tribune 4
+10011001.01010001 (0x9951) = 0x0000 : CONST Standoff, Secret Bodyguard 1
+10011001.01010010 (0x9952) = 0x0000 : CONST Standoff, Secret Bodyguard 2
+10011001.01010011 (0x9953) = 0x0000 : CONST Standoff, Secret Bodyguard 3
+10011001.01010100 (0x9954) = 0x0000 : CONST Standoff, Secret Bodyguard 4
+10011001.01010101 (0x9955) = 0x0000 : CONST Standoff, Secret Bodyguard 5
+10011001.01100000 (0x9960) = 0x0000 : CONST Standoff, Blackmail
+10011001.01101001 (0x9969) = 0x0000 : CONST Standoff, Graft 1
+10011001.01101010 (0x996A) = 0x0000 : CONST Standoff, Graft 2
+10011001.01111000 (0x9978) = 0x0000 : CONST Standoff, Mob Incited to Violence
+10011001.10000000 (0x9980) = 0x0000 : CONST Standoff, Open Bodyguard
+10011001.10001000 (0x9988) = 0x0000 : CONST Standoff, Proscription
+10011001.10010000 (0x9990) = 0x0000 : CONST Standoff, Seduction
+10011001.10011000 (0x9998) = 0x0000 : CONST Standoff, Circus Maximus
+10011001.10100000 (0x99A0) = 0x0000 : CONST Standoff, Marriage
+10011001.10101001 (0x99A9) = 0x0000 : CONST Standoff, Scandal 1
+10011001.10101010 (0x99AA) = 0x0000 : CONST Standoff, Scandal 2
+10011001.10110000 (0x99B0) = 0x0000 : CONST Standoff, Spolia Opima
+10011001.11110000 (0x99F0) = 0x0000 : CONST Standoff, Appian Way (312 BC – 308 BC)
+10011001.11110001 (0x99F1) = 0x1C00 : CONST Standoff, Cleopatra VII (69 BC – 30 BC)
+10011001.11110010 (0x99F2) = 0x0000 : CONST Standoff, Juba I (60 BC – 46 BC)
+10011001.11110011 (0x99F3) = 0x0000 : CONST Standoff, The Ultimate Decree (52 BC)
+10011001.11110100 (0x99F4) = 0x0000 : CONST Standoff, Ariobarzanes III (51 BC – 42 BC)
+10011001.11110101 (0x99F5) = 0x0000 : CONST Standoff, Assassination Conspiracy (44 BC)
+10011001.11110110 (0x99F6) = 0x0000 : CONST Standoff, Annexation of Egypt (30 BC)
+
+10101001.00000001 (0xA901) = 0x0000 : CONST Matching War 1 & 2, Tribune 1
+10101001.00000010 (0xA902) = 0x0000 : CONST Matching War 1 & 2, Tribune 2
+10101001.00000011 (0xA903) = 0x0000 : CONST Matching War 1 & 2, Tribune 3
+10101001.00000100 (0xA904) = 0x0000 : CONST Matching War 1 & 2, Tribune 4
+10101001.00000101 (0xA905) = 0x0000 : CONST Matching War 1 & 2, Tribune 5
+10101001.00000110 (0xA906) = 0x0000 : CONST Matching War 1 & 2, Tribune 6
+10101001.00000111 (0xA907) = 0x0000 : CONST Matching War 1 & 2, Tribune 7
+10101001.00001000 (0xA908) = 0x0000 : CONST Matching War 1 & 2, Tribune 8
+10101001.00001001 (0xA909) = 0x0000 : CONST Matching War 1 & 2, Tribune 9
+10101001.00001010 (0xA90A) = 0x0000 : CONST Matching War 1 & 2, Tribune 10
+10101001.00001011 (0xA90B) = 0x0000 : CONST Matching War 1 & 2, Tribune 11
+10101001.00001100 (0xA90C) = 0x0000 : CONST Matching War 1 & 2, Tribune 12
+10101001.00001101 (0xA90D) = 0x0000 : CONST Matching War 1 & 2, Tribune 13
+10101001.00001110 (0xA90E) = 0x0000 : CONST Matching War 1 & 2, Tribune 14
+10101001.00001111 (0xA90F) = 0x0000 : CONST Matching War 1 & 2, Tribune 15
+10101001.00010000 (0xA910) = 0x0000 : CONST Matching War 1 & 2, Tribune 16
+10101001.00010001 (0xA911) = 0x0000 : CONST Matching War 1 & 2, Tribune 17
+10101001.00010010 (0xA912) = 0x0000 : CONST Matching War 1 & 2, Tribune 18
+10101001.00010011 (0xA913) = 0x0000 : CONST Matching War 1 & 2, Tribune 19
+10101001.00010100 (0xA914) = 0x0000 : CONST Matching War 1 & 2, Tribune 20
+10101001.00010101 (0xA915) = 0x0000 : CONST Matching War 1 & 2, Tribune 21
+10101001.00010110 (0xA916) = 0x0000 : CONST Matching War 1 & 2, Tribune 22
+10101001.00010111 (0xA917) = 0x0000 : CONST Matching War 1 & 2, Tribune 23
+10101001.00011000 (0xA918) = 0x0000 : CONST Matching War 1 & 2, Tribune 24
+10101001.00100001 (0xA921) = 0x0000 : CONST Matching War 1 & 2, Assassin 1
+10101001.00100010 (0xA922) = 0x0000 : CONST Matching War 1 & 2, Assassin 2
+10101001.00100011 (0xA923) = 0x0000 : CONST Matching War 1 & 2, Assassin 3
+10101001.00100100 (0xA924) = 0x0000 : CONST Matching War 1 & 2, Assassin 4
+10101001.00100101 (0xA925) = 0x0000 : CONST Matching War 1 & 2, Assassin 5
+10101001.00100110 (0xA926) = 0x0000 : CONST Matching War 1 & 2, Assassin 6
+10101001.00100111 (0xA927) = 0x0000 : CONST Matching War 1 & 2, Assassin 7
+10101001.00110001 (0xA931) = 0x0000 : CONST Matching War 1 & 2, Influence Peddling 1
+10101001.00110010 (0xA932) = 0x0000 : CONST Matching War 1 & 2, Influence Peddling 2
+10101001.00110011 (0xA933) = 0x0000 : CONST Matching War 1 & 2, Influence Peddling 3
+10101001.00110100 (0xA934) = 0x0000 : CONST Matching War 1 & 2, Influence Peddling 4
+10101001.01000001 (0xA941) = 0x0000 : CONST Matching War 1 & 2, Murder of a Tribune 1
+10101001.01000010 (0xA942) = 0x0000 : CONST Matching War 1 & 2, Murder of a Tribune 2
+10101001.01000011 (0xA943) = 0x0000 : CONST Matching War 1 & 2, Murder of a Tribune 3
+10101001.01000100 (0xA944) = 0x0000 : CONST Matching War 1 & 2, Murder of a Tribune 4
+10101001.01010001 (0xA951) = 0x0000 : CONST Matching War 1 & 2, Secret Bodyguard 1
+10101001.01010010 (0xA952) = 0x0000 : CONST Matching War 1 & 2, Secret Bodyguard 2
+10101001.01010011 (0xA953) = 0x0000 : CONST Matching War 1 & 2, Secret Bodyguard 3
+10101001.01010100 (0xA954) = 0x0000 : CONST Matching War 1 & 2, Secret Bodyguard 4
+10101001.01010101 (0xA955) = 0x0000 : CONST Matching War 1 & 2, Secret Bodyguard 5
+10101001.01100000 (0xA960) = 0x0000 : CONST Matching War 1 & 2, Blackmail
+10101001.01101001 (0xA969) = 0x0000 : CONST Matching War 1 & 2, Graft 1
+10101001.01101010 (0xA96A) = 0x0000 : CONST Matching War 1 & 2, Graft 2
+10101001.01111000 (0xA978) = 0x0000 : CONST Matching War 1 & 2, Mob Incited to Violence
+10101001.10000000 (0xA980) = 0x0000 : CONST Matching War 1 & 2, Open Bodyguard
+10101001.10001000 (0xA988) = 0x0000 : CONST Matching War 1 & 2, Proscription
+10101001.10010000 (0xA990) = 0x0000 : CONST Matching War 1 & 2, Seduction
+10101001.10011000 (0xA998) = 0x0000 : CONST Matching War 1 & 2, Circus Maximus
+10101001.10100000 (0xA9A0) = 0x0000 : CONST Matching War 1 & 2, Marriage
+10101001.10101001 (0xA9A9) = 0x0000 : CONST Matching War 1 & 2, Scandal 1
+10101001.10101010 (0xA9AA) = 0x0000 : CONST Matching War 1 & 2, Scandal 2
+10101001.10110000 (0xA9B0) = 0x0000 : CONST Matching War 1 & 2, Spolia Opima
+10101001.11110000 (0xA9F0) = 0x0000 : CONST Matching War 1 & 2, Appian Way (312 BC – 308 BC)
+10101001.11110001 (0xA9F1) = 0x2A00 : CONST Matching War 1 & 2, Cleopatra VII (69 BC – 30 BC)
+10101001.11110010 (0xA9F2) = 0x0000 : CONST Matching War 1 & 2, Juba I (60 BC – 46 BC)
+10101001.11110011 (0xA9F3) = 0x0000 : CONST Matching War 1 & 2, The Ultimate Decree (52 BC)
+10101001.11110100 (0xA9F4) = 0x0000 : CONST Matching War 1 & 2, Ariobarzanes III (51 BC – 42 BC)
+10101001.11110101 (0xA9F5) = 0x0000 : CONST Matching War 1 & 2, Assassination Conspiracy (44 BC)
+10101001.11110110 (0xA9F6) = 0x0000 : CONST Matching War 1 & 2, Annexation of Egypt (30 BC)
+
+10111001.00000001 (0xB901) = 0x0000 : CONST Matching War 3 & 4, Tribune 1
+10111001.00000010 (0xB902) = 0x0000 : CONST Matching War 3 & 4, Tribune 2
+10111001.00000011 (0xB903) = 0x0000 : CONST Matching War 3 & 4, Tribune 3
+10111001.00000100 (0xB904) = 0x0000 : CONST Matching War 3 & 4, Tribune 4
+10111001.00000101 (0xB905) = 0x0000 : CONST Matching War 3 & 4, Tribune 5
+10111001.00000110 (0xB906) = 0x0000 : CONST Matching War 3 & 4, Tribune 6
+10111001.00000111 (0xB907) = 0x0000 : CONST Matching War 3 & 4, Tribune 7
+10111001.00001000 (0xB908) = 0x0000 : CONST Matching War 3 & 4, Tribune 8
+10111001.00001001 (0xB909) = 0x0000 : CONST Matching War 3 & 4, Tribune 9
+10111001.00001010 (0xB90A) = 0x0000 : CONST Matching War 3 & 4, Tribune 10
+10111001.00001011 (0xB90B) = 0x0000 : CONST Matching War 3 & 4, Tribune 11
+10111001.00001100 (0xB90C) = 0x0000 : CONST Matching War 3 & 4, Tribune 12
+10111001.00001101 (0xB90D) = 0x0000 : CONST Matching War 3 & 4, Tribune 13
+10111001.00001110 (0xB90E) = 0x0000 : CONST Matching War 3 & 4, Tribune 14
+10111001.00001111 (0xB90F) = 0x0000 : CONST Matching War 3 & 4, Tribune 15
+10111001.00010000 (0xB910) = 0x0000 : CONST Matching War 3 & 4, Tribune 16
+10111001.00010001 (0xB911) = 0x0000 : CONST Matching War 3 & 4, Tribune 17
+10111001.00010010 (0xB912) = 0x0000 : CONST Matching War 3 & 4, Tribune 18
+10111001.00010011 (0xB913) = 0x0000 : CONST Matching War 3 & 4, Tribune 19
+10111001.00010100 (0xB914) = 0x0000 : CONST Matching War 3 & 4, Tribune 20
+10111001.00010101 (0xB915) = 0x0000 : CONST Matching War 3 & 4, Tribune 21
+10111001.00010110 (0xB916) = 0x0000 : CONST Matching War 3 & 4, Tribune 22
+10111001.00010111 (0xB917) = 0x0000 : CONST Matching War 3 & 4, Tribune 23
+10111001.00011000 (0xB918) = 0x0000 : CONST Matching War 3 & 4, Tribune 24
+10111001.00100001 (0xB921) = 0x0000 : CONST Matching War 3 & 4, Assassin 1
+10111001.00100010 (0xB922) = 0x0000 : CONST Matching War 3 & 4, Assassin 2
+10111001.00100011 (0xB923) = 0x0000 : CONST Matching War 3 & 4, Assassin 3
+10111001.00100100 (0xB924) = 0x0000 : CONST Matching War 3 & 4, Assassin 4
+10111001.00100101 (0xB925) = 0x0000 : CONST Matching War 3 & 4, Assassin 5
+10111001.00100110 (0xB926) = 0x0000 : CONST Matching War 3 & 4, Assassin 6
+10111001.00100111 (0xB927) = 0x0000 : CONST Matching War 3 & 4, Assassin 7
+10111001.00110001 (0xB931) = 0x0000 : CONST Matching War 3 & 4, Influence Peddling 1
+10111001.00110010 (0xB932) = 0x0000 : CONST Matching War 3 & 4, Influence Peddling 2
+10111001.00110011 (0xB933) = 0x0000 : CONST Matching War 3 & 4, Influence Peddling 3
+10111001.00110100 (0xB934) = 0x0000 : CONST Matching War 3 & 4, Influence Peddling 4
+10111001.01000001 (0xB941) = 0x0000 : CONST Matching War 3 & 4, Murder of a Tribune 1
+10111001.01000010 (0xB942) = 0x0000 : CONST Matching War 3 & 4, Murder of a Tribune 2
+10111001.01000011 (0xB943) = 0x0000 : CONST Matching War 3 & 4, Murder of a Tribune 3
+10111001.01000100 (0xB944) = 0x0000 : CONST Matching War 3 & 4, Murder of a Tribune 4
+10111001.01010001 (0xB951) = 0x0000 : CONST Matching War 3 & 4, Secret Bodyguard 1
+10111001.01010010 (0xB952) = 0x0000 : CONST Matching War 3 & 4, Secret Bodyguard 2
+10111001.01010011 (0xB953) = 0x0000 : CONST Matching War 3 & 4, Secret Bodyguard 3
+10111001.01010100 (0xB954) = 0x0000 : CONST Matching War 3 & 4, Secret Bodyguard 4
+10111001.01010101 (0xB955) = 0x0000 : CONST Matching War 3 & 4, Secret Bodyguard 5
+10111001.01100000 (0xB960) = 0x0000 : CONST Matching War 3 & 4, Blackmail
+10111001.01101001 (0xB969) = 0x0000 : CONST Matching War 3 & 4, Graft 1
+10111001.01101010 (0xB96A) = 0x0000 : CONST Matching War 3 & 4, Graft 2
+10111001.01111000 (0xB978) = 0x0000 : CONST Matching War 3 & 4, Mob Incited to Violence
+10111001.10000000 (0xB980) = 0x0000 : CONST Matching War 3 & 4, Open Bodyguard
+10111001.10001000 (0xB988) = 0x0000 : CONST Matching War 3 & 4, Proscription
+10111001.10010000 (0xB990) = 0x0000 : CONST Matching War 3 & 4, Seduction
+10111001.10011000 (0xB998) = 0x0000 : CONST Matching War 3 & 4, Circus Maximus
+10111001.10100000 (0xB9A0) = 0x0000 : CONST Matching War 3 & 4, Marriage
+10111001.10101001 (0xB9A9) = 0x0000 : CONST Matching War 3 & 4, Scandal 1
+10111001.10101010 (0xB9AA) = 0x0000 : CONST Matching War 3 & 4, Scandal 2
+10111001.10110000 (0xB9B0) = 0x0000 : CONST Matching War 3 & 4, Spolia Opima
+10111001.11110000 (0xB9F0) = 0x0000 : CONST Matching War 3 & 4, Appian Way (312 BC – 308 BC)
+10111001.11110001 (0xB9F1) = 0x0000 : CONST Matching War 3 & 4, Cleopatra VII (69 BC – 30 BC)
+10111001.11110010 (0xB9F2) = 0x0000 : CONST Matching War 3 & 4, Juba I (60 BC – 46 BC)
+10111001.11110011 (0xB9F3) = 0x0000 : CONST Matching War 3 & 4, The Ultimate Decree (52 BC)
+10111001.11110100 (0xB9F4) = 0x0000 : CONST Matching War 3 & 4, Ariobarzanes III (51 BC – 42 BC)
+10111001.11110101 (0xB9F5) = 0x0000 : CONST Matching War 3 & 4, Assassination Conspiracy (44 BC)
+10111001.11110110 (0xB9F6) = 0x0000 : CONST Matching War 3 & 4, Annexation of Egypt (30 BC)
+
+11001001.00000001 (0xC901) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 1
+11001001.00000010 (0xC902) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 2
+11001001.00000011 (0xC903) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 3
+11001001.00000100 (0xC904) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 4
+11001001.00000101 (0xC905) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 5
+11001001.00000110 (0xC906) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 6
+11001001.00000111 (0xC907) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 7
+11001001.00001000 (0xC908) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 8
+11001001.00001001 (0xC909) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 9
+11001001.00001010 (0xC90A) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 10
+11001001.00001011 (0xC90B) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 11
+11001001.00001100 (0xC90C) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 12
+11001001.00001101 (0xC90D) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 13
+11001001.00001110 (0xC90E) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 14
+11001001.00001111 (0xC90F) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 15
+11001001.00010000 (0xC910) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 16
+11001001.00010001 (0xC911) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 17
+11001001.00010010 (0xC912) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 18
+11001001.00010011 (0xC913) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 19
+11001001.00010100 (0xC914) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 20
+11001001.00010101 (0xC915) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 21
+11001001.00010110 (0xC916) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 22
+11001001.00010111 (0xC917) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 23
+11001001.00011000 (0xC918) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Tribune 24
+11001001.00100001 (0xC921) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Assassin 1
+11001001.00100010 (0xC922) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Assassin 2
+11001001.00100011 (0xC923) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Assassin 3
+11001001.00100100 (0xC924) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Assassin 4
+11001001.00100101 (0xC925) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Assassin 5
+11001001.00100110 (0xC926) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Assassin 6
+11001001.00100111 (0xC927) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Assassin 7
+11001001.00110001 (0xC931) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Influence Peddling 1
+11001001.00110010 (0xC932) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Influence Peddling 2
+11001001.00110011 (0xC933) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Influence Peddling 3
+11001001.00110100 (0xC934) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Influence Peddling 4
+11001001.01000001 (0xC941) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Murder of a Tribune 1
+11001001.01000010 (0xC942) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Murder of a Tribune 2
+11001001.01000011 (0xC943) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Murder of a Tribune 3
+11001001.01000100 (0xC944) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Murder of a Tribune 4
+11001001.01010001 (0xC951) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Secret Bodyguard 1
+11001001.01010010 (0xC952) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Secret Bodyguard 2
+11001001.01010011 (0xC953) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Secret Bodyguard 3
+11001001.01010100 (0xC954) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Secret Bodyguard 4
+11001001.01010101 (0xC955) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Secret Bodyguard 5
+11001001.01100000 (0xC960) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Blackmail
+11001001.01101001 (0xC969) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Graft 1
+11001001.01101010 (0xC96A) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Graft 2
+11001001.01111000 (0xC978) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Mob Incited to Violence
+11001001.10000000 (0xC980) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Open Bodyguard
+11001001.10001000 (0xC988) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Proscription
+11001001.10010000 (0xC990) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Seduction
+11001001.10011000 (0xC998) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Circus Maximus
+11001001.10100000 (0xC9A0) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Marriage
+11001001.10101001 (0xC9A9) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Scandal 1
+11001001.10101010 (0xC9AA) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Scandal 2
+11001001.10110000 (0xC9B0) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Spolia Opima
+11001001.11110000 (0xC9F0) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Appian Way (312 BC – 308 BC)
+11001001.11110001 (0xC9F1) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Cleopatra VII (69 BC – 30 BC)
+11001001.11110010 (0xC9F2) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Juba I (60 BC – 46 BC)
+11001001.11110011 (0xC9F3) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, The Ultimate Decree (52 BC)
+11001001.11110100 (0xC9F4) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Ariobarzanes III (51 BC – 42 BC)
+11001001.11110101 (0xC9F5) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Assassination Conspiracy (44 BC)
+11001001.11110110 (0xC9F6) = 0x0000 :  CONST Destroys / Allows Concession 1 & 2, Annexation of Egypt (30 BC)
+
+-- Law --
+
+= FORMAT:
+
+00011010.xxxxxxxx : CONST Flags & Era
+    - Bits EDC : Era
+
+11111010.xxxxxxxx : Visible
+    - Bit 0==1 if visible for Parma faction
+    - Bit 1==1 if visible for Porta faction
+    - Bit 2==1 if visible for Corona faction
+    - Bit 3==1 if visible for Luna Crescens faction
+    - Bit 4==1 if visible for Aquila faction
+    - Bit 5==1 if visible for Manus faction
+
+= DEFAULTS:
+
+00011010.00000000 (0x1A00) = 0x4000 : CONST Flags & Era, Acilian Law
+00011010.00000001 (0x1A01) = 0x4000 : CONST Flags & Era, Calpurnian Law
+00011010.00000010 (0x1A02) = 0x4000 : CONST Flags & Era, Servilian Law
+00011010.00000011 (0x1A03) = 0x4000 : CONST Flags & Era, Military Reforms
+00011010.00000100 (0x1A04) = 0x4000 : CONST Flags & Era, Tradition Erodes
+00011010.00000101 (0x1A05) = 0x5000 : CONST Flags & Era, Julian Law
+00011010.00000110 (0x1A06) = 0x5000 : CONST Flags & Era, Plautian-Papirian Law
+00011010.00000111 (0x1A07) = 0x5000 : CONST Flags & Era, Gabinian Law
+00011010.00001000 (0x1A08) = 0x5000 : CONST Flags & Era, Manilian Law
+00011010.00001001 (0x1A09) = 0x5000 : CONST Flags & Era, Vatinian Law
+00011010.00001010 (0x1A0A) = 0x6000 : CONST Flags & Era, Military Command
+
+
+
+-- Statesman --
+
+= FORMAT:
+
+00010100.xxxxxxxx : CONST Flags 1 & Era
+    - Bit 0==1 if Halves all losses in Combat unless Master of Horse (Fractions round up.)
+    - Bit 1==1 if 1 Free Tribune per Year
+    - Bit 2==1 if May claim unheld Land Commissioner Office once without vote.
+    - Bit 3==1 if Mob Orator; May roll three dice if making Popular Appeal.
+    - Bit 4==1 if May veto one Land Bill per Turn without using a Tribune card.
+    - Bit 5==1 if May propose 1 Land Bill/Year.
+    - Bit 6==1 if +1 drm to Knight dr.
+    - Bit 7==1 if Makes 2 Veteran Legions for each Victory even as Governor.
+    - Bit 8==1 if Doubles all personal and assigned income.
+    - Bit 9==1 if If Disaster/Standoff: losses are voided but War is not Prosecuted & Statesman must be Recalled.
+    - Bit A==1 if Popularity gains/losses are doubled.
+    - Bit B==1 if Military skill rolled before each battle.
+    - Bits EDC : Era
+00100100.xxxxxxxx : CONST Flags 2
+    - Bit 0==1 if When played, one random unaligned Veteran becomes aligned to Statesman. If there are no unaligned veterans Statesman does not get one.
+    - Bit 1==1 if +2 vs Naval Battles
+    - Bit 2==1 if +2 to Population Rolls
+    - Bit 3==1 if May propose 1 Land Bill/Year even before Agrarian Unrest
+    - Bit 4==1 if Can be assigned to any senator currently without a Statesman; gives that senator +2 Military rating (Maximum of 5).
+    - Bit 5==1 if Discard during the first Revolution Phase of Early Republic.
+00110100.xxxxxxxx : CONST Initial Ratings
+    - Bits FED : Military
+    - Bits CBA : Oratory
+    - Bits 9876 : Loyalty
+    - Bits 543 : Initial Influence
+    - Bits 210 : Initial Popularity
+01000100.xxxxxxxx : CONST Voids Disaster/Standoff of Wars 1 & 2
+    - Bit F==1 if Voids Disaster/Standoff of War 1 Naval Battle
+    - Bit E==1 if Voids Disaster/Standoff of War 1 Land Battle
+    - Bits DCBA98 : War 1 Entity ID
+    - Bit 7==1 if Voids Disaster/Standoff of War 2 Naval Battle
+    - Bit 6==1 if Voids Disaster/Standoff of War 2 Land Battle
+    - Bits 543210 : War 2 Entity ID
+01010100.xxxxxxxx : CONST Voids Disaster/Standoff of Wars 3 & 4
+    - Bit F==1 if Voids Disaster/Standoff of War 3 Naval Battle
+    - Bit E==1 if Voids Disaster/Standoff of War 3 Land Battle
+    - Bits DCBA98 : War 3 Entity ID
+    - Bit 7==1 if Voids Disaster/Standoff of War 4 Naval Battle
+    - Bit 6==1 if Voids Disaster/Standoff of War 4 Land Battle
+    - Bits 543210 : War 4 Entity ID
+01100100.xxxxxxxx : CONST Loyalty 0 Condition 1 & 2
+    - Bits FEDCBA98 : Loyalty 0 if with Statesman 1; Statesman 1 Entity ID
+    - Bits 76543210 : Loyalty 0 if with Statesman 2; Statesman 2 Entity ID
+01110100.xxxxxxxx : CONST Loyalty 0 Condition 3 & 4
+    - Bits FEDCBA98 : Loyalty 0 if with Statesman 3; Statesman 3 Entity ID
+    - Bits 76543210 : Loyalty 0 if NOT with Statesman 4; Statesman 4 Entity ID
+10000100.xxxxxxxx : CONST Playability
+    - Bit 2==1 if Can be Played with Statesman 5 (Entity ID Bits 765432 must be equal)
+    - Bits 10 : Statesman 5 Entity ID Bits 10
+10010100.xxxxxxxx : Flags
+    - Bit 0==1 if Prior Consul
+    - Bit 1==1 if Priest
+    - Bit 2==1 if Corrupt
+    - Bit 3==1 if Exile
+    - Bit 8==1 if Cannot be played unless there are less than 6 remaining in the Italian Deck.
+    - Bit E==1 if Secondary Rebel
+    - Bit F==1 if Main Rebel
+10100100.xxxxxxxx : Ratings
+    - Bits FEDCBA98 : UINT Influence
+    - Bits 43210 : UINT Popularity + 9
+10110100.xxxxxxxx : UINT Knights
+11000100.xxxxxxxx : Captive
+    - Bits FEDCBA98 : Captive by War; War Entity ID
+11111010.xxxxxxxx : Visible / Alignment
+    - Bit 0==1 if visible for Parma faction
+    - Bit 1==1 if visible for Porta faction
+    - Bit 2==1 if visible for Corona faction
+    - Bit 3==1 if visible for Luna Crescens faction
+    - Bit 4==1 if visible for Aquila faction
+    - Bit 5==1 if visible for Manus faction
+    - Bits A98 : Faction Nr
+
+= DEFAULTS:
+
+00010100.00000000 (0x1400) = 0x1000 : CONST Flags 1 & Era, [#xA] Military Leader
+00010100.00000100 (0x1404) = 0x3000 : CONST Flags 1 & Era, [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+00010100.00000101 (0x1405) = 0x4000 : CONST Flags 1 & Era, [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+00010100.00000111 (0x1407) = 0x4000 : CONST Flags 1 & Era, [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+00010100.00001000 (0x1408) = 0x3001 : CONST Flags 1 & Era, [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+00010100.00010000 (0x1410) = 0x5080 : CONST Flags 1 & Era, [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+00010100.00010100 (0x1414) = 0x1000 : CONST Flags 1 & Era, [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+00010100.00011100 (0x141C) = 0x4004 : CONST Flags 1 & Era, [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+00010100.00100000 (0x1420) = 0x1000 : CONST Flags 1 & Era, [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+00010100.00101000 (0x1428) = 0x1000 : CONST Flags 1 & Era, [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+00010100.00101010 (0x142A) = 0x2000 : CONST Flags 1 & Era, [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+00010100.01001000 (0x1448) = 0x3000 : CONST Flags 1 & Era, [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+00010100.01001001 (0x1449) = 0x1000 : CONST Flags 1 & Era, [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+00010100.01001100 (0x144C) = 0x3000 : CONST Flags 1 & Era, [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+00010100.01001101 (0x144D) = 0x6000 : CONST Flags 1 & Era, [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+00010100.01010100 (0x1454) = 0x4008 : CONST Flags 1 & Era, [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+00010100.01011000 (0x1458) = 0x3002 : CONST Flags 1 & Era, [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+00010100.01011001 (0x1459) = 0x5002 : CONST Flags 1 & Era, [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+00010100.01011100 (0x145C) = 0x4010 : CONST Flags 1 & Era, [#23A] Publius Popillius Laenas (2nd century BC)
+00010100.01100000 (0x1460) = 0x1000 : CONST Flags 1 & Era, [#24A] Spurius Cassius Viscellinus (5th century BC)
+00010100.01100100 (0x1464) = 0x4020 : CONST Flags 1 & Era, [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+00010100.01100101 (0x1465) = 0x4020 : CONST Flags 1 & Era, [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+00010100.01101000 (0x1468) = 0x6002 : CONST Flags 1 & Era, [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+00010100.01101100 (0x146C) = 0x4040 : CONST Flags 1 & Era, [#27A] Gaius Marius (157 BC – 86 BC)
+00010100.01110000 (0x1470) = 0x5002 : CONST Flags 1 & Era, [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+00010100.01110100 (0x1474) = 0x5100 : CONST Flags 1 & Era, [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+00010100.01110101 (0x1475) = 0x5200 : CONST Flags 1 & Era, [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+00010100.01111000 (0x1478) = 0x5C00 : CONST Flags 1 & Era, [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+00010100.10000000 (0x1480) = 0x6000 : CONST Flags 1 & Era, [#32A] Marcus Antonius (83 BC – 30 BC)
+
+00100100.00000000 (0x2400) = 0x0030 : CONST Flags 2, [#xA] Military Leader
+00100100.00000100 (0x2404) = 0x0000 : CONST Flags 2, [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+00100100.00000101 (0x2405) = 0x0000 : CONST Flags 2, [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+00100100.00000111 (0x2407) = 0x0000 : CONST Flags 2, [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+00100100.00001000 (0x2408) = 0x0000 : CONST Flags 2, [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+00100100.00010000 (0x2410) = 0x0000 : CONST Flags 2, [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+00100100.00010100 (0x2414) = 0x0024 : CONST Flags 2, [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+00100100.00011100 (0x241C) = 0x0000 : CONST Flags 2, [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+00100100.00100000 (0x2420) = 0x0020 : CONST Flags 2, [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+00100100.00101000 (0x2428) = 0x0020 : CONST Flags 2, [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+00100100.00101010 (0x242A) = 0x0000 : CONST Flags 2, [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+00100100.01001000 (0x2448) = 0x0000 : CONST Flags 2, [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+00100100.01001001 (0x2449) = 0x0020 : CONST Flags 2, [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+00100100.01001100 (0x244C) = 0x0000 : CONST Flags 2, [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+00100100.01001101 (0x244D) = 0x0001 : CONST Flags 2, [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+00100100.01010100 (0x2454) = 0x0000 : CONST Flags 2, [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+00100100.01011000 (0x2458) = 0x0000 : CONST Flags 2, [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+00100100.01011001 (0x2459) = 0x0000 : CONST Flags 2, [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+00100100.01011100 (0x245C) = 0x0000 : CONST Flags 2, [#23A] Publius Popillius Laenas (2nd century BC)
+00100100.01100000 (0x2460) = 0x0028 : CONST Flags 2, [#24A] Spurius Cassius Viscellinus (5th century BC)
+00100100.01100100 (0x2464) = 0x0000 : CONST Flags 2, [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+00100100.01100101 (0x2465) = 0x0000 : CONST Flags 2, [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+00100100.01101000 (0x2468) = 0x0002 : CONST Flags 2, [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+00100100.01101100 (0x246C) = 0x0000 : CONST Flags 2, [#27A] Gaius Marius (157 BC – 86 BC)
+00100100.01110000 (0x2470) = 0x0000 : CONST Flags 2, [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+00100100.01110100 (0x2474) = 0x0000 : CONST Flags 2, [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+00100100.01110101 (0x2475) = 0x0000 : CONST Flags 2, [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+00100100.01111000 (0x2478) = 0x0000 : CONST Flags 2, [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+00100100.10000000 (0x2480) = 0x0001 : CONST Flags 2, [#32A] Marcus Antonius (83 BC – 30 BC)
+
+00110100.00000000 (0x3400) = 0x4000 : CONST Initial Ratings, [#xA] Military Leader
+00110100.00000100 (0x3404) = 0xB5F0 : CONST Initial Ratings, [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+00110100.00000101 (0x3405) = 0x8DE8 : CONST Initial Ratings, [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+00110100.00000111 (0x3407) = 0x9168 : CONST Initial Ratings, [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+00110100.00001000 (0x3408) = 0xA9D8 : CONST Initial Ratings, [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+00110100.00010000 (0x3410) = 0xD66A : CONST Initial Ratings, [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+00110100.00010100 (0x3414) = 0x3668 : CONST Initial Ratings, [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+00110100.00011100 (0x341C) = 0x55A8 : CONST Initial Ratings, [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+00110100.00100000 (0x3420) = 0xAE28 : CONST Initial Ratings, [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+00110100.00101000 (0x3428) = 0x8E79 : CONST Initial Ratings, [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+00110100.00101010 (0x342A) = 0x8A20 : CONST Initial Ratings, [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+00110100.01001000 (0x3448) = 0xB1E0 : CONST Initial Ratings, [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+00110100.01001001 (0x3449) = 0xAA49 : CONST Initial Ratings, [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+00110100.01001100 (0x344C) = 0xB220 : CONST Initial Ratings, [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+00110100.01001101 (0x344D) = 0x8A20 : CONST Initial Ratings, [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+00110100.01010100 (0x3454) = 0x2CD0 : CONST Initial Ratings, [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+00110100.01011000 (0x3458) = 0x3A88 : CONST Initial Ratings, [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+00110100.01011001 (0x3459) = 0x3AE0 : CONST Initial Ratings, [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+00110100.01011100 (0x345C) = 0x55A0 : CONST Initial Ratings, [#23A] Publius Popillius Laenas (2nd century BC)
+00110100.01100000 (0x3460) = 0x7198 : CONST Initial Ratings, [#24A] Spurius Cassius Viscellinus (5th century BC)
+00110100.01100100 (0x3464) = 0x319A : CONST Initial Ratings, [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+00110100.01100101 (0x3465) = 0x35A3 : CONST Initial Ratings, [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+00110100.01101000 (0x3468) = 0x76A9 : CONST Initial Ratings, [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+00110100.01101100 (0x346C) = 0xADA8 : CONST Initial Ratings, [#27A] Gaius Marius (157 BC – 86 BC)
+00110100.01110000 (0x3470) = 0x3A99 : CONST Initial Ratings, [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+00110100.01110100 (0x3474) = 0x4928 : CONST Initial Ratings, [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+00110100.01110101 (0x3475) = 0xAE9B : CONST Initial Ratings, [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+00110100.01111000 (0x3478) = 0x2E6D : CONST Initial Ratings, [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+00110100.10000000 (0x3480) = 0xA9A9 : CONST Initial Ratings, [#32A] Marcus Antonius (83 BC – 30 BC)
+
+01000100.00000000 (0x4400) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#xA] Military Leader
+01000100.00000100 (0x4404) = 0xCCD0 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+01000100.00000101 (0x4405) = 0xD5D6 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+01000100.00000111 (0x4407) = 0xDEDF : CONST Voids Disaster/Standoff of Wars 1 & 2, [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+01000100.00001000 (0x4408) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+01000100.00010000 (0x4410) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+01000100.00010100 (0x4414) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+01000100.00011100 (0x441C) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+01000100.00100000 (0x4420) = 0xC4C5 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+01000100.00101000 (0x4428) = 0xC100 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+01000100.00101010 (0x442A) = 0x8C00 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+01000100.01001000 (0x4448) = 0xD1D2 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+01000100.01001001 (0x4449) = 0xC2C3 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+01000100.01001100 (0x444C) = 0xD1D2 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+01000100.01001101 (0x444D) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+01000100.01010100 (0x4454) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+01000100.01011000 (0x4458) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+01000100.01011001 (0x4459) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+01000100.01011100 (0x445C) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#23A] Publius Popillius Laenas (2nd century BC)
+01000100.01100000 (0x4460) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#24A] Spurius Cassius Viscellinus (5th century BC)
+01000100.01100100 (0x4464) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+01000100.01100101 (0x4465) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+01000100.01101000 (0x4468) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+01000100.01101100 (0x446C) = 0xDBDE : CONST Voids Disaster/Standoff of Wars 1 & 2, [#27A] Gaius Marius (157 BC – 86 BC)
+01000100.01110000 (0x4470) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+01000100.01110100 (0x4474) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+01000100.01110101 (0x4475) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+01000100.01111000 (0x4478) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+01000100.10000000 (0x4480) = 0x0000 : CONST Voids Disaster/Standoff of Wars 1 & 2, [#32A] Marcus Antonius (83 BC – 30 BC)
+
+01010100.00000000 (0x5400) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#xA] Military Leader
+01010100.00000100 (0x5404) = 0xD600 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+01010100.00000101 (0x5405) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+01010100.00000111 (0x5407) = 0xE0E2 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+01010100.00001000 (0x5408) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+01010100.00010000 (0x5410) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+01010100.00010100 (0x5414) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+01010100.00011100 (0x541C) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+01010100.00100000 (0x5420) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+01010100.00101000 (0x5428) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+01010100.00101010 (0x542A) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+01010100.01001000 (0x5448) = 0xD4D7 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+01010100.01001001 (0x5449) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+01010100.01001100 (0x544C) = 0xD4D7 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+01010100.01001101 (0x544D) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+01010100.01010100 (0x5454) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+01010100.01011000 (0x5458) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+01010100.01011001 (0x5459) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+01010100.01011100 (0x545C) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#23A] Publius Popillius Laenas (2nd century BC)
+01010100.01100000 (0x5460) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#24A] Spurius Cassius Viscellinus (5th century BC)
+01010100.01100100 (0x5464) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+01010100.01100101 (0x5465) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+01010100.01101000 (0x5468) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+01010100.01101100 (0x546C) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#27A] Gaius Marius (157 BC – 86 BC)
+01010100.01110000 (0x5470) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+01010100.01110100 (0x5474) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+01010100.01110101 (0x5475) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+01010100.01111000 (0x5478) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+01010100.10000000 (0x5480) = 0x0000 : CONST Voids Disaster/Standoff of Wars 3 & 4, [#32A] Marcus Antonius (83 BC – 30 BC)
+
+01100100.00000000 (0x6400) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#xA] Military Leader
+01100100.00000100 (0x6404) = 0x5800 : CONST Loyalty 0 Condition 1 & 2, [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+01100100.00000101 (0x6405) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+01100100.00000111 (0x6407) = 0x6C00 : CONST Loyalty 0 Condition 1 & 2, [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+01100100.00001000 (0x6408) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+01100100.00010000 (0x6410) = 0x5900 : CONST Loyalty 0 Condition 1 & 2, [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+01100100.00010100 (0x6414) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+01100100.00011100 (0x641C) = 0x5C00 : CONST Loyalty 0 Condition 1 & 2, [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+01100100.00100000 (0x6420) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+01100100.00101000 (0x6428) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+01100100.00101010 (0x642A) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+01100100.01001000 (0x6448) = 0x5800 : CONST Loyalty 0 Condition 1 & 2, [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+01100100.01001001 (0x6449) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+01100100.01001100 (0x644C) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+01100100.01001101 (0x644D) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+01100100.01010100 (0x6454) = 0x0700 : CONST Loyalty 0 Condition 1 & 2, [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+01100100.01011000 (0x6458) = 0x0405 : CONST Loyalty 0 Condition 1 & 2, [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+01100100.01011001 (0x6459) = 0x1000 : CONST Loyalty 0 Condition 1 & 2, [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+01100100.01011100 (0x645C) = 0x1C64 : CONST Loyalty 0 Condition 1 & 2, [#23A] Publius Popillius Laenas (2nd century BC)
+01100100.01100000 (0x6460) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#24A] Spurius Cassius Viscellinus (5th century BC)
+01100100.01100100 (0x6464) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+01100100.01100101 (0x6465) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+01100100.01101000 (0x6468) = 0x8000 : CONST Loyalty 0 Condition 1 & 2, [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+01100100.01101100 (0x646C) = 0x0700 : CONST Loyalty 0 Condition 1 & 2, [#27A] Gaius Marius (157 BC – 86 BC)
+01100100.01110000 (0x6470) = 0x0000 : CONST Loyalty 0 Condition 1 & 2, [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+01100100.01110100 (0x6474) = 0x7800 : CONST Loyalty 0 Condition 1 & 2, [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+01100100.01110101 (0x6475) = 0x7800 : CONST Loyalty 0 Condition 1 & 2, [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+01100100.01111000 (0x6478) = 0x7400 : CONST Loyalty 0 Condition 1 & 2, [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+01100100.10000000 (0x6480) = 0x6800 : CONST Loyalty 0 Condition 1 & 2, [#32A] Marcus Antonius (83 BC – 30 BC)
+
+01110100.00000000 (0x7400) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#xA] Military Leader
+01110100.00000100 (0x7404) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+01110100.00000101 (0x7405) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+01110100.00000111 (0x7407) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+01110100.00001000 (0x7408) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+01110100.00010000 (0x7410) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+01110100.00010100 (0x7414) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+01110100.00011100 (0x741C) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+01110100.00100000 (0x7420) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+01110100.00101000 (0x7428) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+01110100.00101010 (0x742A) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+01110100.01001000 (0x7448) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+01110100.01001001 (0x7449) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+01110100.01001100 (0x744C) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+01110100.01001101 (0x744D) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+01110100.01010100 (0x7454) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+01110100.01011000 (0x7458) = 0x4800 : CONST Loyalty 0 Condition 3 & 4, [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+01110100.01011001 (0x7459) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+01110100.01011100 (0x745C) = 0x6500 : CONST Loyalty 0 Condition 3 & 4, [#23A] Publius Popillius Laenas (2nd century BC)
+01110100.01100000 (0x7460) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#24A] Spurius Cassius Viscellinus (5th century BC)
+01110100.01100100 (0x7464) = 0x0065 : CONST Loyalty 0 Condition 3 & 4, [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+01110100.01100101 (0x7465) = 0x0064 : CONST Loyalty 0 Condition 3 & 4, [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+01110100.01101000 (0x7468) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+01110100.01101100 (0x746C) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#27A] Gaius Marius (157 BC – 86 BC)
+01110100.01110000 (0x7470) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+01110100.01110100 (0x7474) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+01110100.01110101 (0x7475) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+01110100.01111000 (0x7478) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+01110100.10000000 (0x7480) = 0x0000 : CONST Loyalty 0 Condition 3 & 4, [#32A] Marcus Antonius (83 BC – 30 BC)
+
+10000100.00000000 (0x8400) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#xA] Military Leader
+10000100.00000100 (0x8404) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#1A] Publius Cornelius Scipio Africanus (235 BC – 183 BC)
+10000100.00000101 (0x8405) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#1B] Publius Cornelius Scipio Aemilianus Africanus Numantinus (185 BC – 129 BC)
+10000100.00000111 (0x8407) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#1C] Lucius Cornelius Sulla Felix (c. 138 BC – 78 BC)
+10000100.00001000 (0x8408) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#2A] Quintus Fabius Maximus Verrucosus Cunctator (c. 280 BC – 203 BC)
+10000100.00010000 (0x8410) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#4A] Gaius Julius Caesar (100 BC – 44 BC)
+10000100.00010100 (0x8414) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#5A] Appius Claudius Caecus (c. 340 BC – 273 BC)
+10000100.00011100 (0x841C) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#7A] Marcus Fulvius Flaccus (? – 121 BC)
+10000100.00100000 (0x8420) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#8A] Marcus Furius Camillus (c. 446 BC – 365 BC)
+10000100.00101000 (0x8428) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#10A] Lucius Junius Brutus (c. 545 BC – c. 509 BC)
+10000100.00101010 (0x842A) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#12A] Marcus Atilius Regulus (before 307 BC – 250 BC)
+10000100.01001000 (0x8448) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#18A] Titus Quinctius Flamininus (c. 229 BC – 174 BC)
+10000100.01001001 (0x8449) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#18B] Lucius Quinctius Cincinnatus (519 BC – 438 BC)
+10000100.01001100 (0x844C) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#19A] Lucius Aemilius Paullus Macedonicus (c. 229 BC – 166 BC)
+10000100.01001101 (0x844D) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#19B] Marcus Aemilius Lepidus (88/89 BC – 13/12 BC)
+10000100.01010100 (0x8454) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#21A] Gaius Servilius Glaucia (c. 142 BC – 99 BC)
+10000100.01011000 (0x8458) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#22A] Marcus Porcius Cato Censorius (234 BC – 149 BC)
+10000100.01011001 (0x8459) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#22B] Marcus Porcius Cato Uticensis (95 BC – 46 BC)
+10000100.01011100 (0x845C) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#23A] Publius Popillius Laenas (2nd century BC)
+10000100.01100000 (0x8460) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#24A] Spurius Cassius Viscellinus (5th century BC)
+10000100.01100100 (0x8464) = 0x0005 : CONST Can be played with Statesman 5 & 6, [#25A] Tiberius Sempronius Gracchus (c. 166 BC – 133 BC)
+10000100.01100101 (0x8465) = 0x0004 : CONST Can be played with Statesman 5 & 6, [#25B] Gaius Sempronius Gracchus (c. 154 BC – 121 BC)
+10000100.01101000 (0x8468) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#26A] Gaius Octavius Thurinus (63 BC – 14 BC)
+10000100.01101100 (0x846C) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#27A] Gaius Marius (157 BC – 86 BC)
+10000100.01110000 (0x8470) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#28A] Marcus Tullius Cicero (106 BC – 43 BC)
+10000100.01110100 (0x8474) = 0x0005 : CONST Can be played with Statesman 5 & 6, [#29A] Marcus Licinius Crassus (c. 115 BC – 53 BC)
+10000100.01110101 (0x8475) = 0x0004 : CONST Can be played with Statesman 5 & 6, [#29B] Lucius Licinius Lucullus (c. 117 BC – 57/56 BC)
+10000100.01111000 (0x8478) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#30A] Gnaeus Pompeius Magnus (c. 106 BC – 48 BC)
+10000100.10000000 (0x8480) = 0x0000 : CONST Can be played with Statesman 5 & 6, [#32A] Marcus Antonius (83 BC – 30 BC)
+
+
+-- War / Revolt --
+
+= FORMAT:
+
+00011100.00xxxxxx : CONST Flags & Era
+    - Bits EDC : Era
+    - Bit 0==1 if the Senate can vote to move this War to Inactive status after it has been attacked (and not defeated) if there is no Army currently assigned to it.
+00101100.00xxxxxx : CONST Strength
+    - Bits FEDCBA98 : Land Strength
+    - Bits 7654 : Fleet Support
+    - Bits 3210 : Fleet Strength
+00111100.00xxxxxx : CONST Unrest Lvl Increase / Active Condition
+    - Bits FE: UINT Unrest Lvl Increase
+    - Bits DC : Active Condition Key
+        - DC==11 : Active
+        - DC==10 : Active if both of the attached Provinces are Rome's Provinces
+        - DC==01 : Active if any of the attached Provinces is Rome's Province
+    - Bits BA9876: Active Province 2 ID
+    - Bits 543210: Active Province 1 ID
+01001100.00xxxxxx : CONST Drought / Revolt Condition
+    - Bit E: Drought Condition Key
+        - E==1 : Drought
+        - E==0 : Drought if attached Province is Rome's Province (no Drought if Province ID == 0)
+    - Bits DCBA98: Drought Province ID
+    - Bit 6: Revolt Condition Key
+        - 6==1 : Revolt
+        - 6==0 : Revolt if attached Province is Rome's Province (no Revolt if Province ID == 0)
+    - Bits 543210: Revolt Province ID
+01011100.00xxxxxx : CONST Cost / Spoils
+    - Bits FEDCBA98 : Cost
+    - Bits 76543210 : Spoils
+01101100.00xxxxxx : CONST Attacks Province 1 & 2
+    - Bits F==1 if Attacks if Province 1 is Developed
+    - Bits E==1 if Attacks if Province 1 is Undeveloped
+    - Bits DCBA98 : Province 1 Entity ID
+    - Bits 7==1 if Attacks if Province 2 is Developed
+    - Bits 6==1 if Attacks if Province 2 is Undeveloped
+    - Bits 543210 : Province 2 Entity ID
+01111100.00xxxxxx : CONST Attacks Province 3 & 4
+    - Bits F==1 if Attacks if Province 3 is Developed
+    - Bits E==1 if Attacks if Province 3 is Undeveloped
+    - Bits DCBA98 : Province 3 Entity ID
+    - Bits 7==1 if Attacks if Province 4 is Developed
+    - Bits 6==1 if Attacks if Province 4 is Undeveloped
+    - Bits 543210 : Province 4 Entity ID
+10001100.00xxxxxx : CONST Disaster
+    - Bits DC : Disaster Count
+    - Bits BA98 : Disaster 1 Value - 3
+    - Bits 7654 : Disaster 2 Value - 3
+    - Bits 3210 : Disaster 3 Value - 3
+10011100.00xxxxxx : CONST Standoff
+    - Bits DC : Standoff Count
+    - Bits BA98 : Standoff 1 Value - 3
+    - Bits 7654 : Standoff 2 Value - 3
+    - Bits 3210 : Standoff 3 Value - 3
+10101100.00xxxxxx : CONST Matching War 1 & 2
+    - Bits DCBA98 : Matching War 1 Entity ID
+    - Bits 543210 : Matching War 2 Entity ID
+10111100.00xxxxxx : CONST Matching War 3 & 4
+    - Bits DCBA98 : Matching War 3 Entity ID
+    - Bits 543210 : Matching War 4 Entity ID
+11001100.00xxxxxx : CONST Destroys / Allows Concession 1 & 2
+    - Bits FE==11 if Destroys Concession 1
+    - Bits FE==10 if Destroys Tax Farmer Concession 1
+    - Bits FE==01 if Allows Concession 1
+    - Bits DCBA98 : Destroys Concession 1 Entity ID
+    - Bits 76==11 if Destroys Concession 2
+    - Bits 76==10 if Destroys Tax Farmer Concession 2
+    - Bits 76==01 if Allows Concession 2
+    - Bits 543210 : Destroys Concession 2 Entity ID
+11011100.00xxxxxx : CONST Creates Province 1 & 2
+    - Bits FE==11 if Creates Province 1 when defeated
+    - Bits FE==10 if Creates Province 1 when this war and all matching wars are defeated
+    - Bits FE==01 if Creates Province 1 regardless of result if prosecuted
+    - Bits DCBA98 : Province 1 Entity ID
+    - Bits 76==11 if Creates Province 2 when defeated
+    - Bits 76==10 if Creates Province 2 when this war and all matching wars are defeated
+    - Bits 76==01 if Creates Province 2 regardless of result if prosecuted
+    - Bits 543210 : Province 2 Entity ID
+11100100.00xxxxxx : CONST Etc
+    - Bits FEDC : CONST UINT Strength Reduce by non-Defeat Result
+    - Bits BA98 : CONST UINT Legion Pool Increase if Defeated
+    - Bits 76543210 : CONST UINT Annual State Revenue Increase if Defeated
+11110100.00xxxxxx : Flags / Etc
+    - Bits FEDC : UINT Strength Reduce Counter
+    - Bit 1==1 if Naval Victorious (Defeated on See)
+    - Bit 0==1 if Army Victorious (Defeated on Land)
+
+= DEFAULTS:
+
+00011100.00000001 (0x1C01) = 0x1000 : CONST Flags & Era, 1st Latin War (499 BC – 493 BC)
+00011100.00000010 (0x1C02) = 0x1000 : CONST Flags & Era, Volscian War (c. 494 BC – 455 BC)
+00011100.00000011 (0x1C03) = 0x1000 : CONST Flags & Era, Aequian War (c. 494 BC – 455 BC)
+00011100.00000100 (0x1C04) = 0x1000 : CONST Flags & Era, Veientine War (483 BC – 435 BC)
+00011100.00000101 (0x1C05) = 0x1000 : CONST Flags & Era, Siege of Veii (406 BC – 396 BC)
+00011100.00000110 (0x1C06) = 0x2000 : CONST Flags & Era, Tarquinian War (358 BC – 351 BC)
+00011100.00000111 (0x1C07) = 0x2000 : CONST Flags & Era, 1st Samnite War (343 BC – 341 BC)
+00011100.00001000 (0x1C08) = 0x2000 : CONST Flags & Era, 2nd Latin War (340 BC – 338 BC)
+00011100.00001001 (0x1C09) = 0x2000 : CONST Flags & Era, 2nd Samnite War (327 BC – 304 BC)
+00011100.00001010 (0x1C0A) = 0x2000 : CONST Flags & Era, 3rd Samnite War (298 BC – 290 BC)
+00011100.00001011 (0x1C0B) = 0x2000 : CONST Flags & Era, Pyrrhic War (280 BC – 272 BC)
+00011100.00001100 (0x1C0C) = 0x3000 : CONST Flags & Era, 1st Punic War (264 BC – 241 BC)
+00011100.00001101 (0x1C0D) = 0x3000 : CONST Flags & Era, 1st Illyrian War (229 BC – 228 BC)
+00011100.00001110 (0x1C0E) = 0x3000 : CONST Flags & Era, 1st Gallic War (225 BC – 222 BC)
+00011100.00001111 (0x1C0F) = 0x3000 : CONST Flags & Era, 2nd Illyrian War (220 BC – 219 BC)
+00011100.00010000 (0x1C10) = 0x3000 : CONST Flags & Era, 2nd Punic War (218 BC – 201 BC)
+00011100.00010001 (0x1C11) = 0x3000 : CONST Flags & Era, 1st Macedonian War (215 BC – 205 BC)
+00011100.00010010 (0x1C12) = 0x3000 : CONST Flags & Era, 2nd Macedonian War (200 BC – 196 BC)
+00011100.00010011 (0x1C13) = 0x3000 : CONST Flags & Era, Syrian War (192 BC – 189 BC)
+00011100.00010100 (0x1C14) = 0x4000 : CONST Flags & Era, 3rd Macedonian War (171 BC – 167 BC)
+00011100.00010101 (0x1C15) = 0x4000 : CONST Flags & Era, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+00011100.00010110 (0x1C16) = 0x4000 : CONST Flags & Era, 3rd Punic War (149 BC – 146 BC)
+00011100.00010111 (0x1C17) = 0x4000 : CONST Flags & Era, 4th Macedonian War (149 BC – 148 BC)
+00011100.00011000 (0x1C18) = 0x4000 : CONST Flags & Era, Numantine War (143 BC – 133 BC)
+00011100.00011001 (0x1C19) = 0x4000 : CONST Flags & Era, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+00011100.00011010 (0x1C1A) = 0x4000 : CONST Flags & Era, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+00011100.00011011 (0x1C1B) = 0x4000 : CONST Flags & Era, Jugurthine War (111 BC – 105 BC)
+00011100.00011100 (0x1C1C) = 0x4000 : CONST Flags & Era, 1st Cilician Pirates (104 BC – 101 BC)
+00011100.00011101 (0x1C1D) = 0x4000 : CONST Flags & Era, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+00011100.00011110 (0x1C1E) = 0x5000 : CONST Flags & Era, Social War (90 BC – 88 BC)
+00011100.00011111 (0x1C1F) = 0x5000 : CONST Flags & Era, 1st Mithridatic War (89 BC – 85 BC)
+00011100.00100000 (0x1C20) = 0x5000 : CONST Flags & Era, 2nd Mithridatic War (83 BC – 82 BC)
+00011100.00100001 (0x1C21) = 0x5000 : CONST Flags & Era, Sertorian Revolt (77 BC – 71 BC)
+00011100.00100010 (0x1C22) = 0x5000 : CONST Flags & Era, 3rd Mithridatic War (74 BC – 63 BC)
+00011100.00100011 (0x1C23) = 0x5000 : CONST Flags & Era, Gladiator Slave Revolt (73 BC – 71 BC)
+00011100.00100100 (0x1C24) = 0x5000 : CONST Flags & Era, 2nd Cilician Pirates (67 BC – 61 BC)
+00011100.00100101 (0x1C25) = 0x5000 : CONST Flags & Era, 2nd Gallic War (58 BC – 56 BC)
+00011100.00100110 (0x1C26) = 0x5000 : CONST Flags & Era, Invasion of Britain (55 BC – 54 BC)
+00011100.00100111 (0x1C27) = 0x5000 : CONST Flags & Era, Invasion of Germany (55 BC)
+00011100.00101000 (0x1C28) = 0x5000 : CONST Flags & Era, Parthian War (53 BC)
+00011100.00101001 (0x1C29) = 0x5000 : CONST Flags & Era, 3rd Gallic War (52 BC – 51 BC)
+00011100.00101010 (0x1C2A) = 0x5000 : CONST Flags & Era, Alexandrine War (48 BC – 47 BC)
+00001100.00101011 (0x0C2B) = 0x6000 : CONST Flags & Era, 4th Mithridatic War (Pontic War) (47 BC)
+00001100.00101100 (0x0C2C) = 0x6000 : CONST Flags & Era, Moesian War (29 BC)
+00001100.00101101 (0x0C2D) = 0x6000 : CONST Flags & Era, Invasion of Partha (36 BC)
+00001100.00101110 (0x0C2E) = 0x6000 : CONST Flags & Era, Dalmatian War (35 BC – 34 BC)
+00001100.00101111 (0x0C2F) = 0x6000 : CONST Flags & Era, Cantabrian War (28 BC – 19 BC)
+00001100.00110000 (0x0C30) = 0x6001 : CONST Flags & Era, Invasion of Arabia (24 BC)
+
+00101100.00000001 (0x2C01) = 0x0200 : CONST Strength, 1st Latin War (499 BC – 493 BC)
+00101100.00000010 (0x2C02) = 0x0200 : CONST Strength, Volscian War (c. 494 BC – 455 BC)
+00101100.00000011 (0x2C03) = 0x0200 : CONST Strength, Aequian War (c. 494 BC – 455 BC)
+00101100.00000100 (0x2C04) = 0x0400 : CONST Strength, Veientine War (483 BC – 435 BC)
+00101100.00000101 (0x2C05) = 0x0400 : CONST Strength, Siege of Veii (406 BC – 396 BC)
+00101100.00000110 (0x2C06) = 0x0400 : CONST Strength, Tarquinian War (358 BC – 351 BC)
+00101100.00000111 (0x2C07) = 0x0200 : CONST Strength, 1st Samnite War (343 BC – 341 BC)
+00101100.00001000 (0x2C08) = 0x0400 : CONST Strength, 2nd Latin War (340 BC – 338 BC)
+00101100.00001001 (0x2C09) = 0x0500 : CONST Strength, 2nd Samnite War (327 BC – 304 BC)
+00101100.00001010 (0x2C0A) = 0x0800 : CONST Strength, 3rd Samnite War (298 BC – 290 BC)
+00101100.00001011 (0x2C0B) = 0x0700 : CONST Strength, Pyrrhic War (280 BC – 272 BC)
+00101100.00001100 (0x2C0C) = 0x0A5A : CONST Strength, 1st Punic War (264 BC – 241 BC)
+00101100.00001101 (0x2C0D) = 0x0530 : CONST Strength, 1st Illyrian War (229 BC – 228 BC)
+00101100.00001110 (0x2C0E) = 0x0A00 : CONST Strength, 1st Gallic War (225 BC – 222 BC)
+00101100.00001111 (0x2C0F) = 0x0420 : CONST Strength, 2nd Illyrian War (220 BC – 219 BC)
+00101100.00010000 (0x2C10) = 0x0F50 : CONST Strength, 2nd Punic War (218 BC – 201 BC)
+00101100.00010001 (0x2C11) = 0x0CA0 : CONST Strength, 1st Macedonian War (215 BC – 205 BC)
+00101100.00010010 (0x2C12) = 0x0A50 : CONST Strength, 2nd Macedonian War (200 BC – 196 BC)
+00101100.00010011 (0x2C13) = 0x0620 : CONST Strength, Syrian War (192 BC – 189 BC)
+00101100.00010100 (0x2C14) = 0x0850 : CONST Strength, 3rd Macedonian War (171 BC – 167 BC)
+00101100.00010101 (0x2C15) = 0x0620 : CONST Strength, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+00101100.00010110 (0x2C16) = 0x0710 : CONST Strength, 3rd Punic War (149 BC – 146 BC)
+00101100.00010111 (0x2C17) = 0x0510 : CONST Strength, 4th Macedonian War (149 BC – 148 BC)
+00101100.00011000 (0x2C18) = 0x0820 : CONST Strength, Numantine War (143 BC – 133 BC)
+00101100.00011001 (0x2C19) = 0x0400 : CONST Strength, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+00101100.00011010 (0x2C1A) = 0x0F00 : CONST Strength, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+00101100.00011011 (0x2C1B) = 0x0820 : CONST Strength, Jugurthine War (111 BC – 105 BC)
+00101100.00011100 (0x2C1C) = 0x0328 : CONST Strength, 1st Cilician Pirates (104 BC – 101 BC)
+00101100.00011101 (0x2C1D) = 0x0710 : CONST Strength, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+00101100.00011110 (0x2C1E) = 0x0A00 : CONST Strength, Social War (90 BC – 88 BC)
+00101100.00011111 (0x2C1F) = 0x0A50 : CONST Strength, 1st Mithridatic War (89 BC – 85 BC)
+00101100.00100000 (0x2C20) = 0x0640 : CONST Strength, 2nd Mithridatic War (83 BC – 82 BC)
+00101100.00100001 (0x2C21) = 0x0820 : CONST Strength, Sertorian Revolt (77 BC – 71 BC)
+00101100.00100010 (0x2C22) = 0x0860 : CONST Strength, 3rd Mithridatic War (74 BC – 63 BC)
+00101100.00100011 (0x2C23) = 0x0600 : CONST Strength, Gladiator Slave Revolt (73 BC – 71 BC)
+00101100.00100100 (0x2C24) = 0x0326 : CONST Strength, 2nd Cilician Pirates (67 BC – 61 BC)
+00101100.00100101 (0x2C25) = 0x0C00 : CONST Strength, 2nd Gallic War (58 BC – 56 BC)
+00101100.00100110 (0x2C26) = 0x0420 : CONST Strength, Invasion of Britain (55 BC – 54 BC)
+00101100.00100111 (0x2C27) = 0x0600 : CONST Strength, Invasion of Germany (55 BC)
+00101100.00101000 (0x2C28) = 0x0C20 : CONST Strength, Parthian War (53 BC)
+00101100.00101001 (0x2C29) = 0x0F00 : CONST Strength, 3rd Gallic War (52 BC – 51 BC)
+00101100.00101010 (0x2C2A) = 0x022A : CONST Strength, Alexandrine War (48 BC – 47 BC)
+00101100.00101011 (0x2C2B) = 0x0600 : CONST Strength, 4th Mithridatic War (Pontic War) (47 BC)
+00101100.00101100 (0x2C2C) = 0x0C00 : CONST Strength, Moesian War (29 BC)
+00101100.00101101 (0x2C2D) = 0x1200 : CONST Strength, Invasion of Partha (36 BC)
+00101100.00101110 (0x2C2E) = 0x0800 : CONST Strength, Dalmatian War (35 BC – 34 BC)
+00101100.00101111 (0x2C2F) = 0x0A00 : CONST Strength, Cantabrian War (28 BC – 19 BC)
+00101100.00110000 (0x2C30) = 0x0A00 : CONST Strength, Invasion of Arabia (24 BC)
+
+00111100.00000001 (0x3C01) = 0x3000 : CONST Active Condition, 1st Latin War (499 BC – 493 BC)
+00111100.00000010 (0x3C02) = 0x3000 : CONST Active Condition, Volscian War (c. 494 BC – 455 BC)
+00111100.00000011 (0x3C03) = 0x3000 : CONST Active Condition, Aequian War (c. 494 BC – 455 BC)
+00111100.00000100 (0x3C04) = 0x3000 : CONST Active Condition, Veientine War (483 BC – 435 BC)
+00111100.00000101 (0x3C05) = 0x0000 : CONST Active Condition, Siege of Veii (406 BC – 396 BC)
+00111100.00000110 (0x3C06) = 0x3000 : CONST Active Condition, Tarquinian War (358 BC – 351 BC)
+00111100.00000111 (0x3C07) = 0x3000 : CONST Active Condition, 1st Samnite War (343 BC – 341 BC)
+00111100.00001000 (0x3C08) = 0x3000 : CONST Active Condition, 2nd Latin War (340 BC – 338 BC)
+00111100.00001001 (0x3C09) = 0x0000 : CONST Active Condition, 2nd Samnite War (327 BC – 304 BC)
+00111100.00001010 (0x3C0A) = 0x3000 : CONST Active Condition, 3rd Samnite War (298 BC – 290 BC)
+00111100.00001011 (0x3C0B) = 0x3000 : CONST Active Condition, Pyrrhic War (280 BC – 272 BC)
+00111100.00001100 (0x3C0C) = 0x0000 : CONST Active Condition, 1st Punic War (264 BC – 241 BC)
+00111100.00001101 (0x3C0D) = 0x0000 : CONST Active Condition, 1st Illyrian War (229 BC – 228 BC)
+00111100.00001110 (0x3C0E) = 0x3000 : CONST Active Condition, 1st Gallic War (225 BC – 222 BC)
+00111100.00001111 (0x3C0F) = 0x3000 : CONST Active Condition, 2nd Illyrian War (220 BC – 219 BC)
+00111100.00010000 (0x3C10) = 0x3000 : CONST Active Condition, 2nd Punic War (218 BC – 201 BC)
+00111100.00010001 (0x3C11) = 0x3000 : CONST Active Condition, 1st Macedonian War (215 BC – 205 BC)
+00111100.00010010 (0x3C12) = 0x0000 : CONST Active Condition, 2nd Macedonian War (200 BC – 196 BC)
+00111100.00010011 (0x3C13) = 0x3000 : CONST Active Condition, Syrian War (192 BC – 189 BC)
+00111100.00010100 (0x3C14) = 0x3000 : CONST Active Condition, 3rd Macedonian War (171 BC – 167 BC)
+00111100.00010101 (0x3C15) = 0x2082 : CONST Active Condition, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+00111100.00010110 (0x3C16) = 0x3000 : CONST Active Condition, 3rd Punic War (149 BC – 146 BC)
+00111100.00010111 (0x3C17) = 0x3000 : CONST Active Condition, 4th Macedonian War (149 BC – 148 BC)
+00111100.00011000 (0x3C18) = 0x1004 : CONST Active Condition, Numantine War (143 BC – 133 BC)
+00111100.00011001 (0x3C19) = 0x1006 : CONST Active Condition, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+00111100.00011010 (0x3C1A) = 0x3000 : CONST Active Condition, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+00111100.00011011 (0x3C1B) = 0x3000 : CONST Active Condition, Jugurthine War (111 BC – 105 BC)
+00111100.00011100 (0x3C1C) = 0x0000 : CONST Active Condition, 1st Cilician Pirates (104 BC – 101 BC)
+00111100.00011101 (0x3C1D) = 0x1006 : CONST Active Condition, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+00111100.00011110 (0x3C1E) = 0x3000 : CONST Active Condition, Social War (90 BC – 88 BC)
+00111100.00011111 (0x3C1F) = 0x3000 : CONST Active Condition, 1st Mithridatic War (89 BC – 85 BC)
+00111100.00100000 (0x3C20) = 0x0000 : CONST Active Condition, 2nd Mithridatic War (83 BC – 82 BC)
+00111100.00100001 (0x3C21) = 0x2082 : CONST Active Condition, Sertorian Revolt (77 BC – 71 BC)
+00111100.00100010 (0x3C22) = 0x3000 : CONST Active Condition, 3rd Mithridatic War (74 BC – 63 BC)
+00111100.00100011 (0x3C23) = 0x3000 : CONST Active Condition, Gladiator Slave Revolt (73 BC – 71 BC)
+00111100.00100100 (0x3C24) = 0x0000 : CONST Active Condition, 2nd Cilician Pirates (67 BC – 61 BC)
+00111100.00100101 (0x3C25) = 0x0000 : CONST Active Condition, 2nd Gallic War (58 BC – 56 BC)
+00111100.00100110 (0x3C26) = 0x0000 : CONST Active Condition, Invasion of Britain (55 BC – 54 BC)
+00111100.00100111 (0x3C27) = 0x0000 : CONST Active Condition, Invasion of Germany (55 BC)
+00111100.00101000 (0x3C28) = 0x3000 : CONST Active Condition, Parthian War (53 BC)
+00111100.00101001 (0x3C29) = 0x3000 : CONST Active Condition, 3rd Gallic War (52 BC – 51 BC)
+00111100.00101010 (0x3C2A) = 0x7000 : CONST Active Condition, Alexandrine War (48 BC – 47 BC)
+00111100.00101011 (0x3C2B) = 0x3000 : CONST Active Condition, 4th Mithridatic War (Pontic War) (47 BC)
+00111100.00101100 (0x3C2C) = 0x0000 : CONST Active Condition, Moesian War (29 BC)
+00111100.00101101 (0x3C2D) = 0x0000 : CONST Active Condition, Invasion of Partha (36 BC)
+00111100.00101110 (0x3C2E) = 0x0000 : CONST Active Condition, Dalmatian War (35 BC – 34 BC)
+00111100.00101111 (0x3C2F) = 0x0000 : CONST Active Condition, Cantabrian War (28 BC – 19 BC)
+00111100.00110000 (0x3C30) = 0x0000 : CONST Active Condition, Invasion of Arabia (24 BC)
+
+01001100.00000001 (0x4C01) = 0x0000 : CONST Drought / Revolt Condition, 1st Latin War (499 BC – 493 BC)
+01001100.00000010 (0x4C02) = 0x0000 : CONST Drought / Revolt Condition, Volscian War (c. 494 BC – 455 BC)
+01001100.00000011 (0x4C03) = 0x0000 : CONST Drought / Revolt Condition, Aequian War (c. 494 BC – 455 BC)
+01001100.00000100 (0x4C04) = 0x0000 : CONST Drought / Revolt Condition, Veientine War (483 BC – 435 BC)
+01001100.00000101 (0x4C05) = 0x0000 : CONST Drought / Revolt Condition, Siege of Veii (406 BC – 396 BC)
+01001100.00000110 (0x4C06) = 0x0000 : CONST Drought / Revolt Condition, Tarquinian War (358 BC – 351 BC)
+01001100.00000111 (0x4C07) = 0x0000 : CONST Drought / Revolt Condition, 1st Samnite War (343 BC – 341 BC)
+01001100.00001000 (0x4C08) = 0x0000 : CONST Drought / Revolt Condition, 2nd Latin War (340 BC – 338 BC)
+01001100.00001001 (0x4C09) = 0x0000 : CONST Drought / Revolt Condition, 2nd Samnite War (327 BC – 304 BC)
+01001100.00001010 (0x4C0A) = 0x0000 : CONST Drought / Revolt Condition, 3rd Samnite War (298 BC – 290 BC)
+01001100.00001011 (0x4C0B) = 0x0000 : CONST Drought / Revolt Condition, Pyrrhic War (280 BC – 272 BC)
+01001100.00001100 (0x4C0C) = 0x0000 : CONST Drought / Revolt Condition, 1st Punic War (264 BC – 241 BC)
+01001100.00001101 (0x4C0D) = 0x4000 : CONST Drought / Revolt Condition, 1st Illyrian War (229 BC – 228 BC)
+01001100.00001110 (0x4C0E) = 0x0000 : CONST Drought / Revolt Condition, 1st Gallic War (225 BC – 222 BC)
+01001100.00001111 (0x4C0F) = 0x0000 : CONST Drought / Revolt Condition, 2nd Illyrian War (220 BC – 219 BC)
+01001100.00010000 (0x4C10) = 0x0000 : CONST Drought / Revolt Condition, 2nd Punic War (218 BC – 201 BC)
+01001100.00010001 (0x4C11) = 0x0009 : CONST Drought / Revolt Condition, 1st Macedonian War (215 BC – 205 BC)
+01001100.00010010 (0x4C12) = 0x0009 : CONST Drought / Revolt Condition, 2nd Macedonian War (200 BC – 196 BC)
+01001100.00010011 (0x4C13) = 0x000D : CONST Drought / Revolt Condition, Syrian War (192 BC – 189 BC)
+01001100.00010100 (0x4C14) = 0x0009 : CONST Drought / Revolt Condition, 3rd Macedonian War (171 BC – 167 BC)
+01001100.00010101 (0x4C15) = 0x0040 : CONST Drought / Revolt Condition, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+01001100.00010110 (0x4C16) = 0x0000 : CONST Drought / Revolt Condition, 3rd Punic War (149 BC – 146 BC)
+01001100.00010111 (0x4C17) = 0x0000 : CONST Drought / Revolt Condition, 4th Macedonian War (149 BC – 148 BC)
+01001100.00011000 (0x4C18) = 0x0040 : CONST Drought / Revolt Condition, Numantine War (143 BC – 133 BC)
+01001100.00011001 (0x4C19) = 0x0540 : CONST Drought / Revolt Condition, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+01001100.00011010 (0x4C1A) = 0x0000 : CONST Drought / Revolt Condition, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+01001100.00011011 (0x4C1B) = 0x0000 : CONST Drought / Revolt Condition, Jugurthine War (111 BC – 105 BC)
+01001100.00011100 (0x4C1C) = 0x4000 : CONST Drought / Revolt Condition, 1st Cilician Pirates (104 BC – 101 BC)
+01001100.00011101 (0x4C1D) = 0x0540 : CONST Drought / Revolt Condition, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+01001100.00011110 (0x4C1E) = 0x0000 : CONST Drought / Revolt Condition, Social War (90 BC – 88 BC)
+01001100.00011111 (0x4C1F) = 0x002C : CONST Drought / Revolt Condition, 1st Mithridatic War (89 BC – 85 BC)
+01001100.00100000 (0x4C20) = 0x002C : CONST Drought / Revolt Condition, 2nd Mithridatic War (83 BC – 82 BC)
+01001100.00100001 (0x4C21) = 0x0040 : CONST Drought / Revolt Condition, Sertorian Revolt (77 BC – 71 BC)
+01001100.00100010 (0x4C22) = 0x0000 : CONST Drought / Revolt Condition, 3rd Mithridatic War (74 BC – 63 BC)
+01001100.00100011 (0x4C23) = 0x0040 : CONST Drought / Revolt Condition, Gladiator Slave Revolt (73 BC – 71 BC)
+01001100.00100100 (0x4C24) = 0x4000 : CONST Drought / Revolt Condition, 2nd Cilician Pirates (67 BC – 61 BC)
+01001100.00100101 (0x4C25) = 0x000F : CONST Drought / Revolt Condition, 2nd Gallic War (58 BC – 56 BC)
+01001100.00100110 (0x4C26) = 0x0000 : CONST Drought / Revolt Condition, Invasion of Britain (55 BC – 54 BC)
+01001100.00100111 (0x4C27) = 0x0000 : CONST Drought / Revolt Condition, Invasion of Germany (55 BC)
+01001100.00101000 (0x4C28) = 0x0000 : CONST Drought / Revolt Condition, Parthian War (53 BC)
+01001100.00101001 (0x4C29) = 0x000F : CONST Drought / Revolt Condition, 3rd Gallic War (52 BC – 51 BC)
+01001100.00101010 (0x4C2A) = 0x4000 : CONST Drought / Revolt Condition, Alexandrine War (48 BC – 47 BC)
+01001100.00101011 (0x4C2B) = 0x0000 : CONST Drought / Revolt Condition, 4th Mithridatic War (Pontic War) (47 BC)
+01001100.00101100 (0x4C2C) = 0x0000 : CONST Drought / Revolt Condition, Moesian War (29 BC)
+01001100.00101101 (0x4C2D) = 0x0000 : CONST Drought / Revolt Condition, Invasion of Partha (36 BC)
+01001100.00101110 (0x4C2E) = 0x0000 : CONST Drought / Revolt Condition, Dalmatian War (35 BC – 34 BC)
+01001100.00101111 (0x4C2F) = 0x0000 : CONST Drought / Revolt Condition, Cantabrian War (28 BC – 19 BC)
+01001100.00110000 (0x4C30) = 0x0000 : CONST Drought / Revolt Condition, Invasion of Arabia (24 BC)
+
+01011100.00000001 (0x5C01) = 0x0A0A : CONST Unrest Lvl Increase / Cost / Spoils, 1st Latin War (499 BC – 493 BC)
+01011100.00000010 (0x5C02) = 0x0A05 : CONST Unrest Lvl Increase / Cost / Spoils, Volscian War (c. 494 BC – 455 BC)
+01011100.00000011 (0x5C03) = 0x0A05 : CONST Unrest Lvl Increase / Cost / Spoils, Aequian War (c. 494 BC – 455 BC)
+01011100.00000100 (0x5C04) = 0x0A0A : CONST Unrest Lvl Increase / Cost / Spoils, Veientine War (483 BC – 435 BC)
+01011100.00000101 (0x5C05) = 0x0A0A : CONST Unrest Lvl Increase / Cost / Spoils, Siege of Veii (406 BC – 396 BC)
+01011100.00000110 (0x5C06) = 0x0A0A : CONST Unrest Lvl Increase / Cost / Spoils, Tarquinian War (358 BC – 351 BC)
+01011100.00000111 (0x5C07) = 0x0A00 : CONST Unrest Lvl Increase / Cost / Spoils, 1st Samnite War (343 BC – 341 BC)
+01011100.00001000 (0x5C08) = 0x0A00 : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Latin War (340 BC – 338 BC)
+01011100.00001001 (0x5C09) = 0x0A00 : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Samnite War (327 BC – 304 BC)
+01011100.00001010 (0x5C0A) = 0x0A00 : CONST Unrest Lvl Increase / Cost / Spoils, 3rd Samnite War (298 BC – 290 BC)
+01011100.00001011 (0x5C0B) = 0x0A0A : CONST Unrest Lvl Increase / Cost / Spoils, Pyrrhic War (280 BC – 272 BC)
+01011100.00001100 (0x5C0C) = 0x1423 : CONST Unrest Lvl Increase / Cost / Spoils, 1st Punic War (264 BC – 241 BC)
+01011100.00001101 (0x5C0D) = 0x140A : CONST Unrest Lvl Increase / Cost / Spoils, 1st Illyrian War (229 BC – 228 BC)
+01011100.00001110 (0x5C0E) = 0x1414 : CONST Unrest Lvl Increase / Cost / Spoils, 1st Gallic War (225 BC – 222 BC)
+01011100.00001111 (0x5C0F) = 0x140A : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Illyrian War (220 BC – 219 BC)
+01011100.00010000 (0x5C10) = 0x1419 : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Punic War (218 BC – 201 BC)
+01011100.00010001 (0x5C11) = 0x1419 : CONST Unrest Lvl Increase / Cost / Spoils, 1st Macedonian War (215 BC – 205 BC)
+01011100.00010010 (0x5C12) = 0x142D : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Macedonian War (200 BC – 196 BC)
+01011100.00010011 (0x5C13) = 0x142D : CONST Unrest Lvl Increase / Cost / Spoils, Syrian War (192 BC – 189 BC)
+01011100.00010100 (0x5C14) = 0x1423 : CONST Unrest Lvl Increase / Cost / Spoils, 3rd Macedonian War (171 BC – 167 BC)
+01011100.00010101 (0x5C15) = 0x1400 : CONST Unrest Lvl Increase / Cost / Spoils, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+01011100.00010110 (0x5C16) = 0x1414 : CONST Unrest Lvl Increase / Cost / Spoils, 3rd Punic War (149 BC – 146 BC)
+01011100.00010111 (0x5C17) = 0x141E : CONST Unrest Lvl Increase / Cost / Spoils, 4th Macedonian War (149 BC – 148 BC)
+01011100.00011000 (0x5C18) = 0x1400 : CONST Unrest Lvl Increase / Cost / Spoils, Numantine War (143 BC – 133 BC)
+01011100.00011001 (0x5C19) = 0x1400 : CONST Unrest Lvl Increase / Cost / Spoils, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+01011100.00011010 (0x5C1A) = 0x140F : CONST Unrest Lvl Increase / Cost / Spoils, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+01011100.00011011 (0x5C1B) = 0x1419 : CONST Unrest Lvl Increase / Cost / Spoils, Jugurthine War (111 BC – 105 BC)
+01011100.00011100 (0x5C1C) = 0x140A : CONST Unrest Lvl Increase / Cost / Spoils, 1st Cilician Pirates (104 BC – 101 BC)
+01011100.00011101 (0x5C1D) = 0x1400 : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+01011100.00011110 (0x5C1E) = 0x140F : CONST Unrest Lvl Increase / Cost / Spoils, Social War (90 BC – 88 BC)
+01011100.00011111 (0x5C1F) = 0x141E : CONST Unrest Lvl Increase / Cost / Spoils, 1st Mithridatic War (89 BC – 85 BC)
+01011100.00100000 (0x5C20) = 0x140F : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Mithridatic War (83 BC – 82 BC)
+01011100.00100001 (0x5C21) = 0x1400 : CONST Unrest Lvl Increase / Cost / Spoils, Sertorian Revolt (77 BC – 71 BC)
+01011100.00100010 (0x5C22) = 0x1419 : CONST Unrest Lvl Increase / Cost / Spoils, 3rd Mithridatic War (74 BC – 63 BC)
+01011100.00100011 (0x5C23) = 0x1400 : CONST Unrest Lvl Increase / Cost / Spoils, Gladiator Slave Revolt (73 BC – 71 BC)
+01011100.00100100 (0x5C24) = 0x140A : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Cilician Pirates (67 BC – 61 BC)
+01011100.00100101 (0x5C25) = 0x140F : CONST Unrest Lvl Increase / Cost / Spoils, 2nd Gallic War (58 BC – 56 BC)
+01011100.00100110 (0x5C26) = 0x140A : CONST Unrest Lvl Increase / Cost / Spoils, Invasion of Britain (55 BC – 54 BC)
+01011100.00100111 (0x5C27) = 0x140A : CONST Unrest Lvl Increase / Cost / Spoils, Invasion of Germany (55 BC)
+01011100.00101000 (0x5C28) = 0x1423 : CONST Unrest Lvl Increase / Cost / Spoils, Parthian War (53 BC)
+01011100.00101001 (0x5C29) = 0x140F : CONST Unrest Lvl Increase / Cost / Spoils, 3rd Gallic War (52 BC – 51 BC)
+01011100.00101010 (0x5C2A) = 0x1499 : CONST Unrest Lvl Increase / Cost / Spoils, Alexandrine War (48 BC – 47 BC)
+01011100.00101011 (0x5C2B) = 0x140A : CONST Unrest Lvl Increase / Cost / Spoils, 4th Mithridatic War (Pontic War) (47 BC)
+01011100.00101100 (0x5C2C) = 0x1414 : CONST Unrest Lvl Increase / Cost / Spoils, Moesian War (29 BC)
+01011100.00101101 (0x5C2D) = 0x1428 : CONST Unrest Lvl Increase / Cost / Spoils, Invasion of Partha (36 BC)
+01011100.00101110 (0x5C2E) = 0x140F : CONST Unrest Lvl Increase / Cost / Spoils, Dalmatian War (35 BC – 34 BC)
+01011100.00101111 (0x5C2F) = 0x140F : CONST Unrest Lvl Increase / Cost / Spoils, Cantabrian War (28 BC – 19 BC)
+01011100.00110000 (0x5C30) = 0x141E : CONST Unrest Lvl Increase / Cost / Spoils, Invasion of Arabia (24 BC)
+
+01101100.00000001 (0x6C01) = 0x0000 : CONST Attacks Province 1 & 2, 1st Latin War (499 BC – 493 BC)
+01101100.00000010 (0x6C02) = 0x0000 : CONST Attacks Province 1 & 2, Volscian War (c. 494 BC – 455 BC)
+01101100.00000011 (0x6C03) = 0x0000 : CONST Attacks Province 1 & 2, Aequian War (c. 494 BC – 455 BC)
+01101100.00000100 (0x6C04) = 0x0000 : CONST Attacks Province 1 & 2, Veientine War (483 BC – 435 BC)
+01101100.00000101 (0x6C05) = 0x0000 : CONST Attacks Province 1 & 2, Siege of Veii (406 BC – 396 BC)
+01101100.00000110 (0x6C06) = 0x0000 : CONST Attacks Province 1 & 2, Tarquinian War (358 BC – 351 BC)
+01101100.00000111 (0x6C07) = 0x0000 : CONST Attacks Province 1 & 2, 1st Samnite War (343 BC – 341 BC)
+01101100.00001000 (0x6C08) = 0x0000 : CONST Attacks Province 1 & 2, 2nd Latin War (340 BC – 338 BC)
+01101100.00001001 (0x6C09) = 0x0000 : CONST Attacks Province 1 & 2, 2nd Samnite War (327 BC – 304 BC)
+01101100.00001010 (0x6C0A) = 0x0000 : CONST Attacks Province 1 & 2, 3rd Samnite War (298 BC – 290 BC)
+01101100.00001011 (0x6C0B) = 0xC600 : CONST Attacks Province 1 & 2, Pyrrhic War (280 BC – 272 BC)
+01101100.00001100 (0x6C0C) = 0xC1CB : CONST Attacks Province 1 & 2, 1st Punic War (264 BC – 241 BC)
+01101100.00001101 (0x6C0D) = 0xCA00 : CONST Attacks Province 1 & 2, 1st Illyrian War (229 BC – 228 BC)
+01101100.00001110 (0x6C0E) = 0xC1CB : CONST Attacks Province 1 & 2, 1st Gallic War (225 BC – 222 BC)
+01101100.00001111 (0x6C0F) = 0xCA00 : CONST Attacks Province 1 & 2, 2nd Illyrian War (220 BC – 219 BC)
+01101100.00010000 (0x6C10) = 0xC1CB : CONST Attacks Province 1 & 2, 2nd Punic War (218 BC – 201 BC)
+01101100.00010001 (0x6C11) = 0xC3CA : CONST Attacks Province 1 & 2, 1st Macedonian War (215 BC – 205 BC)
+01101100.00010010 (0x6C12) = 0xC3CA : CONST Attacks Province 1 & 2, 2nd Macedonian War (200 BC – 196 BC)
+01101100.00010011 (0x6C13) = 0xCCCA : CONST Attacks Province 1 & 2, Syrian War (192 BC – 189 BC)
+01101100.00010100 (0x6C14) = 0xC3CA : CONST Attacks Province 1 & 2, 3rd Macedonian War (171 BC – 167 BC)
+01101100.00010101 (0x6C15) = 0xC4C2 : CONST Attacks Province 1 & 2, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+01101100.00010110 (0x6C16) = 0x0000 : CONST Attacks Province 1 & 2, 3rd Punic War (149 BC – 146 BC)
+01101100.00010111 (0x6C17) = 0xC300 : CONST Attacks Province 1 & 2, 4th Macedonian War (149 BC – 148 BC)
+01101100.00011000 (0x6C18) = 0xC400 : CONST Attacks Province 1 & 2, Numantine War (143 BC – 133 BC)
+01101100.00011001 (0x6C19) = 0xC600 : CONST Attacks Province 1 & 2, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+01101100.00011010 (0x6C1A) = 0xC1C3 : CONST Attacks Province 1 & 2, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+01101100.00011011 (0x6C1B) = 0xC700 : CONST Attacks Province 1 & 2, Jugurthine War (111 BC – 105 BC)
+01101100.00011100 (0x6C1C) = 0XC54C : CONST Attacks Province 1 & 2, 1st Cilician Pirates (104 BC – 101 BC)
+01101100.00011101 (0x6C1D) = 0xC600 : CONST Attacks Province 1 & 2, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+01101100.00011110 (0x6C1E) = 0x0000 : CONST Attacks Province 1 & 2, Social War (90 BC – 88 BC)
+01101100.00011111 (0x6C1F) = 0xCCCA : CONST Attacks Province 1 & 2, 1st Mithridatic War (89 BC – 85 BC)
+01101100.00100000 (0x6C20) = 0xCCCE : CONST Attacks Province 1 & 2, 2nd Mithridatic War (83 BC – 82 BC)
+01101100.00100001 (0x6C21) = 0xC4C2 : CONST Attacks Province 1 & 2, Sertorian Revolt (77 BC – 71 BC)
+01101100.00100010 (0x6C22) = 0xCEC8 : CONST Attacks Province 1 & 2, 3rd Mithridatic War (74 BC – 63 BC)
+01101100.00100011 (0x6C23) = 0x0000 : CONST Attacks Province 1 & 2, Gladiator Slave Revolt (73 BC – 71 BC)
+01101100.00100100 (0x6C24) = 0x0000 : CONST Attacks Province 1 & 2, 2nd Cilician Pirates (67 BC – 61 BC)
+01101100.00100101 (0x6C25) = 0xC1CB : CONST Attacks Province 1 & 2, 2nd Gallic War (58 BC – 56 BC)
+01101100.00100110 (0x6C26) = 0x0000 : CONST Attacks Province 1 & 2, Invasion of Britain (55 BC – 54 BC)
+01101100.00100111 (0x6C27) = 0x0000 : CONST Attacks Province 1 & 2, Invasion of Germany (55 BC)
+01101100.00101000 (0x6C28) = 0xC9CC : CONST Attacks Province 1 & 2, Parthian War (53 BC)
+01101100.00101001 (0x6C29) = 0xC1CB : CONST Attacks Province 1 & 2, 3rd Gallic War (52 BC – 51 BC)
+01101100.00101010 (0x6C2A) = 0x9000 : CONST Attacks Province 1 & 2, Alexandrine War (48 BC – 47 BC)
+01101100.00101101 (0x6C2D) = 0x0000 : CONST Attacks Province 1 & 2, Invasion of Partha (36 BC)
+01101100.00101111 (0x6C2F) = 0xC4C2 : CONST Attacks Province 1 & 2, Cantabrian War (28 BC – 19 BC)
+01101100.00101110 (0x6C2E) = 0xC300 : CONST Attacks Province 1 & 2, Dalmatian War (35 BC – 34 BC)
+01101100.00101011 (0x6C2B) = 0xCCCE : CONST Attacks Province 1 & 2, 4th Mithridatic War (Pontic War) (47 BC)
+01101100.00101100 (0x6C2C) = 0xCA00 : CONST Attacks Province 1 & 2, Moesian War (29 BC)
+01101100.00110000 (0x6C30) = 0x0000 : CONST Attacks Province 1 & 2, Invasion of Arabia (24 BC)
+
+01111100.00000001 (0x7C01) = 0x0000 : CONST Attacks Province 3 & 4, 1st Latin War (499 BC – 493 BC)
+01111100.00000010 (0x7C02) = 0x0000 : CONST Attacks Province 3 & 4, Volscian War (c. 494 BC – 455 BC)
+01111100.00000011 (0x7C03) = 0x0000 : CONST Attacks Province 3 & 4, Aequian War (c. 494 BC – 455 BC)
+01111100.00000100 (0x7C04) = 0x0000 : CONST Attacks Province 3 & 4, Veientine War (483 BC – 435 BC)
+01111100.00000101 (0x7C05) = 0x0000 : CONST Attacks Province 3 & 4, Siege of Veii (406 BC – 396 BC)
+01111100.00000110 (0x7C06) = 0x0000 : CONST Attacks Province 3 & 4, Tarquinian War (358 BC – 351 BC)
+01111100.00000111 (0x7C07) = 0x0000 : CONST Attacks Province 3 & 4, 1st Samnite War (343 BC – 341 BC)
+01111100.00001000 (0x7C08) = 0x0000 : CONST Attacks Province 3 & 4, 2nd Latin War (340 BC – 338 BC)
+01111100.00001001 (0x7C09) = 0x0000 : CONST Attacks Province 3 & 4, 2nd Samnite War (327 BC – 304 BC)
+01111100.00001010 (0x7C0A) = 0x0000 : CONST Attacks Province 3 & 4, 3rd Samnite War (298 BC – 290 BC)
+01111100.00001011 (0x7C0B) = 0x0000 : CONST Attacks Province 3 & 4, Pyrrhic War (280 BC – 272 BC)
+01111100.00001100 (0x7C0C) = 0x0000 : CONST Attacks Province 3 & 4, 1st Punic War (264 BC – 241 BC)
+01111100.00001101 (0x7C0D) = 0x0000 : CONST Attacks Province 3 & 4, 1st Illyrian War (229 BC – 228 BC)
+01111100.00001110 (0x7C0E) = 0xCF00 : CONST Attacks Province 3 & 4, 1st Gallic War (225 BC – 222 BC)
+01111100.00001111 (0x7C0F) = 0x0000 : CONST Attacks Province 3 & 4, 2nd Illyrian War (220 BC – 219 BC)
+01111100.00010000 (0x7C10) = 0x0000 : CONST Attacks Province 3 & 4, 2nd Punic War (218 BC – 201 BC)
+01111100.00010001 (0x7C11) = 0x0000 : CONST Attacks Province 3 & 4, 1st Macedonian War (215 BC – 205 BC)
+01111100.00010010 (0x7C12) = 0x0000 : CONST Attacks Province 3 & 4, 2nd Macedonian War (200 BC – 196 BC)
+01111100.00010011 (0x7C13) = 0xC800 : CONST Attacks Province 3 & 4, Syrian War (192 BC – 189 BC)
+01111100.00010100 (0x7C14) = 0x0000 : CONST Attacks Province 3 & 4, 3rd Macedonian War (171 BC – 167 BC)
+01111100.00010101 (0x7C15) = 0x0000 : CONST Attacks Province 3 & 4, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+01111100.00010110 (0x7C16) = 0x0000 : CONST Attacks Province 3 & 4, 3rd Punic War (149 BC – 146 BC)
+01111100.00010111 (0x7C17) = 0x0000 : CONST Attacks Province 3 & 4, 4th Macedonian War (149 BC – 148 BC)
+01111100.00011000 (0x7C18) = 0x0000 : CONST Attacks Province 3 & 4, Numantine War (143 BC – 133 BC)
+01111100.00011001 (0x7C19) = 0x0000 : CONST Attacks Province 3 & 4, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+01111100.00011010 (0x7C1A) = 0xCF00 : CONST Attacks Province 3 & 4, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+01111100.00011011 (0x7C1B) = 0x0000 : CONST Attacks Province 3 & 4, Jugurthine War (111 BC – 105 BC)
+01111100.00011100 (0x7C1C) = 0x0000 : CONST Attacks Province 3 & 4, 1st Cilician Pirates (104 BC – 101 BC)
+01111100.00011101 (0x7C1D) = 0x0000 : CONST Attacks Province 3 & 4, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+01111100.00011110 (0x7C1E) = 0x0000 : CONST Attacks Province 3 & 4, Social War (90 BC – 88 BC)
+01111100.00011111 (0x7C1F) = 0xCEC8 : CONST Attacks Province 3 & 4, 1st Mithridatic War (89 BC – 85 BC)
+01111100.00100000 (0x7C20) = 0xC800 : CONST Attacks Province 3 & 4, 2nd Mithridatic War (83 BC – 82 BC)
+01111100.00100001 (0x7C21) = 0x0000 : CONST Attacks Province 3 & 4, Sertorian Revolt (77 BC – 71 BC)
+01111100.00100010 (0x7C22) = 0x0000 : CONST Attacks Province 3 & 4, 3rd Mithridatic War (74 BC – 63 BC)
+01111100.00100011 (0x7C23) = 0x0000 : CONST Attacks Province 3 & 4, Gladiator Slave Revolt (73 BC – 71 BC)
+01111100.00100100 (0x7C24) = 0x0000 : CONST Attacks Province 3 & 4, 2nd Cilician Pirates (67 BC – 61 BC)
+01111100.00100101 (0x7C25) = 0xCF00 : CONST Attacks Province 3 & 4, 2nd Gallic War (58 BC – 56 BC)
+01111100.00100110 (0x7C26) = 0x0000 : CONST Attacks Province 3 & 4, Invasion of Britain (55 BC – 54 BC)
+01111100.00100111 (0x7C27) = 0x0000 : CONST Attacks Province 3 & 4, Invasion of Germany (55 BC)
+01111100.00101000 (0x7C28) = 0xCEC8 : CONST Attacks Province 3 & 4, Parthian War (53 BC)
+01111100.00101001 (0x7C29) = 0xCF00 : CONST Attacks Province 3 & 4, 3rd Gallic War (52 BC – 51 BC)
+01111100.00101010 (0x7C2A) = 0x0000 : CONST Attacks Province 3 & 4, Alexandrine War (48 BC – 47 BC)
+01111100.00101101 (0x7C2D) = 0x0000 : CONST Attacks Province 3 & 4, Invasion of Partha (36 BC)
+01111100.00101111 (0x7C2F) = 0x0000 : CONST Attacks Province 3 & 4, Cantabrian War (28 BC – 19 BC)
+01111100.00101110 (0x7C2E) = 0x0000 : CONST Attacks Province 3 & 4, Dalmatian War (35 BC – 34 BC)
+01111100.00101011 (0x7C2B) = 0x0000 : CONST Attacks Province 3 & 4, 4th Mithridatic War (Pontic War) (47 BC)
+01111100.00101100 (0x7C2C) = 0x0000 : CONST Attacks Province 3 & 4, Moesian War (29 BC)
+01111100.00110000 (0x7C30) = 0x0000 : CONST Attacks Province 3 & 4, Invasion of Arabia (24 BC)
+
+10001100.00000001 (0x8C01) = 0x1000 : CONST Disaster, 1st Latin War (499 BC – 493 BC)
+10001100.00000010 (0x8C02) = 0x1300 : CONST Disaster, Volscian War (c. 494 BC – 455 BC)
+10001100.00000011 (0x8C03) = 0x1300 : CONST Disaster, Aequian War (c. 494 BC – 455 BC)
+10001100.00000100 (0x8C04) = 0x1600 : CONST Disaster, Veientine War (483 BC – 435 BC)
+10001100.00000101 (0x8C05) = 0x1200 : CONST Disaster, Siege of Veii (406 BC – 396 BC)
+10001100.00000110 (0x8C06) = 0x1100 : CONST Disaster, Tarquinian War (358 BC – 351 BC)
+10001100.00000111 (0x8C07) = 0x1000 : CONST Disaster, 1st Samnite War (343 BC – 341 BC)
+10001100.00001000 (0x8C08) = 0x1100 : CONST Disaster, 2nd Latin War (340 BC – 338 BC)
+10001100.00001001 (0x8C09) = 0x1700 : CONST Disaster, 2nd Samnite War (327 BC – 304 BC)
+10001100.00001010 (0x8C0A) = 0x1200 : CONST Disaster, 3rd Samnite War (298 BC – 290 BC)
+10001100.00001011 (0x8C0B) = 0x1400 : CONST Disaster, Pyrrhic War (280 BC – 272 BC)
+10001100.00001100 (0x8C0C) = 0x1A00 : CONST Disaster, 1st Punic War (264 BC – 241 BC)
+10001100.00001101 (0x8C0D) = 0x1200 : CONST Disaster, 1st Illyrian War (229 BC – 228 BC)
+10001100.00001110 (0x8C0E) = 0x1A00 : CONST Disaster, 1st Gallic War (225 BC – 222 BC)
+10001100.00001111 (0x8C0F) = 0x1200 : CONST Disaster, 2nd Illyrian War (220 BC – 219 BC)
+10001100.00010000 (0x8C10) = 0x1700 : CONST Disaster, 2nd Punic War (218 BC – 201 BC)
+10001100.00010001 (0x8C11) = 0x1900 : CONST Disaster, 1st Macedonian War (215 BC – 205 BC)
+10001100.00010010 (0x8C12) = 0x1A00 : CONST Disaster, 2nd Macedonian War (200 BC – 196 BC)
+10001100.00010011 (0x8C13) = 0x1D00 : CONST Disaster, Syrian War (192 BC – 189 BC)
+10001100.00010100 (0x8C14) = 0x1500 : CONST Disaster, 3rd Macedonian War (171 BC – 167 BC)
+10001100.00010101 (0x8C15) = 0x1300 : CONST Disaster, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+10001100.00010110 (0x8C16) = 0x1400 : CONST Disaster, 3rd Punic War (149 BC – 146 BC)
+10001100.00010111 (0x8C17) = 0x1200 : CONST Disaster, 4th Macedonian War (149 BC – 148 BC)
+10001100.00011000 (0x8C18) = 0x1B00 : CONST Disaster, Numantine War (143 BC – 133 BC)
+10001100.00011001 (0x8C19) = 0x1E00 : CONST Disaster, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+10001100.00011010 (0x8C1A) = 0x1700 : CONST Disaster, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+10001100.00011011 (0x8C1B) = 0x1B00 : CONST Disaster, Jugurthine War (111 BC – 105 BC)
+10001100.00011100 (0x8C1C) = 0X1F00 : CONST Disaster, 1st Cilician Pirates (104 BC – 101 BC)
+10001100.00011101 (0x8C1D) = 0x1400 : CONST Disaster, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+10001100.00011110 (0x8C1E) = 0x1A00 : CONST Disaster, Social War (90 BC – 88 BC)
+10001100.00011111 (0x8C1F) = 0x1A00 : CONST Disaster, 1st Mithridatic War (89 BC – 85 BC)
+10001100.00100000 (0x8C20) = 0x1D00 : CONST Disaster, 2nd Mithridatic War (83 BC – 82 BC)
+10001100.00100001 (0x8C21) = 0x1B00 : CONST Disaster, Sertorian Revolt (77 BC – 71 BC)
+10001100.00100010 (0x8C22) = 0x1A00 : CONST Disaster, 3rd Mithridatic War (74 BC – 63 BC)
+10001100.00100011 (0x8C23) = 0x1300 : CONST Disaster, Gladiator Slave Revolt (73 BC – 71 BC)
+10001100.00100100 (0x8C24) = 0x1F00 : CONST Disaster, 2nd Cilician Pirates (67 BC – 61 BC)
+10001100.00100101 (0x8C25) = 0x1900 : CONST Disaster, 2nd Gallic War (58 BC – 56 BC)
+10001100.00100110 (0x8C26) = 0x1200 : CONST Disaster, Invasion of Britain (55 BC – 54 BC)
+10001100.00100111 (0x8C27) = 0x1D00 : CONST Disaster, Invasion of Germany (55 BC)
+10001100.00101000 (0x8C28) = 0x1900 : CONST Disaster, Parthian War (53 BC)
+10001100.00101001 (0x8C29) = 0x1700 : CONST Disaster, 3rd Gallic War (52 BC – 51 BC)
+10001100.00101010 (0x8C2A) = 0x1F00 : CONST Disaster, Alexandrine War (48 BC – 47 BC)
+10001100.00101101 (0x8C2D) = 0x1800 : CONST Disaster, Invasion of Partha (36 BC)
+10001100.00101111 (0x8C2F) = 0x1F00 : CONST Disaster, Cantabrian War (28 BC – 19 BC)
+10001100.00101110 (0x8C2E) = 0x1D00 : CONST Disaster, Dalmatian War (35 BC – 34 BC)
+10001100.00101011 (0x8C2B) = 0x1F00 : CONST Disaster, 4th Mithridatic War (Pontic War) (47 BC)
+10001100.00101100 (0x8C2C) = 0x1C00 : CONST Disaster, Moesian War (29 BC)
+10001100.00110000 (0x8C30) = 0x2780 : CONST Disaster, Invasion of Arabia (24 BC)
+
+10001100.00000001 (0x8C01) = 0x1F00 : CONST Standoff, 1st Latin War (499 BC – 493 BC)
+10001100.00000010 (0x8C02) = 0x1C00 : CONST Standoff, Volscian War (c. 494 BC – 455 BC)
+10001100.00000011 (0x8C03) = 0x1C00 : CONST Standoff, Aequian War (c. 494 BC – 455 BC)
+10001100.00000100 (0x8C04) = 0x1900 : CONST Standoff, Veientine War (483 BC – 435 BC)
+10001100.00000101 (0x8C05) = 0x1800 : CONST Standoff, Siege of Veii (406 BC – 396 BC)
+10001100.00000110 (0x8C06) = 0x1E00 : CONST Standoff, Tarquinian War (358 BC – 351 BC)
+10001100.00000111 (0x8C07) = 0x1F00 : CONST Standoff, 1st Samnite War (343 BC – 341 BC)
+10001100.00001000 (0x8C08) = 0x1F00 : CONST Standoff, 2nd Latin War (340 BC – 338 BC)
+10001100.00001001 (0x8C09) = 0x1E00 : CONST Standoff, 2nd Samnite War (327 BC – 304 BC)
+10001100.00001010 (0x8C0A) = 0x1E00 : CONST Standoff, 3rd Samnite War (298 BC – 290 BC)
+10001100.00001011 (0x8C0B) = 0x1D00 : CONST Standoff, Pyrrhic War (280 BC – 272 BC)
+10001100.00001100 (0x8C0C) = 0x28B0 : CONST Standoff, 1st Punic War (264 BC – 241 BC)
+10001100.00001101 (0x8C0D) = 0x1E00 : CONST Standoff, 1st Illyrian War (229 BC – 228 BC)
+10001100.00001110 (0x8C0E) = 0x1C00 : CONST Standoff, 1st Gallic War (225 BC – 222 BC)
+10001100.00001111 (0x8C0F) = 0x1E00 : CONST Standoff, 2nd Illyrian War (220 BC – 219 BC)
+10001100.00010000 (0x8C10) = 0x28C0 : CONST Standoff, 2nd Punic War (218 BC – 201 BC)
+10001100.00010001 (0x8C11) = 0x28F0 : CONST Standoff, 1st Macedonian War (215 BC – 205 BC)
+10001100.00010010 (0x8C12) = 0x1B00 : CONST Standoff, 2nd Macedonian War (200 BC – 196 BC)
+10001100.00010011 (0x8C13) = 0x1C00 : CONST Standoff, Syrian War (192 BC – 189 BC)
+10001100.00010100 (0x8C14) = 0x1B00 : CONST Standoff, 3rd Macedonian War (171 BC – 167 BC)
+10001100.00010101 (0x8C15) = 0x28D0 : CONST Standoff, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+10001100.00010110 (0x8C16) = 0x1C00 : CONST Standoff, 3rd Punic War (149 BC – 146 BC)
+10001100.00010111 (0x8C17) = 0x1E00 : CONST Standoff, 4th Macedonian War (149 BC – 148 BC)
+10001100.00011000 (0x8C18) = 0x28F0 : CONST Standoff, Numantine War (143 BC – 133 BC)
+10001100.00011001 (0x8C19) = 0x1C00 : CONST Standoff, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+10001100.00011010 (0x8C1A) = 0x1800 : CONST Standoff, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+10001100.00011011 (0x8C1B) = 0x1A00 : CONST Standoff, Jugurthine War (111 BC – 105 BC)
+10001100.00011100 (0x8C1C) = 0X1C00 : CONST Standoff, 1st Cilician Pirates (104 BC – 101 BC)
+10001100.00011101 (0x8C1D) = 0x1C00 : CONST Standoff, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+10001100.00011110 (0x8C1E) = 0x1D00 : CONST Standoff, Social War (90 BC – 88 BC)
+10001100.00011111 (0x8C1F) = 0x1B00 : CONST Standoff, 1st Mithridatic War (89 BC – 85 BC)
+10001100.00100000 (0x8C20) = 0x1E00 : CONST Standoff, 2nd Mithridatic War (83 BC – 82 BC)
+10001100.00100001 (0x8C21) = 0x1A00 : CONST Standoff, Sertorian Revolt (77 BC – 71 BC)
+10001100.00100010 (0x8C22) = 0x28E0 : CONST Standoff, 3rd Mithridatic War (74 BC – 63 BC)
+10001100.00100011 (0x8C23) = 0x1D00 : CONST Standoff, Gladiator Slave Revolt (73 BC – 71 BC)
+10001100.00100100 (0x8C24) = 0x1900 : CONST Standoff, 2nd Cilician Pirates (67 BC – 61 BC)
+10001100.00100101 (0x8C25) = 0x1D00 : CONST Standoff, 2nd Gallic War (58 BC – 56 BC)
+10001100.00100110 (0x8C26) = 0x1E00 : CONST Standoff, Invasion of Britain (55 BC – 54 BC)
+10001100.00100111 (0x8C27) = 0x1F00 : CONST Standoff, Invasion of Germany (55 BC)
+10001100.00101000 (0x8C28) = 0x1F00 : CONST Standoff, Parthian War (53 BC)
+10001100.00101001 (0x8C29) = 0x1E00 : CONST Standoff, 3rd Gallic War (52 BC – 51 BC)
+10001100.00101010 (0x8C2A) = 0x1E00 : CONST Standoff, Alexandrine War (48 BC – 47 BC)
+10001100.00101101 (0x8C2D) = 0x1B00 : CONST Standoff, Invasion of Partha (36 BC)
+10001100.00101111 (0x8C2F) = 0x1900 : CONST Standoff, Cantabrian War (28 BC – 19 BC)
+10001100.00101110 (0x8C2E) = 0x1F00 : CONST Standoff, Dalmatian War (35 BC – 34 BC)
+10001100.00101011 (0x8C2B) = 0x1E00 : CONST Standoff, 4th Mithridatic War (Pontic War) (47 BC)
+10001100.00101100 (0x8C2C) = 0x28B0 : CONST Standoff, Moesian War (29 BC)
+10001100.00110000 (0x8C30) = 0x29A0 : CONST Standoff, Invasion of Arabia (24 BC)
+
+10101100.00000001 (0xAC01) = 0x0800 : CONST Matching War 1 & 2, 1st Latin War (499 BC – 493 BC)
+10101100.00000010 (0xAC02) = 0x0000 : CONST Matching War 1 & 2, Volscian War (c. 494 BC – 455 BC)
+10101100.00000011 (0xAC03) = 0x0000 : CONST Matching War 1 & 2, Aequian War (c. 494 BC – 455 BC)
+10101100.00000100 (0xAC04) = 0x0000 : CONST Matching War 1 & 2, Veientine War (483 BC – 435 BC)
+10101100.00000101 (0xAC05) = 0x0000 : CONST Matching War 1 & 2, Siege of Veii (406 BC – 396 BC)
+10101100.00000110 (0xAC06) = 0x0000 : CONST Matching War 1 & 2, Tarquinian War (358 BC – 351 BC)
+10101100.00000111 (0xAC07) = 0x090A : CONST Matching War 1 & 2, 1st Samnite War (343 BC – 341 BC)
+10101100.00001000 (0xAC08) = 0x0100 : CONST Matching War 1 & 2, 2nd Latin War (340 BC – 338 BC)
+10101100.00001001 (0xAC09) = 0x070A : CONST Matching War 1 & 2, 2nd Samnite War (327 BC – 304 BC)
+10101100.00001010 (0xAC0A) = 0x0709 : CONST Matching War 1 & 2, 3rd Samnite War (298 BC – 290 BC)
+10101100.00001011 (0xAC0B) = 0x0000 : CONST Matching War 1 & 2, Pyrrhic War (280 BC – 272 BC)
+10101100.00001100 (0xAC0C) = 0x1016 : CONST Matching War 1 & 2, 1st Punic War (264 BC – 241 BC)
+10101100.00001101 (0xAC0D) = 0x0F00 : CONST Matching War 1 & 2, 1st Illyrian War (229 BC – 228 BC)
+10101100.00001110 (0xAC0E) = 0x2529 : CONST Matching War 1 & 2, 1st Gallic War (225 BC – 222 BC)
+10101100.00001111 (0xAC0F) = 0x0D00 : CONST Matching War 1 & 2, 2nd Illyrian War (220 BC – 219 BC)
+10101100.00010000 (0xAC10) = 0x0C16 : CONST Matching War 1 & 2, 2nd Punic War (218 BC – 201 BC)
+10101100.00010001 (0xAC11) = 0x1214 : CONST Matching War 1 & 2, 1st Macedonian War (215 BC – 205 BC)
+10101100.00010010 (0xAC12) = 0x1114 : CONST Matching War 1 & 2, 2nd Macedonian War (200 BC – 196 BC)
+10101100.00010011 (0xAC13) = 0x0000 : CONST Matching War 1 & 2, Syrian War (192 BC – 189 BC)
+10101100.00010100 (0xAC14) = 0x1112 : CONST Matching War 1 & 2, 3rd Macedonian War (171 BC – 167 BC)
+10101100.00010101 (0xAC15) = 0x0000 : CONST Matching War 1 & 2, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+10101100.00010110 (0xAC16) = 0x0C10 : CONST Matching War 1 & 2, 3rd Punic War (149 BC – 146 BC)
+10101100.00010111 (0xAC17) = 0x1112 : CONST Matching War 1 & 2, 4th Macedonian War (149 BC – 148 BC)
+10101100.00011000 (0xAC18) = 0x0000 : CONST Matching War 1 & 2, Numantine War (143 BC – 133 BC)
+10101100.00011001 (0xAC19) = 0x1D00 : CONST Matching War 1 & 2, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+10101100.00011010 (0xAC1A) = 0x0000 : CONST Matching War 1 & 2, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+10101100.00011011 (0xAC1B) = 0x0000 : CONST Matching War 1 & 2, Jugurthine War (111 BC – 105 BC)
+10101100.00011100 (0xAC1C) = 0X2400 : CONST Matching War 1 & 2, 1st Cilician Pirates (104 BC – 101 BC)
+10101100.00011101 (0xAC1D) = 0x1900 : CONST Matching War 1 & 2, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+10101100.00011110 (0xAC1E) = 0x0000 : CONST Matching War 1 & 2, Social War (90 BC – 88 BC)
+10101100.00011111 (0xAC1F) = 0x2022 : CONST Matching War 1 & 2, 1st Mithridatic War (89 BC – 85 BC)
+10101100.00100000 (0xAC20) = 0x1F22 : CONST Matching War 1 & 2, 2nd Mithridatic War (83 BC – 82 BC)
+10101100.00100001 (0xAC21) = 0x0000 : CONST Matching War 1 & 2, Sertorian Revolt (77 BC – 71 BC)
+10101100.00100010 (0xAC22) = 0x1F20 : CONST Matching War 1 & 2, 3rd Mithridatic War (74 BC – 63 BC)
+10101100.00100011 (0xAC23) = 0x0000 : CONST Matching War 1 & 2, Gladiator Slave Revolt (73 BC – 71 BC)
+10101100.00100100 (0xAC24) = 0x1C00 : CONST Matching War 1 & 2, 2nd Cilician Pirates (67 BC – 61 BC)
+10101100.00100101 (0xAC25) = 0x0E29 : CONST Matching War 1 & 2, 2nd Gallic War (58 BC – 56 BC)
+10101100.00100110 (0xAC26) = 0x0000 : CONST Matching War 1 & 2, Invasion of Britain (55 BC – 54 BC)
+10101100.00100111 (0xAC27) = 0x0000 : CONST Matching War 1 & 2, Invasion of Germany (55 BC)
+10101100.00101000 (0xAC28) = 0x0000 : CONST Matching War 1 & 2, Parthian War (53 BC)
+10101100.00101001 (0xAC29) = 0x0E25 : CONST Matching War 1 & 2, 3rd Gallic War (52 BC – 51 BC)
+10101100.00101010 (0xAC2A) = 0x0000 : CONST Matching War 1 & 2, Alexandrine War (48 BC – 47 BC)
+10101100.00101101 (0xAC2D) = 0x0000 : CONST Matching War 1 & 2, Invasion of Partha (36 BC)
+10101100.00101111 (0xAC2F) = 0x0000 : CONST Matching War 1 & 2, Cantabrian War (28 BC – 19 BC)
+10101100.00101110 (0xAC2E) = 0x0000 : CONST Matching War 1 & 2, Dalmatian War (35 BC – 34 BC)
+10101100.00101011 (0xAC2B) = 0x1F20 : CONST Matching War 1 & 2, 4th Mithridatic War (Pontic War) (47 BC)
+10101100.00101100 (0xAC2C) = 0x0000 : CONST Matching War 1 & 2, Moesian War (29 BC)
+10101100.00110000 (0xAC30) = 0x0000 : CONST Matching War 1 & 2, Invasion of Arabia (24 BC)
+
+10111100.00000001 (0xBC01) = 0x0000 : CONST Matching War 3 & 4, 1st Latin War (499 BC – 493 BC)
+10111100.00000010 (0xBC02) = 0x0000 : CONST Matching War 3 & 4, Volscian War (c. 494 BC – 455 BC)
+10111100.00000011 (0xBC03) = 0x0000 : CONST Matching War 3 & 4, Aequian War (c. 494 BC – 455 BC)
+10111100.00000100 (0xBC04) = 0x0000 : CONST Matching War 3 & 4, Veientine War (483 BC – 435 BC)
+10111100.00000101 (0xBC05) = 0x0000 : CONST Matching War 3 & 4, Siege of Veii (406 BC – 396 BC)
+10111100.00000110 (0xBC06) = 0x0000 : CONST Matching War 3 & 4, Tarquinian War (358 BC – 351 BC)
+10111100.00000111 (0xBC07) = 0x0000 : CONST Matching War 3 & 4, 1st Samnite War (343 BC – 341 BC)
+10111100.00001000 (0xBC08) = 0x0000 : CONST Matching War 3 & 4, 2nd Latin War (340 BC – 338 BC)
+10111100.00001001 (0xBC09) = 0x0000 : CONST Matching War 3 & 4, 2nd Samnite War (327 BC – 304 BC)
+10111100.00001010 (0xBC0A) = 0x0000 : CONST Matching War 3 & 4, 3rd Samnite War (298 BC – 290 BC)
+10111100.00001011 (0xBC0B) = 0x0000 : CONST Matching War 3 & 4, Pyrrhic War (280 BC – 272 BC)
+10111100.00001100 (0xBC0C) = 0x0000 : CONST Matching War 3 & 4, 1st Punic War (264 BC – 241 BC)
+10111100.00001101 (0xBC0D) = 0x0000 : CONST Matching War 3 & 4, 1st Illyrian War (229 BC – 228 BC)
+10111100.00001110 (0xBC0E) = 0x0000 : CONST Matching War 3 & 4, 1st Gallic War (225 BC – 222 BC)
+10111100.00001111 (0xBC0F) = 0x0000 : CONST Matching War 3 & 4, 2nd Illyrian War (220 BC – 219 BC)
+10111100.00010000 (0xBC10) = 0x0000 : CONST Matching War 3 & 4, 2nd Punic War (218 BC – 201 BC)
+10111100.00010001 (0xBC11) = 0x1700 : CONST Matching War 3 & 4, 1st Macedonian War (215 BC – 205 BC)
+10111100.00010010 (0xBC12) = 0x1700 : CONST Matching War 3 & 4, 2nd Macedonian War (200 BC – 196 BC)
+10111100.00010011 (0xBC13) = 0x0000 : CONST Matching War 3 & 4, Syrian War (192 BC – 189 BC)
+10111100.00010100 (0xBC14) = 0x1700 : CONST Matching War 3 & 4, 3rd Macedonian War (171 BC – 167 BC)
+10111100.00010101 (0xBC15) = 0x0000 : CONST Matching War 3 & 4, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+10111100.00010110 (0xBC16) = 0x0000 : CONST Matching War 3 & 4, 3rd Punic War (149 BC – 146 BC)
+10111100.00010111 (0xBC17) = 0x1400 : CONST Matching War 3 & 4, 4th Macedonian War (149 BC – 148 BC)
+10111100.00011000 (0xBC18) = 0x0000 : CONST Matching War 3 & 4, Numantine War (143 BC – 133 BC)
+10111100.00011001 (0xBC19) = 0x0000 : CONST Matching War 3 & 4, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+10111100.00011010 (0xBC1A) = 0x0000 : CONST Matching War 3 & 4, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+10111100.00011011 (0xBC1B) = 0x0000 : CONST Matching War 3 & 4, Jugurthine War (111 BC – 105 BC)
+10111100.00011100 (0xBC1C) = 0x0000 : CONST Matching War 3 & 4, 1st Cilician Pirates (104 BC – 101 BC)
+10111100.00011101 (0xBC1D) = 0x0000 : CONST Matching War 3 & 4, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+10111100.00011110 (0xBC1E) = 0x0000 : CONST Matching War 3 & 4, Social War (90 BC – 88 BC)
+10111100.00011111 (0xBC1F) = 0x2B00 : CONST Matching War 3 & 4, 1st Mithridatic War (89 BC – 85 BC)
+10111100.00100000 (0xBC20) = 0x2B00 : CONST Matching War 3 & 4, 2nd Mithridatic War (83 BC – 82 BC)
+10111100.00100001 (0xBC21) = 0x0000 : CONST Matching War 3 & 4, Sertorian Revolt (77 BC – 71 BC)
+10111100.00100010 (0xBC22) = 0x2B00 : CONST Matching War 3 & 4, 3rd Mithridatic War (74 BC – 63 BC)
+10111100.00100011 (0xBC23) = 0x0000 : CONST Matching War 3 & 4, Gladiator Slave Revolt (73 BC – 71 BC)
+10111100.00100100 (0xBC24) = 0x0000 : CONST Matching War 3 & 4, 2nd Cilician Pirates (67 BC – 61 BC)
+10111100.00100101 (0xBC25) = 0x0000 : CONST Matching War 3 & 4, 2nd Gallic War (58 BC – 56 BC)
+10111100.00100110 (0xBC26) = 0x0000 : CONST Matching War 3 & 4, Invasion of Britain (55 BC – 54 BC)
+10111100.00100111 (0xBC27) = 0x0000 : CONST Matching War 3 & 4, Invasion of Germany (55 BC)
+10111100.00101000 (0xBC28) = 0x0000 : CONST Matching War 3 & 4, Parthian War (53 BC)
+10111100.00101001 (0xBC29) = 0x0000 : CONST Matching War 3 & 4, 3rd Gallic War (52 BC – 51 BC)
+10111100.00101010 (0xBC2A) = 0x0000 : CONST Matching War 3 & 4, Alexandrine War (48 BC – 47 BC)
+10111100.00101101 (0xBC2D) = 0x0000 : CONST Matching War 3 & 4, Invasion of Partha (36 BC)
+10111100.00101111 (0xBC2F) = 0x0000 : CONST Matching War 3 & 4, Cantabrian War (28 BC – 19 BC)
+10111100.00101110 (0xBC2E) = 0x0000 : CONST Matching War 3 & 4, Dalmatian War (35 BC – 34 BC)
+10111100.00101011 (0xBC2B) = 0x2200 : CONST Matching War 3 & 4, 4th Mithridatic War (Pontic War) (47 BC)
+10111100.00101100 (0xBC2C) = 0x0000 : CONST Matching War 3 & 4, Moesian War (29 BC)
+10111100.00110000 (0xBC30) = 0x0000 : CONST Matching War 3 & 4, Invasion of Arabia (24 BC)
+
+11001100.00000001 (0xCC01) = 0x4142 : CONST Destroys / Allows Concession 1 & 2, 1st Latin War (499 BC – 493 BC)
+11001100.00000010 (0xCC02) = 0x4344 : CONST Destroys / Allows Concession 1 & 2, Volscian War (c. 494 BC – 455 BC)
+11001100.00000011 (0xCC03) = 0x4546 : CONST Destroys / Allows Concession 1 & 2, Aequian War (c. 494 BC – 455 BC)
+11001100.00000100 (0xCC04) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Veientine War (483 BC – 435 BC)
+11001100.00000101 (0xCC05) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Siege of Veii (406 BC – 396 BC)
+11001100.00000110 (0xCC06) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Tarquinian War (358 BC – 351 BC)
+11001100.00000111 (0xCC07) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 1st Samnite War (343 BC – 341 BC)
+11001100.00001000 (0xCC08) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 2nd Latin War (340 BC – 338 BC)
+11001100.00001001 (0xCC09) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 2nd Samnite War (327 BC – 304 BC)
+11001100.00001010 (0xCC0A) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 3rd Samnite War (298 BC – 290 BC)
+11001100.00001011 (0xCC0B) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Pyrrhic War (280 BC – 272 BC)
+11001100.00001100 (0xCC0C) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 1st Punic War (264 BC – 241 BC)
+11001100.00001101 (0xCC0D) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 1st Illyrian War (229 BC – 228 BC)
+11001100.00001110 (0xCC0E) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 1st Gallic War (225 BC – 222 BC)
+11001100.00001111 (0xCC0F) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 2nd Illyrian War (220 BC – 219 BC)
+11001100.00010000 (0xCC10) = 0xF100 : CONST Destroys / Allows Concession 1 & 2, 2nd Punic War (218 BC – 201 BC)
+11001100.00010001 (0xCC11) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 1st Macedonian War (215 BC – 205 BC)
+11001100.00010010 (0xCC12) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 2nd Macedonian War (200 BC – 196 BC)
+11001100.00010011 (0xCC13) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Syrian War (192 BC – 189 BC)
+11001100.00010100 (0xCC14) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 3rd Macedonian War (171 BC – 167 BC)
+11001100.00010101 (0xCC15) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+11001100.00010110 (0xCC16) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 3rd Punic War (149 BC – 146 BC)
+11001100.00010111 (0xCC17) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 4th Macedonian War (149 BC – 148 BC)
+11001100.00011000 (0xCC18) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Numantine War (143 BC – 133 BC)
+11001100.00011001 (0xCC19) = 0xCD00 : CONST Destroys / Allows Concession 1 & 2, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+11001100.00011010 (0xCC1A) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+11001100.00011011 (0xCC1B) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Jugurthine War (111 BC – 105 BC)
+11001100.00011100 (0xCC1C) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 1st Cilician Pirates (104 BC – 101 BC)
+11001100.00011101 (0xCC1D) = 0xCD00 : CONST Destroys / Allows Concession 1 & 2, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+11001100.00011110 (0xCC1E) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Social War (90 BC – 88 BC)
+11001100.00011111 (0xCC1F) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 1st Mithridatic War (89 BC – 85 BC)
+11001100.00100000 (0xCC20) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 2nd Mithridatic War (83 BC – 82 BC)
+11001100.00100001 (0xCC21) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Sertorian Revolt (77 BC – 71 BC)
+11001100.00100010 (0xCC22) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 3rd Mithridatic War (74 BC – 63 BC)
+11001100.00100011 (0xCC23) = 0xF100 : CONST Destroys / Allows Concession 1 & 2, Gladiator Slave Revolt (73 BC – 71 BC)
+11001100.00100100 (0xCC24) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 2nd Cilician Pirates (67 BC – 61 BC)
+11001100.00100101 (0xCC25) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 2nd Gallic War (58 BC – 56 BC)
+11001100.00100110 (0xCC26) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Invasion of Britain (55 BC – 54 BC)
+11001100.00100111 (0xCC27) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Invasion of Germany (55 BC)
+11001100.00101000 (0xCC28) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Parthian War (53 BC)
+11001100.00101001 (0xCC29) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 3rd Gallic War (52 BC – 51 BC)
+11001100.00101010 (0xCC2A) = 0xC800 : CONST Destroys / Allows Concession 1 & 2, Alexandrine War (48 BC – 47 BC)
+11001100.00101101 (0xCC2D) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Invasion of Partha (36 BC)
+11001100.00101111 (0xCC2F) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Cantabrian War (28 BC – 19 BC)
+11001100.00101110 (0xCC2E) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Dalmatian War (35 BC – 34 BC)
+11001100.00101011 (0xCC2B) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, 4th Mithridatic War (Pontic War) (47 BC)
+11001100.00101100 (0xCC2C) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Moesian War (29 BC)
+11001100.00110000 (0xCC30) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Invasion of Arabia (24 BC)
+
+11011100.00000001 (0xDC01) = 0x0000 : CONST Creates Province 1 & 2, 1st Latin War (499 BC – 493 BC)
+11011100.00000010 (0xDC02) = 0x0000 : CONST Creates Province 1 & 2, Volscian War (c. 494 BC – 455 BC)
+11011100.00000011 (0xDC03) = 0x0000 : CONST Creates Province 1 & 2, Aequian War (c. 494 BC – 455 BC)
+11011100.00000100 (0xDC04) = 0x0000 : CONST Creates Province 1 & 2, Veientine War (483 BC – 435 BC)
+11011100.00000101 (0xDC05) = 0x0000 : CONST Creates Province 1 & 2, Siege of Veii (406 BC – 396 BC)
+11011100.00000110 (0xDC06) = 0x0000 : CONST Creates Province 1 & 2, Tarquinian War (358 BC – 351 BC)
+11011100.00000111 (0xDC07) = 0x0000 : CONST Creates Province 1 & 2, 1st Samnite War (343 BC – 341 BC)
+11011100.00001000 (0xDC08) = 0x0000 : CONST Creates Province 1 & 2, 2nd Latin War (340 BC – 338 BC)
+11011100.00001001 (0xDC09) = 0x0000 : CONST Creates Province 1 & 2, 2nd Samnite War (327 BC – 304 BC)
+11011100.00001010 (0xDC0A) = 0x0000 : CONST Creates Province 1 & 2, 3rd Samnite War (298 BC – 290 BC)
+11011100.00001011 (0xDC0B) = 0x0000 : CONST Creates Province 1 & 2, Pyrrhic War (280 BC – 272 BC)
+11011100.00001100 (0xDC0C) = 0xC5C6 : CONST Creates Province 1 & 2, 1st Punic War (264 BC – 241 BC)
+11011100.00001101 (0xDC0D) = 0x8300 : CONST Creates Province 1 & 2, 1st Illyrian War (229 BC – 228 BC)
+11011100.00001110 (0xDC0E) = 0xC100 : CONST Creates Province 1 & 2, 1st Gallic War (225 BC – 222 BC)
+11011100.00001111 (0xDC0F) = 0x8300 : CONST Creates Province 1 & 2, 2nd Illyrian War (220 BC – 219 BC)
+11011100.00010000 (0xDC10) = 0xC2C4 : CONST Creates Province 1 & 2, 2nd Punic War (218 BC – 201 BC)
+11011100.00010001 (0xDC11) = 0x0000 : CONST Creates Province 1 & 2, 1st Macedonian War (215 BC – 205 BC)
+11011100.00010010 (0xDC12) = 0x0000 : CONST Creates Province 1 & 2, 2nd Macedonian War (200 BC – 196 BC)
+11011100.00010011 (0xDC13) = 0x0000 : CONST Creates Province 1 & 2, Syrian War (192 BC – 189 BC)
+11011100.00010100 (0xDC14) = 0x0000 : CONST Creates Province 1 & 2, 3rd Macedonian War (171 BC – 167 BC)
+11011100.00010101 (0xDC15) = 0x0000 : CONST Creates Province 1 & 2, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+11011100.00010110 (0xDC16) = 0xC700 : CONST Creates Province 1 & 2, 3rd Punic War (149 BC – 146 BC)
+11011100.00010111 (0xDC17) = 0xCA00 : CONST Creates Province 1 & 2, 4th Macedonian War (149 BC – 148 BC)
+11011100.00011000 (0xDC18) = 0x0000 : CONST Creates Province 1 & 2, Numantine War (143 BC – 133 BC)
+11011100.00011001 (0xDC19) = 0x0000 : CONST Creates Province 1 & 2, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+11011100.00011010 (0xDC1A) = 0x1B00 : CONST Creates Province 1 & 2, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+11011100.00011011 (0xDC1B) = 0x0000 : CONST Creates Province 1 & 2, Jugurthine War (111 BC – 105 BC)
+11011100.00011100 (0xDC1C) = 0xC900 : CONST Creates Province 1 & 2, 1st Cilician Pirates (104 BC – 101 BC)
+11011100.00011101 (0xDC1D) = 0x0000 : CONST Creates Province 1 & 2, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+11011100.00011110 (0xDC1E) = 0x0000 : CONST Creates Province 1 & 2, Social War (90 BC – 88 BC)
+11011100.00011111 (0xDC1F) = 0x0000 : CONST Creates Province 1 & 2, 1st Mithridatic War (89 BC – 85 BC)
+11011100.00100000 (0xDC20) = 0x0000 : CONST Creates Province 1 & 2, 2nd Mithridatic War (83 BC – 82 BC)
+11011100.00100001 (0xDC21) = 0x0000 : CONST Creates Province 1 & 2, Sertorian Revolt (77 BC – 71 BC)
+11011100.00100010 (0xDC22) = 0xECCE : CONST Creates Province 1 & 2, 3rd Mithridatic War (74 BC – 63 BC)
+11011100.00100011 (0xDC23) = 0x0000 : CONST Creates Province 1 & 2, Gladiator Slave Revolt (73 BC – 71 BC)
+11011100.00100100 (0xDC24) = 0xCD00 : CONST Creates Province 1 & 2, 2nd Cilician Pirates (67 BC – 61 BC)
+11011100.00100101 (0xDC25) = 0xCF00 : CONST Creates Province 1 & 2, 2nd Gallic War (58 BC – 56 BC)
+11011100.00100110 (0xDC26) = 0x0000 : CONST Creates Province 1 & 2, Invasion of Britain (55 BC – 54 BC)
+11011100.00100111 (0xDC27) = 0x0000 : CONST Creates Province 1 & 2, Invasion of Germany (55 BC)
+11011100.00101000 (0xDC28) = 0x0000 : CONST Creates Province 1 & 2, Parthian War (53 BC)
+11011100.00101001 (0xDC29) = 0xCF00 : CONST Creates Province 1 & 2, 3rd Gallic War (52 BC – 51 BC)
+11011100.00101010 (0xDC2A) = 0x0000 : CONST Creates Province 1 & 2, Alexandrine War (48 BC – 47 BC)
+11011100.00101101 (0xDC2D) = 0x0000 : CONST Creates Province 1 & 2, Invasion of Partha (36 BC)
+11011100.00101111 (0xDC2F) = 0x0000 : CONST Creates Province 1 & 2, Cantabrian War (28 BC – 19 BC)
+11011100.00101110 (0xDC2E) = 0x0000 : CONST Creates Province 1 & 2, Dalmatian War (35 BC – 34 BC)
+11011100.00101011 (0xDC2B) = 0x0000 : CONST Creates Province 1 & 2, 4th Mithridatic War (Pontic War) (47 BC)
+11011100.00101100 (0xDC2C) = 0x0000 : CONST Creates Province 1 & 2, Moesian War (29 BC)
+11011100.00110000 (0xDC30) = 0x0000 : CONST Creates Province 1 & 2, Invasion of Arabia (24 BC)
+
+11101100.00000001 (0xEC01) = 0x0000 : CONST Etc, 1st Latin War (499 BC – 493 BC)
+11101100.00000010 (0xEC02) = 0x0000 : CONST Etc, Volscian War (c. 494 BC – 455 BC)
+11101100.00000011 (0xEC03) = 0x0000 : CONST Etc, Aequian War (c. 494 BC – 455 BC)
+11101100.00000100 (0xEC04) = 0x0000 : CONST Etc, Veientine War (483 BC – 435 BC)
+11101100.00000101 (0xEC05) = 0x030A : CONST Etc, Siege of Veii (406 BC – 396 BC)
+11101100.00000110 (0xEC06) = 0x0000 : CONST Etc, Tarquinian War (358 BC – 351 BC)
+11101100.00000111 (0xEC07) = 0x020A : CONST Etc, 1st Samnite War (343 BC – 341 BC)
+11101100.00001000 (0xEC08) = 0x030A : CONST Etc, 2nd Latin War (340 BC – 338 BC)
+11101100.00001001 (0xEC09) = 0x0514 : CONST Etc, 2nd Samnite War (327 BC – 304 BC)
+11101100.00001010 (0xEC0A) = 0x0514 : CONST Etc, 3rd Samnite War (298 BC – 290 BC)
+11101100.00001011 (0xEC0B) = 0x4000 : CONST Etc, Pyrrhic War (280 BC – 272 BC)
+11101100.00001100 (0xEC0C) = 0x0000 : CONST Etc, 1st Punic War (264 BC – 241 BC)
+11101100.00001101 (0xEC0D) = 0x0000 : CONST Etc, 1st Illyrian War (229 BC – 228 BC)
+11101100.00001110 (0xEC0E) = 0x0000 : CONST Etc, 1st Gallic War (225 BC – 222 BC)
+11101100.00001111 (0xEC0F) = 0x0000 : CONST Etc, 2nd Illyrian War (220 BC – 219 BC)
+11101100.00010000 (0xEC10) = 0x0000 : CONST Etc, 2nd Punic War (218 BC – 201 BC)
+11101100.00010001 (0xEC11) = 0x0000 : CONST Etc, 1st Macedonian War (215 BC – 205 BC)
+11101100.00010010 (0xEC12) = 0x0000 : CONST Etc, 2nd Macedonian War (200 BC – 196 BC)
+11101100.00010011 (0xEC13) = 0x0000 : CONST Etc, Syrian War (192 BC – 189 BC)
+11101100.00010100 (0xEC14) = 0x0000 : CONST Etc, 3rd Macedonian War (171 BC – 167 BC)
+11101100.00010101 (0xEC15) = 0x0000 : CONST Etc, Spanish Revolts (Celtiberia / Lusitania) (154 BC – 139 BC)
+11101100.00010110 (0xEC16) = 0x0000 : CONST Etc, 3rd Punic War (149 BC – 146 BC)
+11101100.00010111 (0xEC17) = 0x0000 : CONST Etc, 4th Macedonian War (149 BC – 148 BC)
+11101100.00011000 (0xEC18) = 0x0000 : CONST Etc, Numantine War (143 BC – 133 BC)
+11101100.00011001 (0xEC19) = 0x0000 : CONST Etc, 1st Sicilian Slave Revolt (135 BC – 132 BC)
+11101100.00011010 (0xEC1A) = 0x0000 : CONST Etc, Germanic Migrations (Cimbri / Teutons) (111 BC – 102 BC)
+11101100.00011011 (0xEC1B) = 0x0000 : CONST Etc, Jugurthine War (111 BC – 105 BC)
+11101100.00011100 (0xEC1C) = 0x0000 : CONST Etc, 1st Cilician Pirates (104 BC – 101 BC)
+11101100.00011101 (0xEC1D) = 0x0000 : CONST Etc, 2nd Sicilian Slave Revolt (104 BC – 101 BC)
+11101100.00011110 (0xEC1E) = 0x0000 : CONST Etc, Social War (90 BC – 88 BC)
+11101100.00011111 (0xEC1F) = 0x0000 : CONST Etc, 1st Mithridatic War (89 BC – 85 BC)
+11101100.00100000 (0xEC20) = 0x0000 : CONST Etc, 2nd Mithridatic War (83 BC – 82 BC)
+11101100.00100001 (0xEC21) = 0x0000 : CONST Etc, Sertorian Revolt (77 BC – 71 BC)
+11101100.00100010 (0xEC22) = 0x0000 : CONST Etc, 3rd Mithridatic War (74 BC – 63 BC)
+11101100.00100011 (0xEC23) = 0x0000 : CONST Etc, Gladiator Slave Revolt (73 BC – 71 BC)
+11101100.00100100 (0xEC24) = 0x0000 : CONST Etc, 2nd Cilician Pirates (67 BC – 61 BC)
+11101100.00100101 (0xEC25) = 0x0000 : CONST Etc, 2nd Gallic War (58 BC – 56 BC)
+11101100.00100110 (0xEC26) = 0x0000 : CONST Etc, Invasion of Britain (55 BC – 54 BC)
+11101100.00100111 (0xEC27) = 0x0000 : CONST Etc, Invasion of Germany (55 BC)
+11101100.00101000 (0xEC28) = 0x0000 : CONST Etc, Parthian War (53 BC)
+11101100.00101001 (0xEC29) = 0x0000 : CONST Etc, 3rd Gallic War (52 BC – 51 BC)
+11101100.00101010 (0xEC2A) = 0x0000 : CONST Etc, Alexandrine War (48 BC – 47 BC)
+11101100.00101101 (0xEC2D) = 0x0000 : CONST Etc, Invasion of Partha (36 BC)
+11101100.00101111 (0xEC2F) = 0x0000 : CONST Etc, Cantabrian War (28 BC – 19 BC)
+11101100.00101110 (0xEC2E) = 0x0000 : CONST Etc, Dalmatian War (35 BC – 34 BC)
+11101100.00101011 (0xEC2B) = 0x0000 : CONST Etc, 4th Mithridatic War (Pontic War) (47 BC)
+11101100.00101100 (0xEC2C) = 0x0000 : CONST Etc, Moesian War (29 BC)
+11101100.00110000 (0xEC30) = 0x0000 : CONST Etc, Invasion of Arabia (24 BC)
+
+
+-- Enemy Leader --
+
+= FORMAT:
+
+00011101.00xxxxxx : CONST Flags & Era
+    - Bits EDC : Era
+    - Bit 1==1 if Pontifex Maximus cannot be elected until this Leader is discarded.
+    - Bit 0==1 ALWAYS! This makes Leader cards in par with Intrigue Leaders (Cleopatra VII)
+00101101.00xxxxxx : CONST INT Strength
+10011101.00xxxxxx : CONST Disaster / Standoff
+    - Bits FEDC : Disaster 1 Value - 3
+    - Bits BA98 : Disaster 2 Value - 3
+    - Bits 7654 : Standoff 1 Value - 3
+    - Bits 3210 : Standoff 2 Value - 3
+10101101.00xxxxxx : CONST Matching War 1 & 2
+    - Bits DCBA98 : Matching War 1 Entity ID
+    - Bits 543210 : Matching War 2 Entity ID
+10111101.00xxxxxx : CONST Matching War 3 & 4
+    - Bits DCBA98 : Matching War 3 Entity ID
+    - Bits 543210 : Matching War 4 Entity ID
+11001101.00xxxxxx : CONST Destroys / Allows Concession 1 & 2
+    - Bits FE==11 if Destroys Concession 1
+    - Bits FE==10 if Destroys Tax Farmer Concession 1
+    - Bits FE==01 if Allows Concession 1
+    - Bits DCBA98 : Destroys Concession 1 Entity ID
+    - Bits 76==11 if Destroys Concession 2
+    - Bits 76==10 if Destroys Tax Farmer Concession 2
+    - Bits 76==01 if Allows Concession 2
+    - Bits 543210 : Destroys Concession 2 Entity ID
+
+= DEFAULTS:
+
+00011101.00000001 (0x1D01) = 0x1000 : CONST Flags & Era, Lucius Tarquinius Superbus (? – 495 BC)
+00011101.00000010 (0x1D02) = 0x1000 : CONST Flags & Era, Gaius Marcius Coriolanus (? – 487 BC)
+00011101.00000011 (0x1D03) = 0x2000 : CONST Flags & Era, Pyrrhus (c. 319 BC – 272 BC)
+00011101.00000100 (0x1D04) = 0x3000 : CONST Flags & Era, Hamilcar (c. 275 BC – 229 BC)
+00011101.00000101 (0x1D05) = 0x3000 : CONST Flags & Era, Hannibal (247 BC – 183 BC)
+00011101.00000110 (0x1D06) = 0x3000 : CONST Flags & Era, Antiochus III (c. 242 BC – 187 BC)
+00011101.00000111 (0x1D07) = 0x3000 : CONST Flags & Era, Philip V (238 BC – 179 BC)
+00011101.00001000 (0x1D08) = 0x4000 : CONST Flags & Era, Viriathus (c. 180 BC – 139 BC)
+00011101.00001001 (0x1D09) = 0x5000 : CONST Flags & Era, Mithridates VI (120 BC – 63 BC)
+00011101.00001010 (0x1D0A) = 0x5000 : CONST Flags & Era, Spartacus (c. 111 BC – 71 BC)
+00011101.00001011 (0x1D0B) = 0x5000 : CONST Flags & Era, Vercingetorix (82 BC – 46 BC)
+
+00101101.00000001 (0x2D01) = 0x0001 : CONST INT Strength, Lucius Tarquinius Superbus (? – 495 BC)
+00101101.00000010 (0x2D02) = 0x0002 : CONST INT Strength, Gaius Marcius Coriolanus (? – 487 BC)
+00101101.00000011 (0x2D03) = 0x0003 : CONST INT Strength, Pyrrhus (c. 319 BC – 272 BC)
+00101101.00000100 (0x2D04) = 0x0003 : CONST INT Strength, Hamilcar (c. 275 BC – 229 BC)
+00101101.00000101 (0x2D05) = 0x0007 : CONST INT Strength, Hannibal (247 BC – 183 BC)
+00101101.00000110 (0x2D06) = 0x0005 : CONST INT Strength, Antiochus III (c. 242 BC – 187 BC)
+00101101.00000111 (0x2D07) = 0x0006 : CONST INT Strength, Philip V (238 BC – 179 BC)
+00101101.00001000 (0x2D08) = 0x0005 : CONST INT Strength, Viriathus (c. 180 BC – 139 BC)
+00101101.00001001 (0x2D09) = 0x0004 : CONST INT Strength, Mithridates VI (120 BC – 63 BC)
+00101101.00001010 (0x2D0A) = 0x0005 : CONST INT Strength, Spartacus (c. 111 BC – 71 BC)
+00101101.00001011 (0x2D0B) = 0x0006 : CONST INT Strength, Vercingetorix (82 BC – 46 BC)
+
+10011101.00000001 (0x9D01) = 0x1400 : CONST Disaster, Lucius Tarquinius Superbus (? – 495 BC)
+10011101.00000010 (0x9D02) = 0x1000 : CONST Disaster, Gaius Marcius Coriolanus (? – 487 BC)
+10011101.00000011 (0x9D03) = 0x1600 : CONST Disaster, Pyrrhus (c. 319 BC – 272 BC)
+10011101.00000100 (0x9D04) = 0x1500 : CONST Disaster, Hamilcar (c. 275 BC – 229 BC)
+10011101.00000101 (0x9D05) = 0x1600 : CONST Disaster, Hannibal (247 BC – 183 BC)
+10011101.00000110 (0x9D06) = 0x1B00 : CONST Disaster, Antiochus III (c. 242 BC – 187 BC)
+10011101.00000111 (0x9D07) = 0x1C00 : CONST Disaster, Philip V (238 BC – 179 BC)
+10011101.00001000 (0x9D08) = 0x1C00 : CONST Disaster, Viriathus (c. 180 BC – 139 BC)
+10011101.00001001 (0x9D09) = 0x1900 : CONST Disaster, Mithridates VI (120 BC – 63 BC)
+10011101.00001010 (0x9D0A) = 0x1800 : CONST Disaster, Spartacus (c. 111 BC – 71 BC)
+10011101.00001011 (0x9D0B) = 0x1B00 : CONST Disaster, Vercingetorix (82 BC – 46 BC)
+
+10011101.00000001 (0x9D01) = 0x1B00 : CONST Standoff, Lucius Tarquinius Superbus (? – 495 BC)
+10011101.00000010 (0x9D02) = 0x1D00 : CONST Standoff, Gaius Marcius Coriolanus (? – 487 BC)
+10011101.00000011 (0x9D03) = 0x1C00 : CONST Standoff, Pyrrhus (c. 319 BC – 272 BC)
+10011101.00000100 (0x9D04) = 0x1900 : CONST Standoff, Hamilcar (c. 275 BC – 229 BC)
+10011101.00000101 (0x9D05) = 0x1D00 : CONST Standoff, Hannibal (247 BC – 183 BC)
+10011101.00000110 (0x9D06) = 0x1E00 : CONST Standoff, Antiochus III (c. 242 BC – 187 BC)
+10011101.00000111 (0x9D07) = 0x1B00 : CONST Standoff, Philip V (238 BC – 179 BC)
+10011101.00001000 (0x9D08) = 0x1900 : CONST Standoff, Viriathus (c. 180 BC – 139 BC)
+10011101.00001001 (0x9D09) = 0x1C00 : CONST Standoff, Mithridates VI (120 BC – 63 BC)
+10011101.00001010 (0x9D0A) = 0x1B00 : CONST Standoff, Spartacus (c. 111 BC – 71 BC)
+10011101.00001011 (0x9D0B) = 0x1F00 : CONST Standoff, Vercingetorix (82 BC – 46 BC)
+
+Note: Viriathus should have errata and match with Spanish Revolts, Numantine War and Sertorian Revolt.
+
+10101101.00000001 (0xAD01) = 0x0100 : CONST Matching War 1 & 2, Lucius Tarquinius Superbus (? – 495 BC)
+10101101.00000010 (0xAD02) = 0x0200 : CONST Matching War 1 & 2, Gaius Marcius Coriolanus (? – 487 BC)
+10101101.00000011 (0xAD03) = 0x0B00 : CONST Matching War 1 & 2, Pyrrhus (c. 319 BC – 272 BC)
+10101101.00000100 (0xAD04) = 0x0C10 : CONST Matching War 1 & 2, Hamilcar (c. 275 BC – 229 BC)
+10101101.00000101 (0xAD05) = 0x0C10 : CONST Matching War 1 & 2, Hannibal (247 BC – 183 BC)
+10101101.00000110 (0xAD06) = 0x1300 : CONST Matching War 1 & 2, Antiochus III (c. 242 BC – 187 BC)
+10101101.00000111 (0xAD07) = 0x1112 : CONST Matching War 1 & 2, Philip V (238 BC – 179 BC)
+10101101.00001000 (0xAD08) = 0x1521 : CONST Matching War 1 & 2, Viriathus (c. 180 BC – 139 BC)
+10101101.00001001 (0xAD09) = 0x1F20 : CONST Matching War 1 & 2, Mithridates VI (120 BC – 63 BC)
+10101101.00001010 (0xAD0A) = 0x191D : CONST Matching War 1 & 2, Spartacus (c. 111 BC – 71 BC)
+10101101.00001011 (0xAD0B) = 0x0E25 : CONST Matching War 1 & 2, Vercingetorix (82 BC – 46 BC)
+
+10111101.00000001 (0xBD01) = 0x0000 : CONST Matching War 3 & 4, Lucius Tarquinius Superbus (? – 495 BC)
+10111101.00000010 (0xBD02) = 0x0000 : CONST Matching War 3 & 4, Gaius Marcius Coriolanus (? – 487 BC)
+10111101.00000011 (0xBD03) = 0x0000 : CONST Matching War 3 & 4, Pyrrhus (c. 319 BC – 272 BC)
+10111101.00000100 (0xBD04) = 0x1600 : CONST Matching War 3 & 4, Hamilcar (c. 275 BC – 229 BC)
+10111101.00000101 (0xBD05) = 0x1600 : CONST Matching War 3 & 4, Hannibal (247 BC – 183 BC)
+10111101.00000110 (0xBD06) = 0x0000 : CONST Matching War 3 & 4, Antiochus III (c. 242 BC – 187 BC)
+10111101.00000111 (0xBD07) = 0x1417 : CONST Matching War 3 & 4, Philip V (238 BC – 179 BC)
+10111101.00001000 (0xBD08) = 0x0000 : CONST Matching War 3 & 4, Viriathus (c. 180 BC – 139 BC)
+10111101.00001001 (0xBD09) = 0x222B : CONST Matching War 3 & 4, Mithridates VI (120 BC – 63 BC)
+10111101.00001010 (0xBD0A) = 0x2300 : CONST Matching War 3 & 4, Spartacus (c. 111 BC – 71 BC)
+10111101.00001011 (0xBD0B) = 0x2900 : CONST Matching War 3 & 4, Vercingetorix (82 BC – 46 BC)
+
+11001101.00000001 (0xCD01) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Lucius Tarquinius Superbus (? – 495 BC)
+11001101.00000010 (0xCD02) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Gaius Marcius Coriolanus (? – 487 BC)
+11001101.00000011 (0xCD03) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Pyrrhus (c. 319 BC – 272 BC)
+11001101.00000100 (0xCD04) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Hamilcar (c. 275 BC – 229 BC)
+11001101.00000101 (0xCD05) = 0xF100 : CONST Destroys / Allows Concession 1 & 2, Hannibal (247 BC – 183 BC)
+11001101.00000110 (0xCD06) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Antiochus III (c. 242 BC – 187 BC)
+11001101.00000111 (0xCD07) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Philip V (238 BC – 179 BC)
+11001101.00001000 (0xCD08) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Viriathus (c. 180 BC – 139 BC)
+11001101.00001001 (0xCD09) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Mithridates VI (120 BC – 63 BC)
+11001101.00001010 (0xCD0A) = 0xF100 : CONST Destroys / Allows Concession 1 & 2, Spartacus (c. 111 BC – 71 BC)
+11001101.00001011 (0xCD0B) = 0x0000 : CONST Destroys / Allows Concession 1 & 2, Vercingetorix (82 BC – 46 BC)
+
+
+-- Event --
+
+= FORMAT:
+
+00011110.00xxxxxx : CONST Flags & Era
+    - Bits EDC : Era
+
+# TODO
+
+= DEFAULTS:
+
+00011110.00000001 (0x1E01) = 0x2000 : CONST Flags & Era, 1st Plebian Secession (494 BC)
+00011110.00000010 (0x1E02) = 0x2000 : CONST Flags & Era, Agrarian Unrest (485 BC)
+00011110.00000011 (0x1E03) = 0x2000 : CONST Flags & Era, The Twelve Tables (450 BC)
+00011110.00000100 (0x1E04) = 0x2000 : CONST Flags & Era, 2nd Plebian Secession (449 BC)
+00011110.00000101 (0x1E05) = 0x2000 : CONST Flags & Era, Spurius Maelius (439 BC)
+00011110.00000110 (0x1E06) = 0x2000 : CONST Flags & Era, Sack of Rome (390 BC)
+00011110.00000111 (0x1E07) = 0x3000 : CONST Flags & Era, Plebian Revolt (287 BC)
+00011110.00001000 (0x1E08) = 0x3000 : CONST Flags & Era, Gallic Raids (3rd century BC)
+00011110.00001001 (0x1E09) = 0x4000 : CONST Flags & Era, Pergamene Bequest (133 BC)
+00011110.00001010 (0x1E0A) = 0x5000 : CONST Flags & Era, Ptolemy Apion Bequest (96 BC)
+00011110.00001011 (0x1E0B) = 0x5000 : CONST Flags & Era, Bithynian Bequest (75 BC)
+00011110.00001100 (0x1E0C) = 0x5000 : CONST Flags & Era, 2nd Catiline Conspiracy (63 BC)
+00011110.00001101 (0x1E0D) = 0x6000 : CONST Flags & Era, Mob Riots (53 BC)
+00011110.00001110 (0x1E0E) = 0x6000 : CONST Flags & Era, Annexation of Egypt (30 BC)
+00011110.00001111 (0x1E0F) = 0x6000 : CONST Flags & Era, Civil Unrest
+00011110.00010000 (0x1E10) = 0x6000 : CONST Flags & Era, Republic Restored
+
+
+-- Family Card --
+
+= FORMAT:
+
+00011111.xxxxxxxx : CONST Flags 1 & Era
+    - Bits EDC : Era
+00111111.xxxxxxxx : CONST Initial Ratings
+    - Bits FED : Military
+    - Bits CBA : Oratory
+    - Bits 9876 : Loyalty
+    - Bits 543 : Initial Influence
+    - Bits 210 : Initial Popularity
+10011111.xxxxxxxx : Flags
+    - Bit 0==1 if Prior Consul
+    - Bit 1==1 if Priest
+    - Bit 2==1 if Corrupt
+    - Bit 3==1 if Exile
+    - Bit 8==1 if Cannot be played unless there are less than 6 remaining in the Italian Deck.
+    - Bit E==1 if Secondary Rebel
+    - Bit F==1 if Main Rebel
+10101111.xxxxxxxx : Ratings
+    - Bits FEDCBA98 : UINT Influence
+    - Bits 43210 : UINT Popularity + 9
+10111111.xxxxxxxx : UINT Knights
+11001111.xxxxxxxx : Captive
+    - Bits FEDCBA98 : Captive by War; War Entity ID
+11111111.xxxxxxxx : Alignment
+    - Bits A98 : Faction Nr
+
+= DEFAULTS:
+
+00011111.00000001 (0x1F01) = 0x3000 : CONST Flags 1 & Era, [#1] Cornelius
+00011111.00000010 (0x1F02) = 0x3000 : CONST Flags 1 & Era, [#2] Fabius
+00011111.00000011 (0x1F03) = 0x3000 : CONST Flags 1 & Era, [#3] Valerius
+00011111.00000100 (0x1F04) = 0x3000 : CONST Flags 1 & Era, [#4] Julius
+00011111.00000101 (0x1F05) = 0x3000 : CONST Flags 1 & Era, [#5] Claudius
+00011111.00000110 (0x1F06) = 0x3000 : CONST Flags 1 & Era, [#6] Manlius
+00011111.00000111 (0x1F07) = 0x3000 : CONST Flags 1 & Era, [#7] Fulvius
+00011111.00001000 (0x1F08) = 0x3000 : CONST Flags 1 & Era, [#8] Furius
+00011111.00001001 (0x1F09) = 0x3000 : CONST Flags 1 & Era, [#9] Aurelius
+00011111.00001010 (0x1F0A) = 0x3000 : CONST Flags 1 & Era, [#10] Junius
+00011111.00001011 (0x1F0B) = 0x3000 : CONST Flags 1 & Era, [#11] Papirius
+00011111.00001100 (0x1F0C) = 0x3000 : CONST Flags 1 & Era, [#12] Acilius
+00011111.00001101 (0x1F0D) = 0x3000 : CONST Flags 1 & Era, [#13] Flaminius
+00011111.00001110 (0x1F0E) = 0x3000 : CONST Flags 1 & Era, [#14] Aelius
+00011111.00001111 (0x1F0F) = 0x3000 : CONST Flags 1 & Era, [#15] Sulpicius
+00011111.00010000 (0x1F10) = 0x3000 : CONST Flags 1 & Era, [#16] Calpurnius
+00011111.00010001 (0x1F11) = 0x3000 : CONST Flags 1 & Era, [#17] Plautius
+00011111.00010010 (0x1F12) = 0x3000 : CONST Flags 1 & Era, [#18] Quinctius
+00011111.00010011 (0x1F13) = 0x3000 : CONST Flags 1 & Era, [#19] Aemilius
+00011111.00010100 (0x1F14) = 0x3000 : CONST Flags 1 & Era, [#20] Terentius
+00011111.00010101 (0x1F15) = 0x4000 : CONST Flags 1 & Era, [#21] Servilius
+00011111.00010110 (0x1F16) = 0x4000 : CONST Flags 1 & Era, [#22] Porcius
+00011111.00010111 (0x1F17) = 0x4000 : CONST Flags 1 & Era, [#23] Popillius
+00011111.00011000 (0x1F18) = 0x4000 : CONST Flags 1 & Era, [#24] Cassius
+00011111.00011001 (0x1F19) = 0x4000 : CONST Flags 1 & Era, [#25] Sempronius
+00011111.00011010 (0x1F1A) = 0x5000 : CONST Flags 1 & Era, [#26] Octavius
+00011111.00011011 (0x1F1B) = 0x5000 : CONST Flags 1 & Era, [#27] Marius
+00011111.00011100 (0x1F1C) = 0x5000 : CONST Flags 1 & Era, [#28] Tullius
+00011111.00011101 (0x1F1D) = 0x5000 : CONST Flags 1 & Era, [#29] Licinius
+00011111.00011110 (0x1F1E) = 0x5000 : CONST Flags 1 & Era, [#30] Pompeius
+00011111.00011111 (0x1F1F) = 0x6000 : CONST Flags 1 & Era, [#31] Domitius
+00011111.00100000 (0x1F20) = 0x6000 : CONST Flags 1 & Era, [#32] Antonius
+00011111.00100001 (0x1F21) = 0x6000 : CONST Flags 1 & Era, [#33] Caecilius
+00011111.00100010 (0x1F22) = 0x6000 : CONST Flags 1 & Era, [#34] Marcius
+
+00011111.00000001 (0x1F01) = 0x8E68 : CONST Initial Ratings, [#1] Cornelius
+00011111.00000010 (0x1F02) = 0x8A68 : CONST Initial Ratings, [#2] Fabius
+00011111.00000011 (0x1F03) = 0x2AA8 : CONST Initial Ratings, [#3] Valerius
+00011111.00000100 (0x1F04) = 0x8E60 : CONST Initial Ratings, [#4] Julius
+00011111.00000101 (0x1F05) = 0x4DE0 : CONST Initial Ratings, [#5] Claudius
+00011111.00000110 (0x1F06) = 0x69E0 : CONST Initial Ratings, [#6] Manlius
+00011111.00000111 (0x1F07) = 0x4A20 : CONST Initial Ratings, [#7] Fulvius
+00011111.00001000 (0x1F08) = 0x6E18 : CONST Initial Ratings, [#8] Furius
+00011111.00001001 (0x1F09) = 0x4DD8 : CONST Initial Ratings, [#9] Aurelius
+00011111.00001010 (0x1F0A) = 0x2A18 : CONST Initial Ratings, [#10] Junius
+00011111.00001011 (0x1F0B) = 0x2998 : CONST Initial Ratings, [#11] Papirius
+00011111.00001100 (0x1F0C) = 0x49D8 : CONST Initial Ratings, [#12] Acilius
+00011111.00001101 (0x1F0D) = 0x8998 : CONST Initial Ratings, [#13] Flaminius
+00011111.00001110 (0x1F0E) = 0x71D8 : CONST Initial Ratings, [#14] Aelius
+00011111.00001111 (0x1F0F) = 0x6A10 : CONST Initial Ratings, [#15] Sulpicius
+00011111.00010000 (0x1F10) = 0x2A50 : CONST Initial Ratings, [#16] Calpurnius
+00011111.00010001 (0x1F11) = 0x4590 : CONST Initial Ratings, [#17] Plautius
+00011111.00010010 (0x1F12) = 0x6988 : CONST Initial Ratings, [#18] Quinctius
+00011111.00010011 (0x1F13) = 0x8A08 : CONST Initial Ratings, [#19] Aemilius
+00011111.00010100 (0x1F14) = 0x4588 : CONST Initial Ratings, [#20] Terentius
+00011111.00010101 (0x1F15) = 0x7260 : CONST Initial Ratings, [#21] Servilius
+00011111.00010110 (0x1F16) = 0x5288 : CONST Initial Ratings, [#22] Porcius
+00011111.00010111 (0x1F17) = 0x2DD8 : CONST Initial Ratings, [#23] Popillius
+00011111.00011000 (0x1F18) = 0x6E58 : CONST Initial Ratings, [#24] Cassius
+00011111.00011001 (0x1F19) = 0x2D98 : CONST Initial Ratings, [#25] Sempronius
+00011111.00011010 (0x1F1A) = 0x4E60 : CONST Initial Ratings, [#26] Octavius
+00011111.00011011 (0x1F1B) = 0x8A60 : CONST Initial Ratings, [#27] Marius
+00011111.00011100 (0x1F1C) = 0x4DD8 : CONST Initial Ratings, [#28] Tullius
+00011111.00011101 (0x1F1D) = 0x6A58 : CONST Initial Ratings, [#29] Licinius
+00011111.00011110 (0x1F1E) = 0x49D0 : CONST Initial Ratings, [#30] Pompeius
+00011111.00011111 (0x1F1F) = 0x49E8 : CONST Initial Ratings, [#31] Domitius
+00011111.00100000 (0x1F20) = 0x69C8 : CONST Initial Ratings, [#32] Antonius
+00011111.00100001 (0x1F21) = 0x6DA8 : CONST Initial Ratings, [#33] Caecilius
+00011111.00100010 (0x1F22) = 0x2A10 : CONST Initial Ratings, [#34] Marcius

@@ -2,6 +2,19 @@ import pathlib
 import sys
 
 
+VAL_SIZE = 2
+#SECTION_ALIGN = 0x1000 # may be used if more parts will be added
+
+
+RORH_TEMPLATE = """#ifndef __DEFINE_RORFILEH__
+#define __DEFINE_RORFILEH__
+
+{{rorh}}
+
+#endif  /* #ifndef __DEFINE_RORFILEH__ */
+;"""
+
+
 def str2int(s):
     s = s.lower()
     if s.startswith("0b"):
@@ -13,21 +26,12 @@ def str2int(s):
     return v
 
 
-def str2int_with_addr(s, keydata):
-    if ":" in s:
-        sp = [s_.strip() for s_ in s.split(":")]
-        return keydata[sp[0]] + str2int(sp[1])
-    return str2int(s)
-    
-
-def frmstr2rorbytes(frmstr):
-    # pass 1
-    VAL_SIZE = 2
-    BASE_TYP_LSC = 11 
+def frmstrpass1(frmstr):
     # 2 bytes: VVVVVTYP>....<ID
     # bit length of TYP (type) and ID varies
     # V: value category; V==0 is the object (location) itself
-    keydata = {}
+    d = {}
+    keys = []
     key = None
     keyfrm = None
     entitycount = None
@@ -38,6 +42,9 @@ def frmstr2rorbytes(frmstr):
         sline = sline.partition(";")[0].rstrip() # trim comments
         if sline.startswith("K "):
             key = sline[2:]
+            if not keys or keys[-1] != key:
+                keys.append(key)
+            d.setdefault(key, [None, None, None, None, 0, 0])
         elif sline.startswith("F "):
             keyfrm = "".join(sline[2:].upper().split())
             keyfrm, _, keyshift = keyfrm.partition("+")
@@ -49,36 +56,130 @@ def frmstr2rorbytes(frmstr):
                 assert entitycount == 2**len(keyfrm)
             keyidstr = "".join(c for c in keyfrm if c in "01")
             keyidval = int(f'0b{keyidstr}', 2)
-            keyidbits = len(keyidstr)
-            keynrbits = sum(1 for c in keyfrm if c=="N")
-            keyvalbits = sum(1 for c in keyfrm if c=="V")
+            keyidbits = d[key][1] = len(keyidstr)
+            keynrbits = d[key][2] = sum(1 for c in keyfrm if c=="N")
+            keyvalbits = d[key][3] = sum(1 for c in keyfrm if c=="V")
             assert keyidbits + keynrbits + keyvalbits == len(keyfrm)
-            keyrefaddr = keyidval << (keynrbits + keyvalbits)
-            keydata[key] = (keyrefaddr, keyidbits, keynrbits, keyvalbits)
+            keyrefaddr = d[key][0] = keyidval << (keynrbits + keyvalbits)
+        elif sline.startswith("L "):
+            n = str2int(sline[2:].split()[0].strip())
+            keymaxn = d[key][4] = max(n, (d[key][4] or 0))
+        elif sline.startswith("S "):
+            n = str2int(sline[2:].split()[0].strip())
+            keymaxn = d[key][4] = max(n, (d[key][4] or 0))
+            s = str2int(sline[2:].split()[1].strip())
+            keymaxs = d[key][5] = max(s, (d[key][5] or 0))
+    keys = tuple(keys)
+    assert len(keys) == len(set(keys))
+    return entitycount, keys, d
+
+
+def frmstr2rorarrofbytes(*args):
+    assert len(args) in {1, 4}
+    frmstr = args[0]
+    if len(args) == 1:
+        entitycount, keys, d = frmstrpass1(frmstr)
+    elif len(args) == 4:
+        entitycount, keys, d = args[1:]
+    d_keystrs = {}
+
+    for key in keys:
+        keyrefaddr, keyidbits, keynrbits, keyvalbits, keymaxn, keymaxs = d[key]
+        # print(key, d[key])
+        d_keystrs[key] = [""] * (keymaxn + 1) * (keymaxs + 1)
+
     # pass 2
     b = bytearray(entitycount * VAL_SIZE)
     for sline in frmstr.split("\n"):
         sline = sline.partition(";")[0].rstrip() # trim comments
         if sline.startswith("K "):
             key = sline[2:]
-            keyrefaddr, keyidbits, keynrbits, keyvalbits = keydata[key]
+            keyrefaddr, keyidbits, keynrbits, keyvalbits, keymaxn, keymaxs = d[key]
         elif sline.startswith("V "):
             a = tuple(str2int(s.strip()) for s in sline[2:].split())
             n, v, val = a
             addr = keyrefaddr + (n << keyvalbits) + v
             b[VAL_SIZE * addr : VAL_SIZE * addr + VAL_SIZE] = divmod(val, 256)
-            print(f'0x{VAL_SIZE * addr:0>4X} <- 0x{val:0>4X}')
+            # print(f'0x{VAL_SIZE * addr:0>4X} <- 0x{val:0>4X}')
         elif sline.startswith("L "):
             a = [s.strip() for s in sline[2:].split()]
             n = str2int(a[0])
             addr = keyrefaddr + (n << keyvalbits)
             linkkey = a[1]
             linkn = (str2int(a[2]) if len(a) == 3 else 0)
-            linkrefaddr, linkidbits, linknrbits, linkvalbits = keydata[linkkey]
+            linkrefaddr, _, _, linkvalbits, _, _ = d[linkkey]
             linkaddr = linkrefaddr + (linkn << linkvalbits)
             b[VAL_SIZE * addr : VAL_SIZE * addr + VAL_SIZE] = divmod(linkaddr, 256)
-            print(f'0x{VAL_SIZE * addr:0>4X} <- 0x{linkaddr:0>4X}')
-    return bytes(b)
+            # print(f'0x{VAL_SIZE * addr:0>4X} <- 0x{linkaddr:0>4X}')
+        elif sline.startswith("S "):
+            a = [s.strip() for s in sline[2:].split()]
+            n = str2int(a[0])
+            s = str2int(a[1])
+            keyitemstr = " ".join(a[2:])
+            # print([len(d_keystrs[key]), d_keystrs[key]])
+            # print([d[key][4] * s + n, d[key][4], s, n])
+            d_keystrs[key][d[key][4] * s + n] = keyitemstr
+
+    mainbytes = bytes(b)
+    stringbytes = b'\0'.join(bytearray(b'\0'.join(keyitemstr.encode("utf-8") for keyitemstr in d_keystrs[key])) for key in keys) + b'\0'
+    #stringbytes += b'\0' * (SECTION_ALIGN - (len(stringbytes) % SECTION_ALIGN))
+    return mainbytes, stringbytes
+
+
+def frmstr2rorbytes(*args):
+    assert len(args) in {1, 2}
+    if len(args) == 1:
+        frmstr = args[0]
+        mainbytes, stringbytes = frmstr2rorarrofbytes(frmstr)
+    elif len(args) == 2:
+        mainbytes, stringbytes = args
+    return mainbytes + stringbytes
+
+
+def frmstr2rorhstr(*args):
+    assert len(args) in {1, 4, 5}
+    if len(args) == 1:
+        frmstr = args[0]
+        entitycount, keys, d = frmstrpass1(frmstr)
+        mainbytes, stringbytes = frmstr2rorarrofbytes(frmstr, entitycount, keys, d)
+    elif len(args) == 4:
+        frmstr = args[0]
+        entitycount, keys, d = args[1:]
+        mainbytes, stringbytes = frmstr2rorarrofbytes(frmstr, entitycount, keys, d)
+    elif len(args) == 5:
+        entitycount, keys, d, mainbytes, stringbytes = args
+
+    lines = [
+        f'#define RORH_MAINLENGTH {len(mainbytes)}',
+        f'#define RORH_STRINGLENGTH {len(stringbytes)}',
+        "",
+        f'#define RORH_TOTALLENGTH {len(mainbytes) + len(stringbytes)}',
+        "",
+    ]
+
+    stridx = 0
+    for key in keys:
+        keyrefaddr, keyidbits, keynrbits, keyvalbits, keymaxn, keymaxs = d[key]
+        strcount = (keymaxn + 1) * (keymaxs + 1)
+        lines.extend([
+            f'#define RORH_{key}_REF_ADDR 0x{keyrefaddr:0>4X}',
+            f'#define RORH_{key}_ID_BITS {keyidbits}',
+            f'#define RORH_{key}_NR_BITS {keynrbits}',
+            f'#define RORH_{key}_VAL_BITS {keyvalbits}',
+            f'#define RORH_{key}_MAX_N {keymaxn}',
+            f'#define RORH_{key}_MAX_S {keymaxs}',
+            f'#define RORH_{key}_STR_IDX {stridx}',
+            f'#define RORH_{key}_STR_COUNT {strcount}',
+            "",
+        ])
+        stridx += strcount
+
+    lines.extend([
+        f'#define RORH_TOTALSTRINGCOUNT {stridx}',
+    ])
+
+    return RORH_TEMPLATE.replace("{{rorh}}", "\n".join(lines))
+
 
 
 if __name__ == "__main__":
@@ -97,9 +198,18 @@ if __name__ == "__main__":
     with frm_path.open("r", encoding="utf-8") as _f:
         frmstr = _f.read()
 
-    rorbytes = frmstr2rorbytes(frmstr)
+    entitycount, keys, d = frmstrpass1(frmstr)
+    arrofbytes = frmstr2rorarrofbytes(frmstr, entitycount, keys, d)
+    mainbytes, stringbytes = arrofbytes
+
+    rorbytes = frmstr2rorbytes(mainbytes, stringbytes)
 
     with frm_path.with_suffix(".ror").open("wb") as _f:
         c = _f.write(rorbytes)
 
     assert c == len(rorbytes)
+
+    rorhstr = frmstr2rorhstr(entitycount, keys, d, mainbytes, stringbytes)
+
+    with (frm_path.parent / "rorfile.h").open("w", encoding="utf-8") as _f:
+        c = _f.write(rorhstr)

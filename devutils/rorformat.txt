@@ -1,6 +1,6 @@
-00000000000000          NUL (Other Virtual; Null / Nowhere / None / Empty)
-00000000000001          GOD (Other Virtual; Game Itself / God (Game Master) Mode as Player Location)
-000000VVVVVVVV          GAM (Other Settings; Game Settings) 1 < VVVVVVVV
+00000000000000          NIL (Other Virtual)
+00000000000001          JUP (Other Virtual; Jupiter / System / Game)
+000000VVVVVVVV          GAM (Other Settings; Game Settings) 3 < VVVVVVVV
 000001 NNN VVVVV        SET (Other Settings; Player Settings)
 000010 NNN VVVVV        RUL (Other Settings; Era Specific Rules)
 0000110000  VVVV        STA (Other; Rome; State; Game State)
@@ -9,7 +9,10 @@
 00001101 NNNN VV        DE1 (Other Location; Deck Pool #1)
 00001110 NNNN VV        DE2 (Other Location; Deck Pool #2)
 000011110                                                                                       ? dead senators numbered (support repopulating rome)
-000011111 00            
+000011111 00 0
+000011111 00 10
+000011111 00 110        OFL (Other Physical; Offline)
+000011111 00 111        ONL (Other Physical; Online)
 000011111 01 000        BRD (Other Physical; Board)
 000011111 01 001        DIS (Other Board.Area; Discards)
 000011111 01 010        DRA (Other Board.Area; Draw Pile)

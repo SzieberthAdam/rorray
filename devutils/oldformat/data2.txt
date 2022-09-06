@@ -1,0 +1,243 @@
+##############
+###  INFO  ###
+##############
+
+Every entities and values are represented on 2 BYTES.
+LSB (least significant bit) 0 bit numbering: FEDCBA98.76543210
+
+ID Sizes in Bits :
+    - 000vvvvv.00000000 Not In Play / In Box
+    - 000vvvvv.00000001 Board / In Play
+    - 000vvvvv.00000101 Rome / State
+    - 000vvvvv.00000110 Not In Rome
+    - 000vvvvv.00000111 Secret Location / Somewhere
+    - 000vvvvv.01000xxx Current Period Settings
+    - 000vvvvv.01001xxx Latin Period Settings
+    - 000vvvvv.01010xxx Italian Period Settings
+    - 000vvvvv.01011xxx Early Republic Settings
+    - 000vvvvv.01100xxx Middle Republic Settings
+    - 000vvvvv.01101xxx Late Republic Settings
+    - 000vvvvv.01110xxx Civil War Settings
+    - 000vvvvv.01110xxx Latin Period Settings
+    - 000vvvvv.10xxxxxx Drawn Random Event
+    - 000vvvvv.11000000 Inactive Wars
+    - 000vvvvv.11000001 Imminent Wars
+    - 000vvvvv.11000010 Active Wars
+    - 000vvvvv.11000011 Unprosecuted Wars
+    - 000vvvvv.11001100 Curia, Destroyed Concessions
+    - 000vvvvv.11001101 Curia, Repopulating Rome / Dead Senators
+    - 000vvvvv.11001110 Curia, Enemy Leaders
+    - 000vvvvv.11010000 Discard Pile
+    - 000vvvvv.11010001 Draw Pile 1 / Deck 1
+    - 000vvvvv.11010010 Draw Pile 2 / Deck 2
+    - 000vvvvv.11010011 Draw Pile 3 / Deck 3
+    - 000vvvvv.11010100 Draw Pile 4 / Deck 4
+    - 000vvvvv.11010101 Draw Pile 5 / Deck 5
+    - 000vvvvv.11010110 Draw Pile 6 / Deck 6
+    - 000vvvvv.11010111 Draw Pile 7 / Deck 7
+    - 000vvvvv.11011000 Draw Pile 8 / Deck 8
+    - 000vvvvv.11011001 Draw Pile 9 / Deck 9
+    - 000vvvvv.11011010 Draw Pile 10 / Deck 10
+    - 000vvvvv.11011011 Draw Pile 11 / Deck 11
+    - 000vvvvv.11011100 Draw Pile 12 / Deck 12
+    - 000vvvvv.11011101 Draw Pile 13 / Deck 13
+    - 000vvvvv.11011110 Draw Pile 14 / Deck 14
+    - 000vvvvv.11011111 Draw Pile 15 / Deck 15
+    - 000vvvvv.11100001 Played Laws
+    - 000vvvvv.11110000 Forum
+    - 000vvvvv.11110001 Faction 1 Hand
+    - 000vvvvv.11110010 Faction 2 Hand
+    - 000vvvvv.11110011 Faction 3 Hand
+    - 000vvvvv.11110100 Faction 4 Hand
+    - 000vvvvv.11110101 Faction 5 Hand
+    - 000vvvvv.11110110 Faction 6 Hand
+    - 000vvvvv.11110111 Some Faction's Hand
+    - 000vvvvv.11111000 Legion Pool
+    - 000vvvvv.11111001 Fleet Pool
+    - 000vvvvv.11111010 Legions in Rome
+    - 000vvvvv.11111011 Fleets in Rome
+    - 001vvvvv.00xxxxxx Legion 6
+    - 001vvvvv.01xxxxxx Fleet 6
+    - 001vvvvv.10xxxxxx Mortality Chit 6
+    - 001vvvvv.1100xxxx Major Office 4
+    - 001vvvvv.11010001 D6 Die 1
+    - 001vvvvv.11010010 D6 Die 2
+    - 001vvvvv.11010011 D6 Die 3 (Colored)
+    - 010vvvvv.00xxxxxx Senator 6
+    - 010vvvvv.01xxxxxx War 6
+    - 010vvvvv.100xxxxx Leader 5
+    - 010vvvvv.101xxxxx Event Card 5
+    - 011vvvvv.01xxxxxx Province 6
+    - 011vvvvv.1xxxxxxx Event 7
+    - 100vvvvv.xxxxxxxx Talent 8
+    - 101vvvvv.xxxxxxxx RED Statesman 8
+    - 110vvvvv.xxxxxxxx RED Intrigue 8
+    - 111vvvvv.000xxxxx RED Concession 5
+    - 111vvvvv.100xxxxx RED Law 5
+
+    - 00000000.01eee000 Random Events Table, 3d6 = 3
+    - 00000001.01eee000 Random Events Table, 3d6 = 4
+    - 00000010.01eee000 Random Events Table, 3d6 = 5
+    - 00000011.01eee000 Random Events Table, 3d6 = 6
+    - 00000100.01eee000 Random Events Table, 3d6 = 7
+    - 00000101.01eee000 Random Events Table, 3d6 = 8
+    - 00000110.01eee000 Random Events Table, 3d6 = 9
+    - 00000111.01eee000 Random Events Table, 3d6 = 10
+    - 00001000.01eee000 Random Events Table, 3d6 = 11
+    - 00001001.01eee000 Random Events Table, 3d6 = 12
+    - 00001010.01eee000 Random Events Table, 3d6 = 13
+    - 00001011.01eee000 Random Events Table, 3d6 = 14
+    - 00001100.01eee000 Random Events Table, 3d6 = 15
+    - 00001101.01eee000 Random Events Table, 3d6 = 16
+    - 00001110.01eee000 Random Events Table, 3d6 = 17
+    - 00001111.01eee000 Random Events Table, 3d6 = 18
+
+    - 00010000.01eee000 Combat Results Table, Modified 3d6 <= 3
+    - 00010001.01eee000 Combat Results Table, Modified 3d6 = 4
+    - 00010010.01eee000 Combat Results Table, Modified 3d6 = 5
+    - 00010011.01eee000 Combat Results Table, Modified 3d6 = 6
+    - 00010100.01eee000 Combat Results Table, Modified 3d6 = 7
+    - 00010101.01eee000 Combat Results Table, Modified 3d6 = 8
+    - 00010110.01eee000 Combat Results Table, Modified 3d6 = 9
+    - 00010111.01eee000 Combat Results Table, Modified 3d6 = 10
+    - 00011000.01eee000 Combat Results Table, Modified 3d6 = 11
+    - 00011001.01eee000 Combat Results Table, Modified 3d6 = 12
+    - 00011010.01eee000 Combat Results Table, Modified 3d6 = 13
+    - 00011011.01eee000 Combat Results Table, Modified 3d6 = 14
+    - 00011100.01eee000 Combat Results Table, Modified 3d6 = 15
+    - 00011101.01eee000 Combat Results Table, Modified 3d6 = 16
+    - 00011110.01eee000 Combat Results Table, Modified 3d6 = 17
+    - 00011111.01eee000 Combat Results Table, Modified 3d6 >= 18
+
+    - 00000000.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 < 0
+    - 00000001.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 0
+    - 00000010.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 1
+    - 00000011.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 2
+    - 00000100.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 3
+    - 00000101.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 4
+    - 00000110.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 5
+    - 00000111.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 6
+    - 00001000.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 7
+    - 00001001.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 8
+    - 00001010.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 9
+    - 00001011.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 10
+    - 00001100.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 11
+    - 00001101.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 12
+    - 00001110.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 13
+    - 00001111.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 14
+    - 00010000.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 15
+    - 00010001.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 16
+    - 00010010.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 = 17
+    - 00010011.01eee010 Population Table (Unrest Change, Event 1), Modified 3d6 >= 18
+
+    - 00011000.01eee010 Unrest Level Adjustments Table (Unrest Change, Event 1), Victory (Combat Phase)
+    - 00011001.01eee010 Unrest Level Adjustments Table (Unrest Change, Event 1), Defeat (Combat Phase)
+    - 00011010.01eee010 Unrest Level Adjustments Table (Unrest Change, Event 1), Standoff (Combat Phase)
+    - 00011011.01eee010 Unrest Level Adjustments Table (Unrest Change, Event 1), Disaster (Combat Phase)
+    - 00011100.01eee010 Unrest Level Adjustments Table (Unrest Change, Event 1), Unprosecuted War (Population Phase)
+    - 00011101.01eee010 Unrest Level Adjustments Table (Unrest Change, Event 1), Drought (Population Phase)
+
+    - 00011110.01eee010 Allegiance Target
+    - 00011111.01eee010 Maintenance, per Legion, per Fleet
+
+    - 00000000.01eee011 Population Table (Event 2, Event 3), Modified 3d6 < 0
+    - 00000001.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 0
+    - 00000010.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 1
+    - 00000011.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 2
+    - 00000100.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 3
+    - 00000101.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 4
+    - 00000110.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 5
+    - 00000111.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 6
+    - 00001000.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 7
+    - 00001001.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 8
+    - 00001010.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 9
+    - 00001011.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 10
+    - 00001100.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 11
+    - 00001101.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 12
+    - 00001110.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 13
+    - 00001111.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 14
+    - 00010000.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 15
+    - 00010001.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 16
+    - 00010010.01eee011 Population Table (Event 2, Event 3), Modified 3d6 = 17
+    - 00010011.01eee011 Population Table (Event 2, Event 3), Modified 3d6 >= 18
+
+    - 00011000.01eee011 Unrest Level Adjustments Table (Event 2, Event 3), Victory (Combat Phase)
+    - 00011001.01eee011 Unrest Level Adjustments Table (Event 2, Event 3), Defeat (Combat Phase)
+    - 00011010.01eee011 Unrest Level Adjustments Table (Event 2, Event 3), Standoff (Combat Phase)
+    - 00011011.01eee011 Unrest Level Adjustments Table (Event 2, Event 3), Disaster (Combat Phase)
+    - 00011100.01eee011 Unrest Level Adjustments Table (Event 2, Event 3), Unprosecuted War (Population Phase)
+    - 00011101.01eee011 Unrest Level Adjustments Table (Event 2, Event 3), Drought (Population Phase)
+
+    - 00011110.01eee011 Assassination Table Targets, >= Killed, <= Caught
+
+    - 00000000.01eee100 Popular Appeal Table, Modified 2d6 <= 2
+    - 00000001.01eee100 Popular Appeal Table, Modified 2d6 = 3
+    - 00000010.01eee100 Popular Appeal Table, Modified 2d6 = 4
+    - 00000011.01eee100 Popular Appeal Table, Modified 2d6 = 5
+    - 00000100.01eee100 Popular Appeal Table, Modified 2d6 = 6
+    - 00000101.01eee100 Popular Appeal Table, Modified 2d6 = 7
+    - 00000110.01eee100 Popular Appeal Table, Modified 2d6 = 8
+    - 00000111.01eee100 Popular Appeal Table, Modified 2d6 = 9
+    - 00001000.01eee100 Popular Appeal Table, Modified 2d6 = 10
+    - 00001001.01eee100 Popular Appeal Table, Modified 2d6 = 11
+    - 00001010.01eee100 Popular Appeal Table, Modified 2d6 >= 12
+
+    - 00001011.01eee100 Games Table, Slice and Dice, Cost (8bit), Popularity Gain (4bit), Unrest Level Decrease (4bit)
+    - 00001100.01eee100 Games Table, Blood Fest, Cost (8bit), Popularity Gain (4bit), Unrest Level Decrease (4bit)
+    - 00001101.01eee100 Games Table, Gladiator Gala, Cost (8bit), Popularity Gain (4bit), Unrest Level Decrease (4bit)
+
+    - 00010000.01eee100 Trial Appeal Table, Modified 2d6 <= 2
+    - 00010001.01eee100 Trial Appeal Table, Modified 2d6 = 3
+    - 00010010.01eee100 Trial Appeal Table, Modified 2d6 = 4
+    - 00010011.01eee100 Trial Appeal Table, Modified 2d6 = 5
+    - 00010100.01eee100 Trial Appeal Table, Modified 2d6 = 6
+    - 00010101.01eee100 Trial Appeal Table, Modified 2d6 = 7
+    - 00010110.01eee100 Trial Appeal Table, Modified 2d6 = 8
+    - 00010111.01eee100 Trial Appeal Table, Modified 2d6 = 9
+    - 00011000.01eee100 Trial Appeal Table, Modified 2d6 = 10
+    - 00011001.01eee100 Trial Appeal Table, Modified 2d6 = 11
+    - 00011010.01eee100 Trial Appeal Table, Modified 2d6 >= 12
+
+    - 00000000.01eee101 Influence / Popularity Gains / Losses, Minor Conviction
+    - 00000001.01eee101 Influence / Popularity Gains / Losses, Successful Prosecutor
+    - 00000010.01eee101 Influence / Popularity Gains / Losses, Successful Advocate
+    - 00000011.01eee101 Influence / Popularity Gains / Losses, Failed Prosecutor
+    - 00000100.01eee101 Influence / Popularity Gains / Losses, Failed Advocate
+    - 00000101.01eee101 Influence / Popularity Gains / Losses, Faction Leader of Caught Assassin
+    - 00000110.01eee101 Influence / Popularity Gains / Losses, Develop Province
+    - 00000111.01eee101 Influence / Popularity Gains / Losses, Unanimous Proposal Rejection
+
+    - 00001000.01eee101 Land Bill Sponsor Popularity Gains, I, II, III
+    - 00001001.01eee101 Land Bill Cosponsor Popularity Gains, I, II, III
+    - 00001010.01eee101 Land Bill Voting Against Popularity Losses, I, II, III
+    - 00001011.01eee101 Land Bill Unrest Level Decrease, I, II, III
+    - 00001100.01eee101 Land Bill Repeal Sponsor Popularity Losses, I, II, III
+    - 00001110.01eee101 Land Bill Repeal Voting For Popularity Losses, I, II, III
+    - 00001111.01eee101 Land Bill Repeal Unrest Level Increase, I, II, III
+
+    - 00010010.01eee101 Contributions, 1T, 2T
+    - 00010011.01eee101 Contributions, 3T, 4T
+    - 00010100.01eee101 Contributions, 5T, 6T
+    - 00010101.01eee101 Contributions, 7T, 8T
+    - 00010110.01eee101 Contributions, 9T, 10T
+    - 00010111.01eee101 Contributions, 10T, 20T
+    - 00011000.01eee101 Contributions, 25T, 30T
+    - 00011001.01eee101 Contributions, 35T, 40T
+    - 00011010.01eee101 Contributions, 45T, 50T
+    - 00011011.01eee101 Contributions, 55T, 60T
+    - 00011100.01eee101 Contributions, 65T, 70T
+    - 00011101.01eee101 Contributions, 75T, 80T
+    - 00011110.01eee101 Contributions, 85T, 90T
+    - 00011111.01eee101 Contributions, 95T, 100T
+
+    - 00000010.01eee110 Popular Appeal Table, Modified 2d6 <= 2
+    - 00000011.01eee110 Popular Appeal Table, Modified 2d6 = 3
+    - 00000100.01eee110 Popular Appeal Table, Modified 2d6 = 4
+    - 00000101.01eee110 Popular Appeal Table, Modified 2d6 = 5
+    - 00000110.01eee110 Popular Appeal Table, Modified 2d6 = 6
+    - 00000111.01eee110 Popular Appeal Table, Modified 2d6 = 7
+    - 00001000.01eee110 Popular Appeal Table, Modified 2d6 = 8
+    - 00001001.01eee110 Popular Appeal Table, Modified 2d6 = 9
+    - 00001010.01eee110 Popular Appeal Table, Modified 2d6 = 10
+    - 00001011.01eee110 Popular Appeal Table, Modified 2d6 = 11
+    - 00001100.01eee110 Popular Appeal Table, Modified 2d6 >= 12

@@ -1,5 +1,7 @@
 #include "raylib.h"
 
+#include "rorfile.h"
+
 #define NUM_FACTIONS    6
 #define W   13
 #define H   13
@@ -18,22 +20,20 @@ int main(void)
     const int screenWidth = 1920;
     const int screenHeight = 1080;
 
-    unsigned int scenarioStrPos[512] = {0};
+    unsigned int scenarioStrPos[RORH_TOTALSTRINGCOUNT] = {0};
 
     Font font;
 
     int currentGesture = GESTURE_NONE;
     int lastGesture = GESTURE_NONE;
 
-    unsigned int scenarioDatLength = 65536;
-    unsigned char *scenarioDat = LoadFileData("./myscn/scenario.rrd", &scenarioDatLength);
-    unsigned int scenarioStrLength = GetFileLength("./myscn/scenario.rrs");
-    unsigned char *scenarioStr = LoadFileData("./myscn/scenario.rrs", &scenarioStrLength);
+    unsigned int scenarioRoRLength = RORH_TOTALLENGTH;
+    unsigned char *scenarioRoR = LoadFileData("scenario.ror", &scenarioRoRLength);
 
     unsigned int j = 1;
-    for (unsigned int i=1 ; i < scenarioStrLength; i++)
+    for (unsigned int i = 1 ; i < RORH_STRINGLENGTH; i++)
     {
-        if (scenarioStr[i-1] == 0)
+        if (scenarioRoR[RORH_MAINLENGTH + i - 1] == 0)
         {
             scenarioStrPos[j] = i;
             j += 1;
@@ -122,24 +122,23 @@ int main(void)
         ClearBackground(RAYWHITE);
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
 
-        DrawFPS(screenWidth-100, 10);
-   
-        DrawText("State of the Republic", W, H, 20, RED);        
+        DrawFPS(screenWidth-100, 10);  
                
         for (int i = 0; i < NUM_FACTIONS; i++)
         {
             v.x = factionrects[i].x + FONTSPACING;
             v.y = factionrects[i].y;           
             DrawRectangleRec(factionrects[i], DARKGRAY);
-            DrawTextEx(font, TextToUpper((char*)(scenarioStr+scenarioStrPos[i])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
-            for (int j = 0; j < 29; j++)
-            {
-                if ((int)scenarioDat[j] == i+1)
-                {
-                    v.y += H;
-                    DrawTextEx(font, (char*)(scenarioStr+scenarioStrPos[6+j]), v, font.baseSize*1.0f, FONTSPACING, WHITE);
-                }
-            }
+            int a = RORH_MAINLENGTH + scenarioStrPos[RORH_PLA_STR_IDX + i + 1];
+            DrawTextEx(font, TextToUpper((char*)(scenarioRoR+a)), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+            // for (int j = 0; j < 29; j++)
+            // {
+            //     if ((int)scenarioRoR[j] == i+1)
+            //     {
+            //         v.y += H;
+            //         DrawTextEx(font, (char*)(scenarioRoR+(RORH_MAINLENGTH+scenarioStrPos[RORH_SEN_STR_IDX+j])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+            //     }
+            // }
         }
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -147,8 +146,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadFileData(scenarioDat);      // Free memory from loaded file
-    UnloadFileData(scenarioStr);
+    UnloadFileData(scenarioRoR);      // Free memory from loaded file
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
