@@ -157,6 +157,8 @@ def frmstr2rorhstr(*args):
         "",
         f'#define RORH_TOTALLENGTH {len(mainbytes) + len(stringbytes)}',
         "",
+        f'#define RORH_KEYCOUNT {len(keys)}',
+        "",
     ]
 
     stridx = 0
