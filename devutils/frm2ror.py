@@ -11,15 +11,29 @@ RORH_TEMPLATE = """#ifndef __DEFINE_RORFILEH__
 #endif  /* #ifndef __DEFINE_RORFILEH__ */
 ;"""
 
+ATTRTYPE = {
+    "attr"  : {"id": 0x0A, "name": "attr"  , "length": 2, "type": int, "struct": "H", "range": range(0, 65536)},
+    "bool"  : {"id": 0x01, "name": "bool"  , "length": 1, "type": int, "struct": "?", "range": range(0, 2)},
+    "group" : {"id": 0x06, "name": "group" , "length": 2, "type": int, "struct": "H", "range": range(0, 65536)},
+    "int16" : {"id": 0x50, "name": "int16" , "length": 2, "type": int, "struct": "h", "range": range(-32768, 32768)},
+    "int32" : {"id": 0x60, "name": "int32" , "length": 4, "type": int, "struct": "i", "range": range(-2147483648, 2147483648)},
+    "int8"  : {"id": 0x48, "name": "int8"  , "length": 1, "type": int, "struct": "b", "range": range(-128, 128)},
+    "item"  : {"id": 0x12, "name": "item"  , "length": 2, "type": int, "struct": "H", "range": range(0, 65536)},
+    "string": {"id": 0x80, "name": "string", "length": 0, "type": str, "struct": "s"},
+    "uint16": {"id": 0x10, "name": "uint16", "length": 2, "type": int, "struct": "H", "range": range(0, 65536)},
+    "uint32": {"id": 0x20, "name": "uint32", "length": 4, "type": int, "struct": "I", "range": range(0, 4294967296)},
+    "uint8" : {"id": 0x08, "name": "uint8" , "length": 1, "type": int, "struct": "B", "range": range(0, 256)},
+}
 
-INT_TYPES = (
-    "uint8_t",
-    "uint16_t",
-)
+for _n in range(1, 128):
+    ATTRTYPE[f'string({_n})'] = {"id": 0x80+_n, "name": f'string({_n})', "length": _n, "type": str, "struct": f'{_n}s'}
+
+for _k, _d in tuple(ATTRTYPE.items()):
+    ATTRTYPE[_d["id"]] = _d
 
 
 def str2val(s, type_=None):
-    if type_ in INT_TYPES:
+    if type_ is not None and ATTRTYPE[type_]["type"] is int:
         val = str2int(s, type_=type_)
     else:
         val = json.loads(s)
@@ -34,16 +48,14 @@ def str2int(s, type_=None):
         v = int(s, 16)
     else:
         v = int(s)
-    if type_ == "uint8_t":
-        assert v in range(0, 256)
-    elif type_ == "uint16_t":
-        assert v in range(0, 65536)
+    if type_ is not None:
+        assert v in ATTRTYPE[type_]["range"]
     return v
 
-ALIGN = 4
 
+ALIGN = 8
 GROUPDEF_STRUCTFMT = "=HHL"
-ATTRDEF_STRUCTFMT = "=BBHL"
+ATTRDEF_STRUCTFMT = "=HBBL"
 
 
 if __name__ == "__main__":
@@ -62,7 +74,6 @@ if __name__ == "__main__":
     with frm_path.open("r", encoding="utf-8") as _f:
         frmstr = _f.read()
 
-
     ba = bytearray() # this is the whole data which consist of:
     ba_header = bytearray()    # - header (padded to 32 bytes)
     ba_groupdef = bytearray()  # - group definitions (16 bytes each)
@@ -70,227 +81,114 @@ if __name__ == "__main__":
     ba_attrvals = bytearray()  # - area of attribute values (area padded to 16 bytes)
 
     # objects used:
-    group = None       # b'name'
-    groupdef = None    # [b'name', itemcount:uint16, attrcount:uit16, firstitemlink:uint32, firstattrtablelink:uint32]
-    groupidx = 0       # Group ID
-    groupinfo = {}     # {b'name': {"idx": groupidx, "def": groupdef}}
-    attrdef = None     # [b'nam', attrtype:uint8, firstattrlink:uint32]
-    attridx = 0        # attribute index
-    vals = None        # [val1, val2, ...]
+    group = None        # b'name'
+    groupdef = None     # [b'name', itemcount:uint16, attrcount:uit16, firstitemlink:uint32, firstattrtablelink:uint32]
+    groupdict = {}      #
+    groupidx = -1       # Group ID
+    groupinfo = {}      # {b'name': {"idx": groupidx, "def": groupdef}}
+    attrdef = None      # [b'nam', attrtype:uint8, firstattrlink:uint32]
+    attridx = -1        # attribute index
+    attrtypeinfo = None # 
+    vals = None         # [val1, val2, ...]
     
-    mode = ("FILESIGNATURE",)  # loop control
+    mode = "SIG"  # loop control
  
     for li0 in frmstr.split("\n"):
         li = li0.partition(";")[0].strip() # trim comments
-        print([i, mode, li])
-        if not li:
-            i += 1
-            continue
-        if mode[0] == "FILESIGNATURE":
-            assert li.startswith("FILESIGNATURE ")
+        if not li: continue
+        # print(f'{mode:<3} <- {li}')
+        if mode == "SIG":
+            assert li.startswith("SIG ")
             _s = str(json.loads(li.split(" ")[1]))
             _b = _s.encode("ascii")
             assert len(_b) == 3
             ba_header.extend(_b)
-            mode = ("FILEVERSION",)
+            mode = "VER"
             continue
-        if mode[0] == "FILEVERSION":
-            assert li.startswith("FILEVERSION ")
-            _v = str2val(li.split(" ")[1], "uint8_t")
+        if mode == "VER":
+            assert li.startswith("VER ")
+            _v = str2val(li.split(" ")[1], "uint8")
             ba_header.append(_v)
-            mode = ("NEWGROUP",)
+            mode = "G"
             continue
-        if mode[0] == "NEWGROUP":
-            assert li.startswith("NEWGROUP ")
+        if mode == "G":
+            assert li.startswith("G ")
+            groupidx += 1
+            attridx = -1
             _, group, _items, _attrs = li.split(" ")
             group = group.encode("ascii")
             _items = str2int(_items)
             _attrs = str2int(_attrs)
-            groupdef = [_items, _attrs, len(ba_attrvals)]
+            groupdef = [_items, _attrs, len(ba_attrdef)]
             _b = struct.pack(GROUPDEF_STRUCTFMT, *groupdef)
+            _b += b'\x00' * (len(_b) % ALIGN)
             ba_groupdef.extend(_b)
-            groupidx += 1
-            attridx = 0
-            mode = ("ITEMS", group)
+            _d = {"groupidx": groupidx, "group": group, "groupdef": groupdef}
+            groupdict[group] = groupdict[groupidx] = _d
+            mode = ("A" if attridx + 1 < groupdef[1] else "G")
             continue
-        if mode[0] == "ITEMS":
-            assert li.startswith("ITEMS ")
-            assert mode[1] == groupdef[0]
-            _v = str2int(li.split(" ")[1])
-            groupdef[1] = _v
-            mode = ("ATTRS", group)
-            continue
-        if mode[0] == "ATTRS":
-            assert li.startswith("ATTRS ")
-            assert mode[1] == groupdef[0]
-            _v = str2int(li.split(" ")[1])
-            groupdef[2] = _v
-            _b = struct.pack(GROUPDEF_STRUCTFMT, *groupdef)
-            ba_groupdef.extend(_b)
-            attridx = 0
-            mode = ("ATTR", group)
-            continue
-        if mode[0] == "ATTR":
-            assert li.startswith("ATTR ")
+        if mode == "A":
+            assert li.startswith("A ")
+            attridx += 1
             _t = li.split(" ")
             _, _attr, _attrtype = _t[:3]
             _attr = _attr.encode("ascii")
-            assert len(_attr) == 3
-            attrdef = [_attr, _attrtype, len(ba_attrvals)]
+            attrtypeinfo = ATTRTYPE[_attrtype]
+            attrdefaddr = len(ba_attrvals)
+            attrdef = [groupidx, attrtypeinfo["id"], attrtypeinfo["length"], len(ba_attrvals)]
             _b = struct.pack(ATTRDEF_STRUCTFMT, *attrdef)
+            _b += b'\x00' * (len(_b) % ALIGN)
             ba_attrdef.extend(_b)
             vals = []
-            mode = ("ATTRVALS", group, _attr)
+            mode = "A.."
             if not _t[3:]:
                 continue
             else:
                 li = " ".join(_t[3:]).lstrip() # ATTENTION! SHORTCUT!
-        if mode[0] == "ATTRVALS":
-            _v = json.loads(f'[{li.rstrip(",")}]')
+        if mode == "A..":
+            if attrtypeinfo["name"] == "group":
+                _sg = [s.strip() for s in li.rstrip("*").rstrip(" ").rstrip(",").split(",")]
+                _v = [groupdict[group.encode("ascii")]["groupidx"] for group in _sg] # TODO: forward ref capability
+            elif attrtypeinfo["type"] is int:
+                _sg = [s.strip() for s in li.rstrip("*").rstrip(" ").rstrip(",").split(",")]
+                _v = [str2int(s, type_=attrtypeinfo["id"]) for s in _sg]
+            else:
+                _v = json.loads(f'[{li.rstrip("*").rstrip(" ").rstrip(",")}]')
+            if attrtypeinfo["type"] is str:
+                _v = [s.encode("utf-8") for s in _v]  # struct.error: argument for 's' must be a bytes object
             vals.extend(_v)
-            assert len(vals) <= groupdef[1]
-            if len(vals) < groupdef[1]:
+            if li.endswith("*"):
+                vals.extend([vals[-1]] * max(0, groupdef[0] - len(vals)))
+            assert len(vals) <= groupdef[0]
+            if len(vals) < groupdef[0]:
                 assert li.endswith(",")
                 continue
-            elif len(vals) == groupdef[1]:
+            _structfmt = attrtypeinfo["struct"] * groupdef[0]
+            _b = struct.pack(_structfmt, *vals)
+            _b += b'\x00' * (len(_b) % ALIGN)
+            ba_attrvals.extend(_b)
+            mode = ("A" if attridx + 1 < groupdef[1] else "G")
+            continue
 
+    # at this point, len(ba_header) = 4
+    _v = len(ba_header) + struct.calcsize("LLLLL") # calculate header size (_v = 24)
+    _v += _v % ALIGN  # cosmetic
 
+    ba_header.extend(struct.pack("L", 0))   # header absolute address
+    ba_header.extend(struct.pack("L", _v))  # groupdef absolute address
+    _v += len(ba_groupdef)
+    ba_header.extend(struct.pack("L", _v))  # attrdef absolute address
+    _v += len(ba_attrdef)
+    ba_header.extend(struct.pack("L", _v))  # attrvals absolute address
+    _v += len(ba_attrvals)
+    ba_header.extend(struct.pack("L", _v))  # data size
 
+    ba_header.extend(b'\x00' * (len(ba_header) % ALIGN))  # cosmetic
 
+    ba.extend(ba_header)
+    ba.extend(ba_groupdef)
+    ba.extend(ba_attrdef)
+    ba.extend(ba_attrvals)
 
-
-
-
-
-
-                elif li.endswith("*"):
-                    vals = vals[:-1]
-                    vals.extend([vals[-1]] * (groupdef[1] - len(vals)))
-
-
-                continue
-
-
-
-
-
-
-
-            attrtableitem = 
-
-            assert mode[1] == groupdef[0]
-            assert li.startswith("ATTR ") or li.startswith("LINK ")
-            if li.startswith("ATTR "):
-
-
-                raise Exception
-
-                dval = dgroup["ATTR"][attr] = {"TYPE": type_, "VAL": None}
-                if _t[3:]:
-                    valstr = " ".join(_t[3:]).lstrip()
-                    val = json.loads(f'[{valstr.rstrip(",")}]')
-                    assert type(val) is list
-                    dval["VAL"] = val
-                    if valstr.endswith(","):
-                        mode = ("ATTR", group, attr)
-                    else:
-                        if dval["VAL"][-1] == "*":
-                            lastval = dval["VAL"][-2]
-                            dval["VAL"].extend([lastval] * (dgroup["ITEMS"] - len(dval["VAL"])))
-                        assert len(dval["VAL"]) == dgroup["ITEMS"]
-                        mode = ("NEWGROUP", group)
-                else:
-                    dval["VAL"] = []
-                    mode = ("ATTR", group, attr)
-            elif li.startswith("LINK "):
-                # done with ATTRs, groupdef is done
-                _b = struct.pack(GROUPDEF_STRUCTFMT, *groupdef)
-                groupdeftbl.extend(_b)
-
-
-
-
-
-                raise Exception
-
-
-
-                links = group, [], bytearray()
-                for s in li[len("LINK "):].split(","):
-                    _t = s.strip().split(".")
-                    if len(_t) == 1:
-                        _t += ["1"]
-                    t[1] = str2int(t[1])
-                    links[1].append(_t)
-                if links[1] == groupdef[1]:
-
-                    mode = ("0",)
-
-        
-
-        i += 1
-
-
-#            if li.startswith("FILESIGNATURE"):
-#                d["FILESIGNATURE"] = str(json.loads(li.split(" ")[1]))
-#            elif li.startswith("FILEVERSION"):
-#                _, type_, valstr = li.split(" ")
-#                val = str2val(valstr, type_)
-#                d["FILEVERSIONTYPE"] = type_
-#                d["FILEVERSION"] = val
-#            elif li.startswith("LINKTYPE"):
-#                _, d["LINKTYPE"] = li.split(" ")
-#            elif li.startswith("ALIGN"):
-#                _, valstr = li.split(" ")
-#                val = str2int(valstr)
-#                d["ALIGN"] = val
-#            elif li.startswith("NEWGROUP"):
-#                _, group = li.split(" ")
-#                dgroup = d["NEWGROUP"][group] = {"ATTR": {}}
-#                mode = ("NEWGROUP", group)
-#        elif mode[0] == "NEWGROUP":
-#            if li.startswith("ITEMS"):
-#                _, valstr = li.split(" ")
-#                val = str2int(valstr)
-#                dgroup["ITEMS"] = val
-#            elif li.startswith("ATTR"):
-#                _t = li.split(" ")
-#                _, attr, type_ = _t[:3]
-#                dval = dgroup["ATTR"][attr] = {"TYPE": type_, "VAL": None}
-#                if _t[3:]:
-#                    valstr = " ".join(_t[3:]).lstrip()
-#                    val = json.loads(f'[{valstr.rstrip(",")}]')
-#                    assert type(val) is list
-#                    dval["VAL"] = val
-#                    if valstr.endswith(","):
-#                        mode = ("ATTR", group, attr)
-#                    else:
-#                        if dval["VAL"][-1] == "*":
-#                            lastval = dval["VAL"][-2]
-#                            dval["VAL"].extend([lastval] * (dgroup["ITEMS"] - len(dval["VAL"])))
-#                        assert len(dval["VAL"]) == dgroup["ITEMS"]
-#                        mode = ("NEWGROUP", group)
-#                else:
-#                    dval["VAL"] = []
-#                    mode = ("ATTR", group, attr)
-##           elif li.startswith("LINK"):
-##               _t = li.split(" ")
-##               dlink = dgroup["LINK"] = None
-#            elif li.startswith("NEWGROUP"):
-#                mode = ("0",)
-#                continue
-#        elif mode[0] == "ATTR":
-#            valstr = li.strip()
-#            val = json.loads(f'[{valstr.rstrip(",")}]')
-#            assert type(val) is list
-#            dval["VAL"].extend(val)
-#            if not valstr.endswith(","):
-#                if dval["VAL"][-1] == "*":
-#                    lastval = dval["VAL"][-2]
-#                    dval["VAL"].extend([lastval] * (dgroup["ITEMS"] - len(dval["VAL"])))
-#                assert len(dval["VAL"]) == dgroup["ITEMS"]
-#                mode = ("NEWGROUP", group)
-#        i += 1
-#
-#    D = d
-#    #D = frmparse(frmstr)
+    with frm_path.with_suffix(".ror").open("wb") as _f:
+        print(f'{_f.write(ba)} bytes')
