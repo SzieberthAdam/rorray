@@ -12,6 +12,20 @@
 #define FONTSPACING     2
 
 
+struct _Group {
+   uint16_t items;
+   uint16_t attrs;
+   uint32_t firstattridx;
+};
+
+
+struct _Attr {
+   uint16_t groupidx;
+   uint16_t type;
+   uint32_t addr;
+};
+
+
 int main(void)
 {
     Vector2 v;
@@ -27,9 +41,9 @@ int main(void)
     int currentGesture = GESTURE_NONE;
     int lastGesture = GESTURE_NONE;
 
-    unsigned int scenarioRoRLength = RORH_SIZE;
+    unsigned int rordataLength = SIZE;
     unsigned int addr = 0;
-    unsigned char *scenarioRoR = LoadFileData("scenario.ror", &scenarioRoRLength);
+    unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
  
     Rectangle factionrects[NUM_FACTIONS] = {
         {W, H * (5 + 6 * 0), W * 30 - L, H - L},
@@ -117,59 +131,80 @@ int main(void)
 
         int i = 1;
         int j = 1;
-        //TextFormat(str, "V = %X", RORH_SEN_REF_ADDR);
-        // sprintf(str, "%X", scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ]);
+        //TextFormat(str, "V = %X", SEN_REF_ADDR);
+        // sprintf(str, "%X", rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ]);
         // DrawText(str, 400, 400, 20, BLUE);
-        // sprintf(str, "%X", (((RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)) >> 8));
+        // sprintf(str, "%X", (((PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)) >> 8));
         // DrawText(str, 400, 500, 20, BLUE);
-        // sprintf(str, "%X", (unsigned char)(((RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)) >> 8));
+        // sprintf(str, "%X", (unsigned char)(((PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)) >> 8));
         // DrawText(str, 500, 500, 20, BLUE);
-        // sprintf(str, "%X", scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE + 1 ]);
+        // sprintf(str, "%X", rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE + 1 ]);
         // DrawText(str, 400, 600, 20, BLUE);
-        // sprintf(str, "%X", (unsigned char)(((RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE )) & 0xFF));
+        // sprintf(str, "%X", (unsigned char)(((PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE )) & 0xFF));
         // DrawText(str, 400, 700, 20, BLUE);
-        // sprintf(str, "%X", (((unsigned short *)scenarioRoR)[RORH_SEN_REF_ADDR / 2 + (j << RORH_SEN_VAL_BITS) ]));
+        // sprintf(str, "%X", (((unsigned short *)rordata)[SEN_REF_ADDR / 2 + (j << SEN_VAL_BITS) ]));
         // DrawText(str, 400, 800, 20, BLUE);
-        // sprintf(str, "%X", RORH_SEN_REF_ADDR / 2 + (j << RORH_SEN_VAL_BITS));
+        // sprintf(str, "%X", SEN_REF_ADDR / 2 + (j << SEN_VAL_BITS));
         // DrawText(str, 600, 800, 20, BLUE);
-        // sprintf(str, "%X", RORH_PLA_REF_ADDR / 2 + (i << RORH_PLA_VAL_BITS));
+        // sprintf(str, "%X", PLA_REF_ADDR / 2 + (i << PLA_VAL_BITS));
         // DrawText(str, 400, 900, 20, BLUE);
-        // sprintf(str, "%X", RORH_MAINLENGTH+scenarioStrPos[RORH_SEN_STR_IDX+j]);
+        // sprintf(str, "%X", MAINLENGTH+scenarioStrPos[SEN_STR_IDX+j]);
         // DrawText(str, 400, 1000, 20, BLUE);        
-        // sprintf(str, "%X", (scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ] == (unsigned char)(((RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)) >> 8)));
+        // sprintf(str, "%X", (rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ] == (unsigned char)(((PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)) >> 8)));
         // DrawText(str, 600, 1000, 20, BLUE);      
 
-        // sprintf(str, "%X", RORH_GROUPTOC + RORH_GROUPTOC_ITEMSIZE * RORH_G_SENA);  // 0x38: SENA GROUPTOCITEM address
-        //sprintf(str, "%X", *(unsigned short *)(&scenarioRoR[RORH_GROUPTOC + RORH_GROUPTOC_ITEMSIZE * RORH_G_SENA]));  //0x23: SENA elemcount
-        //sprintf(str, "%d", *(unsigned int *)(&scenarioRoR[RORH_GROUPTOC + RORH_GROUPTOC_ITEMSIZE * RORH_G_SENA + RORH_GROUPTOC_FIRSTATTR]));  //24: SENA first attribute
-        //sprintf(str, "%X", RORH_ATTRTOC + RORH_ATTRTOC_ITEMSIZE * RORH_A_SENA_NAME + RORH_ATTRTOC_ADDR);  // 0x011C: SENA NAME values address
-        //sprintf(str, "%X", *(unsigned int *)(&scenarioRoR[RORH_ATTRTOC + RORH_ATTRTOC_ITEMSIZE * RORH_A_SENA_NAME + RORH_ATTRTOC_ADDR])); //01E8 = 488: 
-        sprintf(str, "%X", RORH_ATTRVALS + 0x1E8);  // 0x0308: first senator name address
+        // sprintf(str, "%X", GROUPTOC + GROUPTOC_ITEMSIZE * G_SENA);  // 0x38: SENA GROUPTOCITEM address
+        //sprintf(str, "%X", *(unsigned short *)(&rordata[GROUPTOC + GROUPTOC_ITEMSIZE * G_SENA]));  //0x23: SENA elemcount
+        //sprintf(str, "%d", *(unsigned int *)(&rordata[GROUPTOC + GROUPTOC_ITEMSIZE * G_SENA + GROUPTOC_FIRSTATTR]));  //24: SENA first attribute
+        //sprintf(str, "%X", ATTRTOC + ATTRTOC_ITEMSIZE * A_SENA_NAME + ATTRTOC_ADDR);  // 0x011C: SENA NAME values address
+        //sprintf(str, "%X", *(unsigned int *)(&rordata[ATTRTOC + ATTRTOC_ITEMSIZE * A_SENA_NAME + ATTRTOC_ADDR])); //01E8 = 488: 
+        //sprintf(str, "%X", ATTRVALS + 0x1E8);  // 0x0308: first senator name address
+
+        // these are identical
+        //sprintf(str, "%X", *(Attr*)(&rordata[ATTRTOC]));
+        //DrawText(str, 400, 300, 20, BLUE);
+        //sprintf(str, "%X", *(Attr*)(rordata+ATTRTOC)); 
+        //DrawText(str, 400, 400, 20, BLUE);
+
+        sprintf(str, "%X", (*(Attr*)(&rordata[ATTRTOC])).type);
+        DrawText(str, 400, 100, 20, BLUE);
+
+        sprintf(str, "%X", (*((Attr*)(&rordata[ATTRTOC])+18)).type);  // type of absolute 18th attribute
+        DrawText(str, 400, 200, 20, BLUE);
+
+        sprintf(str, "%d", (*((Group*)(&rordata[GROUPTOC])+G_SENA)).firstattridx);  //24: SENA first attribute
+        DrawText(str, 400, 300, 20, BLUE);
+
+        sprintf(str, "%X", ATTRVALS + (*((Attr*)(&rordata[ATTRTOC])+((*((Group*)(&rordata[GROUPTOC])+G_SENA)).firstattridx)+A_SENA_NAME)).addr);  // 0x0308: address of the 0th Family Card's name
         DrawText(str, 400, 400, 20, BLUE);
-        DrawText((char*)(scenarioRoR+0x0308), 400, 500, 20, BLUE);
+
+        sprintf(str, "%X", firstvaladdr(rordata, G_SENA, A_SENA_NAME));  // 0x0308: address of the 0th Family Card's name
+        DrawText(str, 400, 500, 20, BLUE);
+
+        DrawText((char*)(rordata+0x0308), 400, 600, 20, BLUE);
 
         // for (int i = 0; i < NUM_FACTIONS; i++)
         // {
         //     v.x = factionrects[i].x + FONTSPACING;
         //     v.y = factionrects[i].y;           
         //     DrawRectangleRec(factionrects[i], DARKGRAY);
-        //     int a = RORH_MAINLENGTH + scenarioStrPos[RORH_PLA_STR_IDX + i + 1];
-        //     DrawTextEx(font, TextToUpper((char*)(scenarioRoR+a)), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+        //     int a = MAINLENGTH + scenarioStrPos[PLA_STR_IDX + i + 1];
+        //     DrawTextEx(font, TextToUpper((char*)(rordata+a)), v, font.baseSize*1.0f, FONTSPACING, WHITE);
 // 
-        //     for (int j = 0; j < RORH_SEN_MAX_N + 1; j++)
+        //     for (int j = 0; j < SEN_MAX_N + 1; j++)
         //     {
-        //         //if (scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ] == RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)
-        //         //if (unsigned short *)(scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ]) == RORH_PLA_REF_ADDR + (i << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE )
-        //         //if (((unsigned short *)scenarioRoR[RORH_SEN_REF_ADDR / 2 + (j << RORH_SEN_VAL_BITS) ]) == RORH_PLA_REF_ADDR / 2 + (i << RORH_PLA_VAL_BITS) )
+        //         //if (rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ] == PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)
+        //         //if (unsigned short *)(rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ]) == PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE )
+        //         //if (((unsigned short *)rordata[SEN_REF_ADDR / 2 + (j << SEN_VAL_BITS) ]) == PLA_REF_ADDR / 2 + (i << PLA_VAL_BITS) )
         //         if (
-        //             ( scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE ] == (unsigned char)(((RORH_PLA_REF_ADDR + ((i+1) << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE)) >> 8) ) // typecast is a must!
+        //             ( rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ] == (unsigned char)(((PLA_REF_ADDR + ((i+1) << PLA_VAL_BITS) * VAL_SIZE)) >> 8) ) // typecast is a must!
         //             &&
-        //             ( scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE + 1 ] == (unsigned char)(((RORH_PLA_REF_ADDR + ((i+1) << RORH_PLA_VAL_BITS) * RORH_VAL_SIZE )) & 0xFF) )
-        //             //(scenarioRoR[RORH_SEN_REF_ADDR + (j << RORH_SEN_VAL_BITS) * RORH_VAL_SIZE + 1 ] == RORH_PLA_REF_ADDR & 0xFF)
+        //             ( rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE + 1 ] == (unsigned char)(((PLA_REF_ADDR + ((i+1) << PLA_VAL_BITS) * VAL_SIZE )) & 0xFF) )
+        //             //(rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE + 1 ] == PLA_REF_ADDR & 0xFF)
         //         )
         //         {
         //             v.y += H;
-        //             DrawTextEx(font, (char*)(scenarioRoR+(RORH_MAINLENGTH+scenarioStrPos[RORH_SEN_STR_IDX+j])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+        //             DrawTextEx(font, (char*)(rordata+(MAINLENGTH+scenarioStrPos[SEN_STR_IDX+j])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
         //         }
         //     }
         // }
@@ -179,7 +214,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadFileData(scenarioRoR);      // Free memory from loaded file
+    UnloadFileData(rordata);      // Free memory from loaded file
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 

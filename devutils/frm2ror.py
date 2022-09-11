@@ -9,7 +9,7 @@ ATTRDEF_STRUCTFMT = "=HHL"
 #GROUPDEF_STRUCTFMT = "=4sHHL"
 #ATTRDEF_STRUCTFMT = "=4s4sHHL"
 
-RORH_TEMPLATE = """#ifndef __DEFINE_RORHFILE__
+TEMPLATE = """#ifndef __DEFINE_RORHFILE__
 #define __DEFINE_RORHFILE__
 
 {{rorh}}
@@ -187,6 +187,10 @@ if __name__ == "__main__":
 
 
     for _dg in grouplist:
+
+        for i, _da in enumerate(_dg["attrs"]):
+            _da["groupattridx"] = i
+
         _vcnts0 = [len(_da["values"]) for _da in _dg["attrs"] if not _da["values_star"]]
         assert not _vcnts0 or len(set(_vcnts0)) == 1
         _vcnts1 = [len(_da["values"]) for _da in _dg["attrs"] if _da["values_star"]]
@@ -265,31 +269,45 @@ if __name__ == "__main__":
         print(f'{_file}: {_f.write(ba)} bytes')
 
 
+#        "#define group(G)  (*((Group*)(&scenarioRoR[GROUPTOC])+G))",
+#        "#define attr(G, A)  (ATTRVALS + (*((Attr*)(&scenarioRoR[ATTRTOC])+(group(G).firstattridx)+A)))",
+#        "#define firstvaladdr(G, A)  (attr(G, A).addr)",
+#        "#define firstvaladdr(G, A)  (ATTRVALS + (*((Attr*)(&scenarioRoR[ATTRTOC])+(group(G).firstattridx)+A)).addr)",
+
+
     rorh_lines = [
-        f'#define RORH_SIZE {len(ba)}',
         "",
-        f'#define RORH_GROUPTOC {struct.unpack("=L", ba_header[8:12])[0]}',
-        f'#define RORH_ATTRTOC {struct.unpack("=L", ba_header[12:16])[0]}',
-        f'#define RORH_ATTRVALS {struct.unpack("=L", ba_header[16:20])[0]}',
+        "typedef struct _Group Group;",
+        "typedef struct _Attr Attr;",
         "",
-        f'#define RORH_GROUPTOC_ITEMSIZE 8',
-        f'#define RORH_ATTRTOC_ITEMSIZE 8',
+        "#define group(rordata, G)  (*((Group*)(&rordata[GROUPTOC])+G))",
+        "#define attr(rordata, G, A)  (*((Attr*)(&rordata[ATTRTOC])+(group(rordata, G).firstattridx)+A))",
+        "#define firstvaladdr(rordata, G, A)  (ATTRVALS + attr(rordata, G, A).addr)",
         "",
-        f'#define RORH_GROUPTOC_ELEMS 0',
-        f'#define RORH_GROUPTOC_ATTRS 2',
-        f'#define RORH_GROUPTOC_FIRSTATTR 4',
-        f'#define RORH_ATTRTOC_GROUP 0',
-        f'#define RORH_ATTRTOC_TYPE 2',
-        f'#define RORH_ATTRTOC_ADDR 4',
+        f'#define SIZE {len(ba)}',
+        "",
+        f'#define GROUPTOC {struct.unpack("=L", ba_header[8:12])[0]}',
+        f'#define ATTRTOC {struct.unpack("=L", ba_header[12:16])[0]}',
+        f'#define ATTRVALS {struct.unpack("=L", ba_header[16:20])[0]}',
+        "",
+        f'#define GROUPTOC_ITEMSIZE 8',
+        f'#define ATTRTOC_ITEMSIZE 8',
+        "",
+        f'#define GROUPTOC_ELEMS 0',
+        f'#define GROUPTOC_ATTRS 2',
+        f'#define GROUPTOC_FIRSTATTR 4',
+        f'#define ATTRTOC_GROUP 0',
+        f'#define ATTRTOC_TYPE 2',
+        f'#define ATTRTOC_ADDR 4',
         "",
     ]
 
     for _dg in grouplist:
-        rorh_lines.append(f'#define RORH_G_{_dg["group"].decode("ascii")} {_dg["groupidx"]}',)
+        rorh_lines.append(f'#define G_{_dg["group"].decode("ascii")} {_dg["groupidx"]}',)
         for _da in _dg["attrs"]:
-            rorh_lines.append(f'#define RORH_A_{_da["group"].decode("ascii")}_{_da["attr"].decode("ascii")} {_da["attridx"]}',)
+            rorh_lines.append(f'#define A_{_da["group"].decode("ascii")}_{_da["attr"].decode("ascii")} {_da["groupattridx"]}',)
 
-    rorhstr = RORH_TEMPLATE.replace("{{rorh}}", "\n".join(rorh_lines))
+    rorhstr = TEMPLATE.replace("{{rorh}}", "\n".join(rorh_lines))
 
     _file = frm_path.parent / "rorfile.h"
     with _file.open("w", encoding="utf-8") as _f:
