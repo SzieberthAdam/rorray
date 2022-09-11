@@ -6,6 +6,8 @@ import sys
 ALIGN = 8
 GROUPDEF_STRUCTFMT = "=HHL"
 ATTRDEF_STRUCTFMT = "=HHL"
+#GROUPDEF_STRUCTFMT = "=4sHHL"
+#ATTRDEF_STRUCTFMT = "=4s4sHHL"
 
 RORH_TEMPLATE = """#ifndef __DEFINE_RORFILEH__
 #define __DEFINE_RORFILEH__
@@ -147,8 +149,8 @@ if __name__ == "__main__":
             while True:
                 if (
                     len(_L) <= _i+1 
-                    or _L[_i+1].startswith(":A ") 
-                    or _L[_i+1].startswith(":G ")
+                    or _L[_i+1].startswith(":A") 
+                    or _L[_i+1].startswith(":G")
                 ):
                     break
                 else:
@@ -176,6 +178,9 @@ if __name__ == "__main__":
             attrlist.append(_da)
             attrdict[_group + b'.' + _attr] = _da
             _dg["attrs"].append(_da)
+            if (_i+1 < len(_L) and _L[_i+1] == ":ANOPAD"):
+                _da["nopad"] = True
+                _i += 1
             #if _group == b'SENA' and _attr == b'NAME':
             #    raise Exception
         _i += 1
@@ -195,6 +200,7 @@ if __name__ == "__main__":
         assert all(_v < _dg["elems"] for _v in _vcnts1)
 
         _grouptocitem = [_dg["elems"], len(_dg["attrs"]), (0 if not _dg["attrs"] else _dg["attrs"][0]["attridx"])]
+        # _grouptocitem = [_dg["group"], _dg["elems"], len(_dg["attrs"]), (0 if not _dg["attrs"] else _dg["attrs"][0]["attridx"])]
         _dg["grouptocitem"] = _grouptocitem
         _b = struct.pack(GROUPDEF_STRUCTFMT, *_grouptocitem)
         _b += align_bytes(_b)
@@ -218,12 +224,14 @@ if __name__ == "__main__":
         else:
             _structfmt = _attrtypeinfo["struct"] * _elems
             _b = struct.pack(_structfmt, *_da["values_final"])
-        _b += align_bytes(_b)  # ?
+        if not _da.get("nopad", False):
+            _b += align_bytes(_b)
         _da["values_bytes"] = _b
         _da["values_offset"] = len(ba_attrvals)
         ba_attrvals.extend(_b)
 
         _attrtocitem = [_da["groupidx"], _attrtypeinfo["id"], _da["values_offset"]]
+        # _attrtocitem = [_da["group"], _da["attr"], _da["groupidx"], _attrtypeinfo["id"], _da["values_offset"]]
         _da["attrtocitem"] = _attrtocitem
         _b = struct.pack(ATTRDEF_STRUCTFMT, *_attrtocitem)
         _b += align_bytes(_b)

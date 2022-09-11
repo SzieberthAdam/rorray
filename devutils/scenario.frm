@@ -6,16 +6,47 @@
 
 
 :G GAME ; "Game"
-:A NAME string(16) "" ; name
-:A SEQU raw(8) \x00\x00\x00\x00\x00\x00\x00\x00 ; game sequence struct; turn(uint16)-phase(uint8)-subphase(uint24, for technical business)
-:A DAST raw(8) \x00\x00\x00\x00\x00\x00\x00\x00 ; date of start struct; year(uint8: 0=1990)-month-day-hour-minute-seconds-milliseconds(uint16)
-:A DAEN raw(8) \x00\x00\x00\x00\x00\x00\x00\x00 ; date of end
+:A NAME string(16) "Ludus" ; name
+:A TURN uint16 0 ; turn
+:ANOPAD
+:A PHSE uint16 0 ; phase
+:ANOPAD
+:A SPHS uint32 0 ; subphase (technical)
+:ANOPAD
+:A STYR uint8 0 ; start year (0: 1990, 1: 1991, ...)
+:ANOPAD
+:A STMO uint8 0 ; start month
+:ANOPAD
+:A STDY uint8 0 ; start day
+:ANOPAD
+:A STHO uint8 0 ; start hour
+:ANOPAD
+:A STMI uint8 0 ; start minute
+:ANOPAD
+:A STSE uint8 0 ; start seconds
+:ANOPAD
+:A STMS uint16 0 ; start milliseconds
+:ANOPAD
+:A ENYR uint8 0 ; end year (0: 1990, 1: 1991, ...)
+:ANOPAD
+:A ENMO uint8 0 ; end month
+:ANOPAD
+:A ENDY uint8 0 ; end day
+:ANOPAD
+:A ENHO uint8 0 ; end hour
+:ANOPAD
+:A ENMI uint8 0 ; end minute
+:ANOPAD
+:A ENSE uint8 0 ; end seconds
+:ANOPAD
+:A ENMS uint16 0 ; end milliseconds
+:ANOPAD
 
 
 :G PLYR ; "Player"
 :GELEMS 7
 :A GAME group GAME, * ; belongs to GAME (in play) or NULL (not in play)
-:A NAME string(16) "Jupiter", "", * ; player name, Jupiter (id=0) does the automated stuff
+:A NAME string(16) "Jupiter", "Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6" ; player name, Jupiter (id=0) does the automated stuff
 :A PERM uint8 0xFF, 0x03, * ; permissions bit1: can see public stuff, bit2: can see/have own stuff (off for possible spectators); bit3: can see other player's stuff; bit4: can see decks
 
 
