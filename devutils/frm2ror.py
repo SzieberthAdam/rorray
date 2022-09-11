@@ -3,6 +3,10 @@ import pathlib
 import struct
 import sys
 
+ALIGN = 8
+GROUPDEF_STRUCTFMT = "=HHL"
+ATTRDEF_STRUCTFMT = "=HHL"
+
 RORH_TEMPLATE = """#ifndef __DEFINE_RORFILEH__
 #define __DEFINE_RORFILEH__
 
@@ -12,24 +16,38 @@ RORH_TEMPLATE = """#ifndef __DEFINE_RORFILEH__
 ;"""
 
 ATTRTYPE = {
-    "attr"  : {"id": 0x0A, "name": "attr"  , "length": 2, "type": int, "struct": "H", "range": range(0, 65536)},
-    "bool"  : {"id": 0x01, "name": "bool"  , "length": 1, "type": int, "struct": "?", "range": range(0, 2)},
-    "group" : {"id": 0x06, "name": "group" , "length": 2, "type": int, "struct": "H", "range": range(0, 65536)},
-    "int16" : {"id": 0x50, "name": "int16" , "length": 2, "type": int, "struct": "h", "range": range(-32768, 32768)},
-    "int32" : {"id": 0x60, "name": "int32" , "length": 4, "type": int, "struct": "i", "range": range(-2147483648, 2147483648)},
-    "int8"  : {"id": 0x48, "name": "int8"  , "length": 1, "type": int, "struct": "b", "range": range(-128, 128)},
-    "item"  : {"id": 0x12, "name": "item"  , "length": 2, "type": int, "struct": "H", "range": range(0, 65536)},
-    "string": {"id": 0x80, "name": "string", "length": 0, "type": str, "struct": "s"},
-    "uint16": {"id": 0x10, "name": "uint16", "length": 2, "type": int, "struct": "H", "range": range(0, 65536)},
-    "uint32": {"id": 0x20, "name": "uint32", "length": 4, "type": int, "struct": "I", "range": range(0, 4294967296)},
-    "uint8" : {"id": 0x08, "name": "uint8" , "length": 1, "type": int, "struct": "B", "range": range(0, 256)},
+    "attr"  : {"id": 0x0A02, "name": "attr"  , "rootname": "attr"  , "length": 2, "type": int  , "struct": "H", "range": range(0, 65536)},
+    "bool"  : {"id": 0x0B00, "name": "bool"  , "rootname": "bool"  , "length": 1, "type": int  , "struct": "?", "range": range(0, 2)},
+    "group" : {"id": 0x0602, "name": "group" , "rootname": "group" , "length": 2, "type": int  , "struct": "H", "range": range(0, 65536)},
+    "int16" : {"id": 0x0102, "name": "int16" , "rootname": "int16" , "length": 2, "type": int  , "struct": "h", "range": range(-32768, 32768)},
+    "int32" : {"id": 0x0104, "name": "int32" , "rootname": "int32" , "length": 4, "type": int  , "struct": "i", "range": range(-2147483648, 2147483648)},
+    "int8"  : {"id": 0x0101, "name": "int8"  , "rootname": "int8"  , "length": 1, "type": int  , "struct": "b", "range": range(-128, 128)},
+    "elem"  : {"id": 0x0E02, "name": "elem"  , "rootname": "elem"  , "length": 2, "type": int  , "struct": "H", "range": range(0, 65536)},
+    "string": {"id": 0x4000, "name": "string", "rootname": "string", "length": 0, "type": str  , "struct": "s"},
+    "raw"   : {"id": 0x8000, "name": "raw"   , "rootname": "raw"   , "length": 0, "type": bytes, "struct": None},
+    "uint16": {"id": 0x0002, "name": "uint16", "rootname": "uint16", "length": 2, "type": int  , "struct": "H", "range": range(0, 65536)},
+    "uint32": {"id": 0x0004, "name": "uint32", "rootname": "uint32", "length": 4, "type": int  , "struct": "I", "range": range(0, 4294967296)},
+    "uint8" : {"id": 0x0001, "name": "uint8" , "rootname": "uint8" , "length": 1, "type": int  , "struct": "B", "range": range(0, 256)},
 }
 
-for _n in range(1, 128):
-    ATTRTYPE[f'string({_n})'] = {"id": 0x80+_n, "name": f'string({_n})', "length": _n, "type": str, "struct": f'{_n}s'}
+for _n in range(1, 256**2 // 4):
+    ATTRTYPE[f'string({_n})'] = {"id": 0x4000+_n, "name": f'string({_n})', "rootname": "string", "length": _n, "type": str, "struct": f'{_n}s'}
+
+for _n in range(1, 256**2 // 2):
+    ATTRTYPE[f'raw({_n})'] = {"id": 0x8000+_n, "name": f'raw({_n})', "rootname": "raw", "length": _n, "type": bytes, "struct": None}
 
 for _k, _d in tuple(ATTRTYPE.items()):
     ATTRTYPE[_d["id"]] = _d
+
+
+def align_length(length, align=None):
+    if align is None: align = ALIGN
+    m = length % align
+    return bool(m) * (align - m)
+
+
+def align_bytes(b, align=None):
+    return b'\x00' * align_length(len(b), align=align)
 
 
 def str2val(s, type_=None):
@@ -53,9 +71,7 @@ def str2int(s, type_=None):
     return v
 
 
-ALIGN = 8
-GROUPDEF_STRUCTFMT = "=HHL"
-ATTRDEF_STRUCTFMT = "=HBBL"
+
 
 
 if __name__ == "__main__":
@@ -76,118 +92,164 @@ if __name__ == "__main__":
 
     ba = bytearray() # this is the whole data which consist of:
     ba_header = bytearray()    # - header (padded to 32 bytes)
-    ba_groupdef = bytearray()  # - group definitions (16 bytes each)
-    ba_attrdef = bytearray()   # - group attribute definitions (8 bytes each; block paddded to 16 bytes)
+    ba_grouptoc = bytearray()  # - group definitions (16 bytes each)
+    ba_attrtoc = bytearray()   # - group attribute definitions (8 bytes each; block paddded to 16 bytes)
     ba_attrvals = bytearray()  # - area of attribute values (area padded to 16 bytes)
 
-    # objects used:
-    group = None        # b'name'
-    groupdef = None     # [b'name', itemcount:uint16, attrcount:uit16, firstitemlink:uint32, firstattrtablelink:uint32]
-    groupdict = {}      #
-    groupidx = -1       # Group ID
-    groupinfo = {}      # {b'name': {"idx": groupidx, "def": groupdef}}
-    attrdef = None      # [b'nam', attrtype:uint8, firstattrlink:uint32]
-    attridx = -1        # attribute index
-    attrtypeinfo = None # 
-    vals = None         # [val1, val2, ...]
+    attrdict = {}
+    attrlist = []
+    groupdict = {}
+    grouplist = []
     
-    mode = "SIG"  # loop control
- 
-    for li0 in frmstr.split("\n"):
-        li = li0.partition(";")[0].strip() # trim comments
-        if not li: continue
-        # print(f'{mode:<3} <- {li}')
-        if mode == "SIG":
-            assert li.startswith("SIG ")
+
+    _L0 = (li.partition(";")[0].strip() for li in frmstr.split("\n"))
+    _L = [li for li in _L0 if li]
+
+    for i, li in enumerate(li for li in _L if li.startswith("|")):
+        key, _, _s = li.partition(" ")
+        if i == 0:
+            assert key == "|SIG"
             _s = str(json.loads(li.split(" ")[1]))
             _b = _s.encode("ascii")
             assert len(_b) == 3
             ba_header.extend(_b)
-            mode = "VER"
-            continue
-        if mode == "VER":
-            assert li.startswith("VER ")
+        elif i == 1:
+            assert key == "|VER"
             _v = str2val(li.split(" ")[1], "uint8")
             ba_header.append(_v)
-            mode = "G"
-            continue
-        if mode == "G":
-            assert li.startswith("G ")
-            groupidx += 1
-            attridx = -1
-            _, group, _items, _attrs = li.split(" ")
-            group = group.encode("ascii")
-            _items = str2int(_items)
-            _attrs = str2int(_attrs)
-            groupdef = [_items, _attrs, len(ba_attrdef)]
-            _b = struct.pack(GROUPDEF_STRUCTFMT, *groupdef)
-            _b += b'\x00' * (len(_b) % ALIGN)
-            ba_groupdef.extend(_b)
-            _d = {"groupidx": groupidx, "group": group, "groupdef": groupdef}
-            groupdict[group] = groupdict[groupidx] = _d
-            mode = ("A" if attridx + 1 < groupdef[1] else "G")
-            continue
-        if mode == "A":
-            assert li.startswith("A ")
-            attridx += 1
+
+    _i = 0
+    while _i < len(_L):
+        li = _L[_i]
+        # print(li)
+        # TODO: global string :S with TOC
+        # TODO: global raw bytes :B with TOC
+        if li.startswith(":G "):
+            _, _group = [s.strip() for s in li.split(" ")]
+            _group = _group.encode("ascii")
+            _groupidx = len(grouplist)
+            _dg = {"groupidx": _groupidx, "group": _group, "elems": -1, "attrs": []}
+            grouplist.append(_dg)
+            groupdict[_group] = _dg
+            if (_i+1 < len(_L) and _L[_i+1].startswith(":GELEMS ")):
+                _dg["elems"] = str2val(_L[_i+1].split(" ")[1], "uint8")
+                _i += 1
+        elif li.startswith(":A "):
+            assert _group is not None
             _t = li.split(" ")
-            _, _attr, _attrtype = _t[:3]
+            _, _attr, _attrtype = [s.strip() for s in _t[:3]]
             _attr = _attr.encode("ascii")
-            attrtypeinfo = ATTRTYPE[_attrtype]
-            attrdefaddr = len(ba_attrvals)
-            attrdef = [groupidx, attrtypeinfo["id"], attrtypeinfo["length"], len(ba_attrvals)]
-            _b = struct.pack(ATTRDEF_STRUCTFMT, *attrdef)
-            _b += b'\x00' * (len(_b) % ALIGN)
-            ba_attrdef.extend(_b)
-            vals = []
-            mode = "A.."
-            if not _t[3:]:
-                continue
+            _attrtypeinfo = ATTRTYPE[_attrtype]
+            if _t[3:]:
+                _s = " ".join(_t[3:]).lstrip()
             else:
-                li = " ".join(_t[3:]).lstrip() # ATTENTION! SHORTCUT!
-        if mode == "A..":
-            if attrtypeinfo["name"] == "group":
-                _sg = [s.strip() for s in li.rstrip("*").rstrip(" ").rstrip(",").split(",")]
-                _v = [groupdict[group.encode("ascii")]["groupidx"] for group in _sg] # TODO: forward ref capability
-            elif attrtypeinfo["type"] is int:
-                _sg = [s.strip() for s in li.rstrip("*").rstrip(" ").rstrip(",").split(",")]
-                _v = [str2int(s, type_=attrtypeinfo["id"]) for s in _sg]
+                _s = ""
+            while True:
+                if (
+                    len(_L) <= _i+1 
+                    or _L[_i+1].startswith(":A ") 
+                    or _L[_i+1].startswith(":G ")
+                ):
+                    break
+                else:
+                    assert not _s or _s.endswith(",")
+                    _i += 1
+                    _s += _L[_i]
+            if _s[-1] == "*":
+                _sstar = True
+                _s = _s.rstrip("*").rstrip(" ").rstrip(",")
             else:
-                _v = json.loads(f'[{li.rstrip("*").rstrip(" ").rstrip(",")}]')
-            if attrtypeinfo["type"] is str:
+                _sstar = False
+            if _attrtypeinfo["name"] == "group":
+                _v = [s.strip().encode("ascii") for s in _s.split(",")]
+            elif _attrtypeinfo["type"] is int:
+                _v = [str2int(s.strip(), type_=_attrtypeinfo["id"]) for s in _s.split(",")]
+            elif _attrtypeinfo["rootname"] == "raw":
+                _v = [bytes([int(s1, 16) for s1 in s0.split("\\x") if s1]) for s0 in _s.split(",")]
+                assert all(len(b) == _attrtypeinfo["length"] for b in _v)
+            else:
+                _v = json.loads(f'[{_s}]')
+            if _attrtypeinfo["type"] is str:
                 _v = [s.encode("utf-8") for s in _v]  # struct.error: argument for 's' must be a bytes object
-            vals.extend(_v)
-            if li.endswith("*"):
-                vals.extend([vals[-1]] * max(0, groupdef[0] - len(vals)))
-            assert len(vals) <= groupdef[0]
-            if len(vals) < groupdef[0]:
-                assert li.endswith(",")
-                continue
-            _structfmt = attrtypeinfo["struct"] * groupdef[0]
-            _b = struct.pack(_structfmt, *vals)
-            _b += b'\x00' * (len(_b) % ALIGN)
-            ba_attrvals.extend(_b)
-            mode = ("A" if attridx + 1 < groupdef[1] else "G")
-            continue
+            _attridx = len(attrlist)
+            _da = {"attridx": _attridx, "attr": _attr, "groupidx": _groupidx, "group": _group, "type": _attrtypeinfo["name"], "values": _v, "values_star": _sstar}
+            attrlist.append(_da)
+            attrdict[_group + b'.' + _attr] = _da
+            _dg["attrs"].append(_da)
+            #if _group == b'SENA' and _attr == b'NAME':
+            #    raise Exception
+        _i += 1
+
+
+    for _dg in grouplist:
+        _vcnts0 = [len(_da["values"]) for _da in _dg["attrs"] if not _da["values_star"]]
+        assert not _vcnts0 or len(set(_vcnts0)) == 1
+        _vcnts1 = [len(_da["values"]) for _da in _dg["attrs"] if _da["values_star"]]
+        _vstar = [_da["values_star"] for _da in _dg["attrs"]]
+        if _dg["elems"] == -1:
+            if not _dg["attrs"]:
+                _dg["elems"] = 0
+            else:
+                _dg["elems"] = _vcnts0[0]
+        assert all(_v == _dg["elems"] for _v in _vcnts0)
+        assert all(_v < _dg["elems"] for _v in _vcnts1)
+
+        _grouptocitem = [_dg["elems"], len(_dg["attrs"]), (0 if not _dg["attrs"] else _dg["attrs"][0]["attridx"])]
+        _dg["grouptocitem"] = _grouptocitem
+        _b = struct.pack(GROUPDEF_STRUCTFMT, *_grouptocitem)
+        _b += align_bytes(_b)
+        _dg["grouptocitem_bytes"] = _b
+        _dg["grouptocitem_offset"] = len(ba_grouptoc)
+        ba_grouptoc.extend(_b)
+
+    for _da in attrlist:
+        if _da["type"] == "group":
+            assert all(_group in groupdict for _group in _da["values"])
+        _elems = groupdict[_da["group"]]["elems"]
+        _da["values_final"] = list(_da["values"])  # copy
+        if _da["values_star"]:
+            _da["values_final"].extend([_da["values"][-1]] * (_elems - len(_da["values"])))
+        _attrtypeinfo = ATTRTYPE[_da["type"]]
+        if _attrtypeinfo["rootname"] == "group":
+            _structfmt = _attrtypeinfo["struct"] * _elems
+            _b = struct.pack(_structfmt, *[groupdict[_group]["groupidx"] for _group in _da["values_final"]])
+        elif _attrtypeinfo["rootname"] == "raw":
+            _b = b''.join(_da["values_final"])
+        else:
+            _structfmt = _attrtypeinfo["struct"] * _elems
+            _b = struct.pack(_structfmt, *_da["values_final"])
+        _b += align_bytes(_b)  # ?
+        _da["values_bytes"] = _b
+        _da["values_offset"] = len(ba_attrvals)
+        ba_attrvals.extend(_b)
+
+        _attrtocitem = [_da["groupidx"], _attrtypeinfo["id"], _da["values_offset"]]
+        _da["attrtocitem"] = _attrtocitem
+        _b = struct.pack(ATTRDEF_STRUCTFMT, *_attrtocitem)
+        _b += align_bytes(_b)
+        _da["attrtocitem_bytes"] = _b
+        _da["attrtocitem_offset"] = len(ba_attrtoc)
+        ba_attrtoc.extend(_b)
+
 
     # at this point, len(ba_header) = 4
     _v = len(ba_header) + struct.calcsize("LLLLL") # calculate header size (_v = 24)
-    _v += _v % ALIGN  # cosmetic
+    _v += align_length(_v)  # cosmetic
 
     ba_header.extend(struct.pack("L", 0))   # header absolute address
-    ba_header.extend(struct.pack("L", _v))  # groupdef absolute address
-    _v += len(ba_groupdef)
-    ba_header.extend(struct.pack("L", _v))  # attrdef absolute address
-    _v += len(ba_attrdef)
+    ba_header.extend(struct.pack("L", _v))  # grouptoc absolute address
+    _v += len(ba_grouptoc)
+    ba_header.extend(struct.pack("L", _v))  # attrtoc absolute address
+    _v += len(ba_attrtoc)
     ba_header.extend(struct.pack("L", _v))  # attrvals absolute address
     _v += len(ba_attrvals)
     ba_header.extend(struct.pack("L", _v))  # data size
 
-    ba_header.extend(b'\x00' * (len(ba_header) % ALIGN))  # cosmetic
+    ba_header.extend(align_bytes(ba_header))  # cosmetic
 
     ba.extend(ba_header)
-    ba.extend(ba_groupdef)
-    ba.extend(ba_attrdef)
+    ba.extend(ba_grouptoc)
+    ba.extend(ba_attrtoc)
     ba.extend(ba_attrvals)
 
     with frm_path.with_suffix(".ror").open("wb") as _f:
