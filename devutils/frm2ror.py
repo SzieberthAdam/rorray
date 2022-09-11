@@ -9,12 +9,12 @@ ATTRDEF_STRUCTFMT = "=HHL"
 #GROUPDEF_STRUCTFMT = "=4sHHL"
 #ATTRDEF_STRUCTFMT = "=4s4sHHL"
 
-RORH_TEMPLATE = """#ifndef __DEFINE_RORFILEH__
-#define __DEFINE_RORFILEH__
+RORH_TEMPLATE = """#ifndef __DEFINE_RORHFILE__
+#define __DEFINE_RORHFILE__
 
 {{rorh}}
 
-#endif  /* #ifndef __DEFINE_RORFILEH__ */
+#endif  /* #ifndef __DEFINE_RORHFILE__ */
 ;"""
 
 ATTRTYPE = {
@@ -244,14 +244,14 @@ if __name__ == "__main__":
     _v = len(ba_header) + struct.calcsize("LLLLL") # calculate header size (_v = 24)
     _v += align_length(_v)  # cosmetic
 
-    ba_header.extend(struct.pack("L", 0))   # header absolute address
-    ba_header.extend(struct.pack("L", _v))  # grouptoc absolute address
+    ba_header.extend(struct.pack("=L", 0))   # header absolute address
+    ba_header.extend(struct.pack("=L", _v))  # grouptoc absolute address
     _v += len(ba_grouptoc)
-    ba_header.extend(struct.pack("L", _v))  # attrtoc absolute address
+    ba_header.extend(struct.pack("=L", _v))  # attrtoc absolute address
     _v += len(ba_attrtoc)
-    ba_header.extend(struct.pack("L", _v))  # attrvals absolute address
+    ba_header.extend(struct.pack("=L", _v))  # attrvals absolute address
     _v += len(ba_attrvals)
-    ba_header.extend(struct.pack("L", _v))  # data size
+    ba_header.extend(struct.pack("=L", _v))  # data size
 
     ba_header.extend(align_bytes(ba_header))  # cosmetic
 
@@ -260,5 +260,37 @@ if __name__ == "__main__":
     ba.extend(ba_attrtoc)
     ba.extend(ba_attrvals)
 
-    with frm_path.with_suffix(".ror").open("wb") as _f:
-        print(f'{_f.write(ba)} bytes')
+    _file = frm_path.with_suffix(".ror")
+    with _file.open("wb") as _f:
+        print(f'{_file}: {_f.write(ba)} bytes')
+
+
+    rorh_lines = [
+        f'#define RORH_SIZE {len(ba)}',
+        "",
+        f'#define RORH_GROUPTOC {struct.unpack("=L", ba_header[8:12])[0]}',
+        f'#define RORH_ATTRTOC {struct.unpack("=L", ba_header[12:16])[0]}',
+        f'#define RORH_ATTRVALS {struct.unpack("=L", ba_header[16:20])[0]}',
+        "",
+        f'#define RORH_GROUPTOC_ITEMSIZE 8',
+        f'#define RORH_ATTRTOC_ITEMSIZE 8',
+        "",
+        f'#define RORH_GROUPTOC_ELEMS 0',
+        f'#define RORH_GROUPTOC_ATTRS 2',
+        f'#define RORH_GROUPTOC_FIRSTATTR 4',
+        f'#define RORH_ATTRTOC_GROUP 0',
+        f'#define RORH_ATTRTOC_TYPE 2',
+        f'#define RORH_ATTRTOC_ADDR 4',
+        "",
+    ]
+
+    for _dg in grouplist:
+        rorh_lines.append(f'#define RORH_G_{_dg["group"].decode("ascii")} {_dg["groupidx"]}',)
+        for _da in _dg["attrs"]:
+            rorh_lines.append(f'#define RORH_A_{_da["group"].decode("ascii")}_{_da["attr"].decode("ascii")} {_da["attridx"]}',)
+
+    rorhstr = RORH_TEMPLATE.replace("{{rorh}}", "\n".join(rorh_lines))
+
+    _file = frm_path.parent / "rorfile.h"
+    with _file.open("w", encoding="utf-8") as _f:
+        print(f'{_file}: {_f.write(rorhstr)} bytes')
