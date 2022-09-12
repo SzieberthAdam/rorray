@@ -31,10 +31,10 @@ int main(void)
     Vector2 v;
     Vector2 touchPosition = { 0, 0 };
     //Rectangle r;
-    char str[9999];
+    //char str[9999];
 
-    const int screenWidth = 1920;
-    const int screenHeight = 1080;
+    const int screenWidth = 800;
+    const int screenHeight = 600;
 
     Font font;
 
@@ -42,16 +42,15 @@ int main(void)
     int lastGesture = GESTURE_NONE;
 
     unsigned int rordataLength = SIZE;
-    unsigned int addr = 0;
     unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
  
     Rectangle factionrects[NUM_FACTIONS] = {
-        {W, H * (5 + 6 * 0), W * 30 - L, H - L},
-        {W, H * (5 + 6 * 1), W * 30 - L, H - L},
-        {W, H * (5 + 6 * 2), W * 30 - L, H - L},
-        {W, H * (5 + 6 * 3), W * 30 - L, H - L},
-        {W, H * (5 + 6 * 4), W * 30 - L, H - L},
-        {W, H * (5 + 6 * 5), W * 30 - L, H - L},
+        {W, H * (1 + 6 * 0), W * 30 - L, H - L},
+        {W, H * (1 + 6 * 1), W * 30 - L, H - L},
+        {W, H * (1 + 6 * 2), W * 30 - L, H - L},
+        {W, H * (1 + 6 * 3), W * 30 - L, H - L},
+        {W, H * (1 + 6 * 4), W * 30 - L, H - L},
+        {W, H * (1 + 6 * 5), W * 30 - L, H - L},
     };
     
     int holdfactionrecti = -1;
@@ -64,10 +63,6 @@ int main(void)
     SetTargetFPS(30);
 
     font = LoadFont("romulus.png");
-
-    Attr a;
-    Group g;
-
 
     while (!WindowShouldClose())
     {
@@ -131,70 +126,7 @@ int main(void)
         ClearBackground(RAYWHITE);
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
 
-        DrawFPS(screenWidth-100, 10);  
-
-        int i = 1;
-        int j = 1;
-        //TextFormat(str, "V = %X", SEN_REF_ADDR);
-        // sprintf(str, "%X", rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ]);
-        // DrawText(str, 400, 400, 20, BLUE);
-        // sprintf(str, "%X", (((PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)) >> 8));
-        // DrawText(str, 400, 500, 20, BLUE);
-        // sprintf(str, "%X", (unsigned char)(((PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)) >> 8));
-        // DrawText(str, 500, 500, 20, BLUE);
-        // sprintf(str, "%X", rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE + 1 ]);
-        // DrawText(str, 400, 600, 20, BLUE);
-        // sprintf(str, "%X", (unsigned char)(((PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE )) & 0xFF));
-        // DrawText(str, 400, 700, 20, BLUE);
-        // sprintf(str, "%X", (((unsigned short *)rordata)[SEN_REF_ADDR / 2 + (j << SEN_VAL_BITS) ]));
-        // DrawText(str, 400, 800, 20, BLUE);
-        // sprintf(str, "%X", SEN_REF_ADDR / 2 + (j << SEN_VAL_BITS));
-        // DrawText(str, 600, 800, 20, BLUE);
-        // sprintf(str, "%X", PLA_REF_ADDR / 2 + (i << PLA_VAL_BITS));
-        // DrawText(str, 400, 900, 20, BLUE);
-        // sprintf(str, "%X", MAINLENGTH+scenarioStrPos[SEN_STR_IDX+j]);
-        // DrawText(str, 400, 1000, 20, BLUE);        
-        // sprintf(str, "%X", (rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ] == (unsigned char)(((PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)) >> 8)));
-        // DrawText(str, 600, 1000, 20, BLUE);      
-
-        // sprintf(str, "%X", GROUPTOC + GROUPTOC_ITEMSIZE * G_SENA);  // 0x38: SENA GROUPTOCITEM address
-        //sprintf(str, "%X", *(unsigned short *)(&rordata[GROUPTOC + GROUPTOC_ITEMSIZE * G_SENA]));  //0x23: SENA elemcount
-        //sprintf(str, "%d", *(unsigned int *)(&rordata[GROUPTOC + GROUPTOC_ITEMSIZE * G_SENA + GROUPTOC_FIRSTATTR]));  //24: SENA first attribute
-        //sprintf(str, "%X", ATTRTOC + ATTRTOC_ITEMSIZE * A_SENA_NAME + ATTRTOC_ADDR);  // 0x011C: SENA NAME values address
-        //sprintf(str, "%X", *(unsigned int *)(&rordata[ATTRTOC + ATTRTOC_ITEMSIZE * A_SENA_NAME + ATTRTOC_ADDR])); //01E8 = 488: 
-        //sprintf(str, "%X", ATTRVALS + 0x1E8);  // 0x0308: first senator name address
-
-        // these are identical
-        //sprintf(str, "%X", *(Attr*)(&rordata[ATTRTOC]));
-        //DrawText(str, 400, 300, 20, BLUE);
-        //sprintf(str, "%X", *(Attr*)(rordata+ATTRTOC)); 
-        //DrawText(str, 400, 400, 20, BLUE);
-
-        g = group(rordata, G_FACT);
-        a = attr(rordata, G_SENA, A_SENA_NAME);
-
-        sprintf(str, "%X", valreladdr(rordata, G_SENA, A_SENA_CNGR, 1));
-        DrawText(str, 400, 100, 20, BLUE);
-
-        //sprintf(str, "%X", (uint16_t*)(&rordata+val0addr(rordata, G_SENA, A_SENA_CNGR)) );
-        //sprintf(str, "%X", (*( (uint16_t*)(&rordata+val0addr(rordata, G_SENA, A_SENA_CNGR) ) ) )+1             );
-        //sprintf(str, "%X", (*((uint16_t*)(rordata+val0addr(rordata, G_SENA, A_SENA_CNGR))+8)) );   // worked
-        sprintf(str, "%X", (*((uint16_t*)(valabsaddr(rordata, G_SENA, A_SENA_CNGR, 0))+8)) );
-        //sprintf(str, "%X", (*((A_SENA_CNGR*)(valabsaddr(rordata, G_SENA, A_SENA_CNGR, 8)))) );
-        DrawText(str, 400, 200, 20, BLUE);
-
-        sprintf(str, "%d", (  *( (Group*)(&rordata[GROUPTOC])+G_SENA ) ).firstattridx  );  //24: SENA first attribute
-        DrawText(str, 400, 300, 20, BLUE);
-
-        sprintf(str, "%X", ATTRVALS + (*((Attr*)(&rordata[ATTRTOC])+((*((Group*)(&rordata[GROUPTOC])+G_SENA)).firstattridx)+A_SENA_NAME)).addr);  // 0x0308: address of the 0th Family Card's name
-        DrawText(str, 400, 400, 20, BLUE);
-
-        sprintf(str, "%X", val0reladdr(rordata, G_SENA, A_SENA_NAME));  // 0x0308: address of the 0th Family Card's name
-        DrawText(str, 400, 500, 20, BLUE);
-
-        DrawText((char*)(rordata+0x0308), 400, 600, 20, BLUE);
-
-        
+        DrawFPS(screenWidth-100, 10);        
 
         for (int i = 0; i < group(rordata, G_FACT).items; i++)
         {
