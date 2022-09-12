@@ -65,6 +65,10 @@ int main(void)
 
     font = LoadFont("romulus.png");
 
+    Attr a;
+    Group g;
+
+
     while (!WindowShouldClose())
     {
 
@@ -166,48 +170,55 @@ int main(void)
         //sprintf(str, "%X", *(Attr*)(rordata+ATTRTOC)); 
         //DrawText(str, 400, 400, 20, BLUE);
 
-        sprintf(str, "%X", (*(Attr*)(&rordata[ATTRTOC])).type);
+        g = group(rordata, G_FACT);
+        a = attr(rordata, G_SENA, A_SENA_NAME);
+
+        sprintf(str, "%X", valreladdr(rordata, G_SENA, A_SENA_CNGR, 1));
         DrawText(str, 400, 100, 20, BLUE);
 
-        sprintf(str, "%X", (*((Attr*)(&rordata[ATTRTOC])+18)).type);  // type of absolute 18th attribute
+        //sprintf(str, "%X", (uint16_t*)(&rordata+val0addr(rordata, G_SENA, A_SENA_CNGR)) );
+        //sprintf(str, "%X", (*( (uint16_t*)(&rordata+val0addr(rordata, G_SENA, A_SENA_CNGR) ) ) )+1             );
+        //sprintf(str, "%X", (*((uint16_t*)(rordata+val0addr(rordata, G_SENA, A_SENA_CNGR))+8)) );   // worked
+        sprintf(str, "%X", (*((uint16_t*)(valabsaddr(rordata, G_SENA, A_SENA_CNGR, 0))+8)) );
+        //sprintf(str, "%X", (*((A_SENA_CNGR*)(valabsaddr(rordata, G_SENA, A_SENA_CNGR, 8)))) );
         DrawText(str, 400, 200, 20, BLUE);
 
-        sprintf(str, "%d", (*((Group*)(&rordata[GROUPTOC])+G_SENA)).firstattridx);  //24: SENA first attribute
+        sprintf(str, "%d", (  *( (Group*)(&rordata[GROUPTOC])+G_SENA ) ).firstattridx  );  //24: SENA first attribute
         DrawText(str, 400, 300, 20, BLUE);
 
         sprintf(str, "%X", ATTRVALS + (*((Attr*)(&rordata[ATTRTOC])+((*((Group*)(&rordata[GROUPTOC])+G_SENA)).firstattridx)+A_SENA_NAME)).addr);  // 0x0308: address of the 0th Family Card's name
         DrawText(str, 400, 400, 20, BLUE);
 
-        sprintf(str, "%X", firstvaladdr(rordata, G_SENA, A_SENA_NAME));  // 0x0308: address of the 0th Family Card's name
+        sprintf(str, "%X", val0reladdr(rordata, G_SENA, A_SENA_NAME));  // 0x0308: address of the 0th Family Card's name
         DrawText(str, 400, 500, 20, BLUE);
 
         DrawText((char*)(rordata+0x0308), 400, 600, 20, BLUE);
 
-        // for (int i = 0; i < NUM_FACTIONS; i++)
-        // {
-        //     v.x = factionrects[i].x + FONTSPACING;
-        //     v.y = factionrects[i].y;           
-        //     DrawRectangleRec(factionrects[i], DARKGRAY);
-        //     int a = MAINLENGTH + scenarioStrPos[PLA_STR_IDX + i + 1];
-        //     DrawTextEx(font, TextToUpper((char*)(rordata+a)), v, font.baseSize*1.0f, FONTSPACING, WHITE);
-// 
-        //     for (int j = 0; j < SEN_MAX_N + 1; j++)
-        //     {
-        //         //if (rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ] == PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)
-        //         //if (unsigned short *)(rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ]) == PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE )
-        //         //if (((unsigned short *)rordata[SEN_REF_ADDR / 2 + (j << SEN_VAL_BITS) ]) == PLA_REF_ADDR / 2 + (i << PLA_VAL_BITS) )
-        //         if (
-        //             ( rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ] == (unsigned char)(((PLA_REF_ADDR + ((i+1) << PLA_VAL_BITS) * VAL_SIZE)) >> 8) ) // typecast is a must!
-        //             &&
-        //             ( rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE + 1 ] == (unsigned char)(((PLA_REF_ADDR + ((i+1) << PLA_VAL_BITS) * VAL_SIZE )) & 0xFF) )
-        //             //(rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE + 1 ] == PLA_REF_ADDR & 0xFF)
-        //         )
-        //         {
-        //             v.y += H;
-        //             DrawTextEx(font, (char*)(rordata+(MAINLENGTH+scenarioStrPos[SEN_STR_IDX+j])), v, font.baseSize*1.0f, FONTSPACING, WHITE);
-        //         }
-        //     }
-        // }
+        
+
+        for (int i = 0; i < group(rordata, G_FACT).items; i++)
+        {
+            v.x = factionrects[i].x + FONTSPACING;
+            v.y = factionrects[i].y;           
+            DrawRectangleRec(factionrects[i], DARKGRAY);
+            DrawTextEx(font, TextToUpper((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+            for (int j = 0; j < group(rordata, G_SENA).items; j++)
+            {
+                //if (rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ] == PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)
+                //if (unsigned short *)(rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ]) == PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE )
+                //if (((unsigned short *)rordata[SEN_REF_ADDR / 2 + (j << SEN_VAL_BITS) ]) == PLA_REF_ADDR / 2 + (i << PLA_VAL_BITS) )
+                if (
+                    ( *((A_SENA_CNGR_t*)(val0absaddr(rordata, G_SENA, A_SENA_CNGR))+j) == (A_SENA_CNGR_t)(G_FACT) ) // typecast is a must!
+                    &&
+                    ( *((A_SENA_CNNR_t*)(val0absaddr(rordata, G_SENA, A_SENA_CNNR))+j) == i )
+                    //(rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE + 1 ] == PLA_REF_ADDR & 0xFF)
+                )
+                {
+                    v.y += H;
+                    DrawTextEx(font, (char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, j)), v, font.baseSize*1.0f, FONTSPACING, WHITE);
+                }
+            }
+        }
         EndDrawing();
         //----------------------------------------------------------------------------------
     }

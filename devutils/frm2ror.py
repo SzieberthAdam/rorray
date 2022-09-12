@@ -18,25 +18,25 @@ TEMPLATE = """#ifndef __DEFINE_RORHFILE__
 ;"""
 
 ATTRTYPE = {
-    "attr"  : {"id": 0x0A02, "name": "attr"  , "rootname": "attr"  , "length": 2, "type": int  , "struct": "H", "range": range(0, 65536)},
-    "bool"  : {"id": 0x0B00, "name": "bool"  , "rootname": "bool"  , "length": 1, "type": int  , "struct": "?", "range": range(0, 2)},
-    "group" : {"id": 0x0602, "name": "group" , "rootname": "group" , "length": 2, "type": int  , "struct": "H", "range": range(0, 65536)},
-    "int16" : {"id": 0x0102, "name": "int16" , "rootname": "int16" , "length": 2, "type": int  , "struct": "h", "range": range(-32768, 32768)},
-    "int32" : {"id": 0x0104, "name": "int32" , "rootname": "int32" , "length": 4, "type": int  , "struct": "i", "range": range(-2147483648, 2147483648)},
-    "int8"  : {"id": 0x0101, "name": "int8"  , "rootname": "int8"  , "length": 1, "type": int  , "struct": "b", "range": range(-128, 128)},
-    "elem"  : {"id": 0x0E02, "name": "elem"  , "rootname": "elem"  , "length": 2, "type": int  , "struct": "H", "range": range(0, 65536)},
-    "string": {"id": 0x4000, "name": "string", "rootname": "string", "length": 0, "type": str  , "struct": "s"},
-    "raw"   : {"id": 0x8000, "name": "raw"   , "rootname": "raw"   , "length": 0, "type": bytes, "struct": None},
-    "uint16": {"id": 0x0002, "name": "uint16", "rootname": "uint16", "length": 2, "type": int  , "struct": "H", "range": range(0, 65536)},
-    "uint32": {"id": 0x0004, "name": "uint32", "rootname": "uint32", "length": 4, "type": int  , "struct": "I", "range": range(0, 4294967296)},
-    "uint8" : {"id": 0x0001, "name": "uint8" , "rootname": "uint8" , "length": 1, "type": int  , "struct": "B", "range": range(0, 256)},
+    "attr"  : {"id": 0x0A02, "name": "attr"  , "rootname": "attr"  , "length": 2, "type": int  , "ctype": "uint16_t"       , "struct": "H", "range": range(0, 65536)},
+    "bool"  : {"id": 0x0F11, "name": "bool"  , "rootname": "bool"  , "length": 1, "type": int  , "ctype": "bool"           , "struct": "?", "range": range(0, 2)},
+    "group" : {"id": 0x0602, "name": "group" , "rootname": "group" , "length": 2, "type": int  , "ctype": "uint16_t"       , "struct": "H", "range": range(0, 65536)},
+    "int16" : {"id": 0x0102, "name": "int16" , "rootname": "int16" , "length": 2, "type": int  , "ctype": "int16_t"        , "struct": "h", "range": range(-32768, 32768)},
+    "int32" : {"id": 0x0104, "name": "int32" , "rootname": "int32" , "length": 4, "type": int  , "ctype": "int32_t"        , "struct": "i", "range": range(-2147483648, 2147483648)},
+    "int8"  : {"id": 0x0101, "name": "int8"  , "rootname": "int8"  , "length": 1, "type": int  , "ctype": "int8_t"         , "struct": "b", "range": range(-128, 128)},
+    "elem"  : {"id": 0x0E02, "name": "elem"  , "rootname": "elem"  , "length": 2, "type": int  , "ctype": "uint16_t"       , "struct": "H", "range": range(0, 65536)},
+    "string": {"id": 0x4000, "name": "string", "rootname": "string", "length": 0, "type": str  , "ctype": "char *"         , "struct": "s"},
+    "raw"   : {"id": 0x8000, "name": "raw"   , "rootname": "raw"   , "length": 0, "type": bytes, "ctype": "unsigned char *", "struct": None},
+    "uint16": {"id": 0x0002, "name": "uint16", "rootname": "uint16", "length": 2, "type": int  , "ctype": "uint16_t"       , "struct": "H", "range": range(0, 65536)},
+    "uint32": {"id": 0x0004, "name": "uint32", "rootname": "uint32", "length": 4, "type": int  , "ctype": "uint32_t"       , "struct": "I", "range": range(0, 4294967296)},
+    "uint8" : {"id": 0x0001, "name": "uint8" , "rootname": "uint8" , "length": 1, "type": int  , "ctype": "uint8_t"        , "struct": "B", "range": range(0, 256)},
 }
 
 for _n in range(1, 256**2 // 4):
-    ATTRTYPE[f'string({_n})'] = {"id": 0x4000+_n, "name": f'string({_n})', "rootname": "string", "length": _n, "type": str, "struct": f'{_n}s'}
+    ATTRTYPE[f'string({_n})'] = {"id": 0x4000+_n, "name": f'string({_n})', "rootname": "string", "length": _n, "type": str, "ctype": f"char[{_n}]", "struct": f'{_n}s'}
 
 for _n in range(1, 256**2 // 2):
-    ATTRTYPE[f'raw({_n})'] = {"id": 0x8000+_n, "name": f'raw({_n})', "rootname": "raw", "length": _n, "type": bytes, "struct": None}
+    ATTRTYPE[f'raw({_n})'] = {"id": 0x8000+_n, "name": f'raw({_n})', "rootname": "raw", "length": _n, "type": bytes, "ctype": f"unsigned char[{_n}]", "struct": None}
 
 for _k, _d in tuple(ATTRTYPE.items()):
     ATTRTYPE[_d["id"]] = _d
@@ -269,20 +269,18 @@ if __name__ == "__main__":
         print(f'{_file}: {_f.write(ba)} bytes')
 
 
-#        "#define group(G)  (*((Group*)(&scenarioRoR[GROUPTOC])+G))",
-#        "#define attr(G, A)  (ATTRVALS + (*((Attr*)(&scenarioRoR[ATTRTOC])+(group(G).firstattridx)+A)))",
-#        "#define firstvaladdr(G, A)  (attr(G, A).addr)",
-#        "#define firstvaladdr(G, A)  (ATTRVALS + (*((Attr*)(&scenarioRoR[ATTRTOC])+(group(G).firstattridx)+A)).addr)",
-
-
     rorh_lines = [
         "",
         "typedef struct _Group Group;",
         "typedef struct _Attr Attr;",
         "",
-        "#define group(rordata, G)  (*((Group*)(&rordata[GROUPTOC])+G))",
-        "#define attr(rordata, G, A)  (*((Attr*)(&rordata[ATTRTOC])+(group(rordata, G).firstattridx)+A))",
-        "#define firstvaladdr(rordata, G, A)  (ATTRVALS + attr(rordata, G, A).addr)",
+        "#define group(rordata, G)  (*((Group*)(rordata+GROUPTOC)+G))",
+        "#define attr(rordata, G, A)  (*((Attr*)(rordata+ATTRTOC)+(group(rordata, G).firstattridx)+A))",
+        "#define val0reladdr(rordata, G, A)  (ATTRVALS + attr(rordata, G, A).addr)",
+        "#define val0absaddr(rordata, G, A)  (rordata+val0reladdr(rordata, G, A))",
+        "#define valsize(rordata, G, A)  (attr(rordata, G, A).type & 0x00FF)",  # TODO: fix that hacky that 0x00FF, for strings it should be 0x3FFF etc
+        "#define valreladdr(rordata, G, A, i)  (ATTRVALS + attr(rordata, G, A).addr)+(i*valsize(rordata, G, A))",
+        "#define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))",
         "",
         f'#define SIZE {len(ba)}',
         "",
@@ -306,6 +304,10 @@ if __name__ == "__main__":
         rorh_lines.append(f'#define G_{_dg["group"].decode("ascii")} {_dg["groupidx"]}',)
         for _da in _dg["attrs"]:
             rorh_lines.append(f'#define A_{_da["group"].decode("ascii")}_{_da["attr"].decode("ascii")} {_da["groupattridx"]}',)
+            rorh_lines.append(f'#define A_{_da["group"].decode("ascii")}_{_da["attr"].decode("ascii")}_t {ATTRTYPE[_da["type"]]["ctype"]}',)
+
+    for _k, _d in ATTRTYPE.items():
+        0x4000
 
     rorhstr = TEMPLATE.replace("{{rorh}}", "\n".join(rorh_lines))
 

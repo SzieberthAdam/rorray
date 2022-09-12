@@ -7,9 +7,9 @@
 
 :G GAME ; "Game"
 :A NAME string(16) "Ludus" ; name
-:A TURN uint16 0 ; turn
+:A TURN int16 0 ; turn
 :ANOPAD
-:A PHSE uint16 0 ; phase
+:A PHSE int16 0 ; phase
 :ANOPAD
 :A SPHS uint32 0 ; subphase (technical)
 :ANOPAD
@@ -59,23 +59,23 @@
 
 :G SENA ; "Family Card / Senator"
 :A CNGR group ; group connection: faction (aligned), forum (unaligned), deck, null (not in play)
-        NULL, FACT, FACT, FACT, FACT, FACT, FACT, NULL, FACT, FACT, 
-        FACT, FACT, FACT, FACT, FACT, FACT, FACT, NULL, FACT, FACT, 
-        FACT, NULL, *
-:A CNNR elem ; connection elem (usually Xth faction)
-        0, 1, 2, 6, 3, 1, 2, 0, 2, 5, 
-        3, 1, 5, 4, 4, 3, 6, 0, 5, 4,
-        6, 0, *
+        FACT, FACT, FACT, FACT, FACT, FACT, NULL, FACT, FACT, FACT, 
+	FACT, FACT, FACT, FACT, FACT, FACT, NULL, FACT, FACT, FACT,
+	NULL, *
+:A CNNR elem ; connection elem (usually faction index (faction#-1))
+        0, 1, 5, 2, 0, 1, 0, 1, 4, 2,
+	0, 4, 3, 3, 2, 5, 0, 4, 3, 5, 
+	0, *
 :A IDNR uint8 ; family ID number (#X)
-         0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  
-        10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
-        20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 
-        30, 31, 32, 33, 34
+         1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 
+	11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
+	21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+	31, 32, 33, 34
 :A NAME string(16) ; family name
-        "none"      , "Cornelius" , "Fabius"    , "Valerius"  , "Julius"    , 
-        "Claudius"  , "Manlius"   , "Fulvius"   , "Furius"    , "Aurelius"  ,
-        "Junius"    , "Papirius"  , "Acilius"   , "Flaminius" , "Aelius"    , 
-        "Sulpicius" , "Calpurnius", "Plautius"  , "Quinctius" , "Aemilius"  , 
-        "Terentius" , "Servilius" , "Porcius"   , "Popillius" , "Cassius"   , 
-        "Sempronius", "Octavius"  , "Marius"    , "Tullius"   , "Licinius"  , 
-        "Pompeius"  , "Domitius"  , "Antonius"  , "Caecilius" , "Marcius"
+        "Cornelius" , "Fabius"    , "Valerius"  , "Julius"    , "Claudius"  , 
+	"Manlius"   , "Fulvius"   , "Furius"    , "Aurelius"  , "Junius"    ,
+	"Papirius"  , "Acilius"   , "Flaminius" , "Aelius"    , "Sulpicius" ,
+	"Calpurnius", "Plautius"  , "Quinctius" , "Aemilius"  , "Terentius" ,
+	"Servilius" , "Porcius"   , "Popillius" , "Cassius"   , "Sempronius",
+	"Octavius"  , "Marius"    , "Tullius"   , "Licinius"  , "Pompeius"  ,
+	"Domitius"  , "Antonius"  , "Caecilius" , "Marcius"
