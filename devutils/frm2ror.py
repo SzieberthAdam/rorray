@@ -252,14 +252,13 @@ if __name__ == "__main__":
     _v = len(ba_header) + struct.calcsize("LLLLL") # calculate header size (_v = 24)
     _v += align_length(_v)  # cosmetic
 
-    ba_header.extend(struct.pack("=L", 0))   # header absolute address
+    ba_header.extend(struct.pack("=L", _elem0idx))   # elem count
+    ba_header.extend(struct.pack("=L", len(attrlist)))   # elem count
     ba_header.extend(struct.pack("=L", _v))  # grouptoc absolute address
     _v += len(ba_grouptoc)
     ba_header.extend(struct.pack("=L", _v))  # attrtoc absolute address
     _v += len(ba_attrtoc)
     ba_header.extend(struct.pack("=L", _v))  # attrvals absolute address
-    _v += len(ba_attrvals)
-    ba_header.extend(struct.pack("=L", _v))  # data size
 
     ba_header.extend(align_bytes(ba_header))  # cosmetic
 
@@ -272,35 +271,54 @@ if __name__ == "__main__":
     with _file.open("wb") as _f:
         print(f'{_file}: {_f.write(ba)} bytes')
 
+    rorh_prefix = """
+typedef struct _Header Header;
+typedef struct _Group Group;
+typedef struct _Attr Attr;
+
+#define __INITRORAPI__    \\
+                          \\
+struct _Header {          \\
+   char     sig[3];       \\
+   uint8_t  ver;          \\
+   uint32_t elems;        \\
+   uint32_t attrs;        \\
+   uint32_t grouptocaddr; \\
+   uint32_t attrtocaddr;  \\
+   uint32_t attrvalsaddr; \\
+};                        \\
+                          \\
+                          \\
+struct _Group {           \\
+   char     group[4];     \\
+   uint16_t elems;        \\
+   uint16_t attrs;        \\
+   uint32_t elem0idx;     \\
+   uint32_t attr0idx;     \\
+};                        \\
+                          \\
+                          \\
+struct _Attr {            \\
+   char     group[4];     \\
+   char     attr[4];      \\
+   uint16_t groupidx;     \\
+   uint16_t type;         \\
+   uint32_t addr;         \\
+};
+"""
 
     rorh_lines = [
         "",
-        "typedef struct _Group Group;",
-        "typedef struct _Attr Attr;",
-        "",
-        "#define group(rordata, G)  (*((Group*)(rordata+GROUPTOC)+G))",
-        "#define attr(rordata, G, A)  (*((Attr*)(rordata+ATTRTOC)+(group(rordata, G).attr0idx)+A))",
-        "#define val0reladdr(rordata, G, A)  (ATTRVALS + attr(rordata, G, A).addr)",
+        "#define header(rordata)  (*(Header*)(rordata))",
+        "#define group(rordata, G)  (*((Group*)(rordata+header(rordata).grouptocaddr) + G))",
+        "#define attr(rordata, G, A)  (*((Attr*)(rordata+header(rordata).attrtocaddr) + (group(rordata, G).attr0idx) + A))",
+        "#define val0reladdr(rordata, G, A)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr)",
         "#define val0absaddr(rordata, G, A)  (rordata+val0reladdr(rordata, G, A))",
         "#define valsize(rordata, G, A)  (attr(rordata, G, A).type & 0x00FF)",  # TODO: fix that hacky that 0x00FF, for strings it should be 0x3FFF etc
-        "#define valreladdr(rordata, G, A, i)  (ATTRVALS + attr(rordata, G, A).addr)+(i*valsize(rordata, G, A))",
+        "#define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))",
         "#define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))",
         "",
         f'#define SIZE {len(ba)}',
-        "",
-        f'#define GROUPTOC 0x{struct.unpack("=L", ba_header[8:12])[0]:0>4X}',
-        f'#define ATTRTOC 0x{struct.unpack("=L", ba_header[12:16])[0]:0>4X}',
-        f'#define ATTRVALS 0x{struct.unpack("=L", ba_header[16:20])[0]:0>4X}',
-        "",
-        f'#define GROUPTOC_ITEMSIZE 8',
-        f'#define ATTRTOC_ITEMSIZE 8',
-        "",
-        f'#define GROUPTOC_ELEMS 0',
-        f'#define GROUPTOC_ATTRS 2',
-        f'#define GROUPTOC_FIRSTATTR 4',
-        f'#define ATTRTOC_GROUP 0',
-        f'#define ATTRTOC_TYPE 2',
-        f'#define ATTRTOC_ADDR 4',
         "",
     ]
 
@@ -313,7 +331,7 @@ if __name__ == "__main__":
     for _k, _d in ATTRTYPE.items():
         0x4000
 
-    rorhstr = TEMPLATE.replace("{{rorh}}", "\n".join(rorh_lines))
+    rorhstr = TEMPLATE.replace("{{rorh}}", rorh_prefix + "\n" +"\n".join(rorh_lines))
 
     _file = frm_path.parent / "rorfile.h"
     with _file.open("w", encoding="utf-8") as _f:

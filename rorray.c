@@ -11,23 +11,7 @@
 
 #define FONTSPACING     2
 
-
-struct _Group {
-   char     group[4];  // debug version
-   uint16_t elems;
-   uint16_t attrs;
-   uint32_t elem0idx;
-   uint32_t attr0idx;
-};
-
-
-struct _Attr {
-   char     group[4];  // debug version
-   char     attr[4];  // debug version
-   uint16_t groupidx;
-   uint16_t type;
-   uint32_t addr;
-};
+__INITRORAPI__ // initializes the API structs
 
 
 int main(void)
@@ -131,6 +115,9 @@ int main(void)
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
 
         DrawFPS(screenWidth-100, 10);        
+
+        sprintf(str, "%X", header(rordata).grouptocaddr);
+        DrawText(str, 400, 100, 20, BLUE);
 
         for (int i = 0; i < group(rordata, G_FACT).elems; i++)
         {

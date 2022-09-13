@@ -2,32 +2,51 @@
 #define __DEFINE_RORHFILE__
 
 
+typedef struct _Header Header;
 typedef struct _Group Group;
 typedef struct _Attr Attr;
 
-#define group(rordata, G)  (*((Group*)(rordata+GROUPTOC)+G))
-#define attr(rordata, G, A)  (*((Attr*)(rordata+ATTRTOC)+(group(rordata, G).attr0idx)+A))
-#define val0reladdr(rordata, G, A)  (ATTRVALS + attr(rordata, G, A).addr)
+#define __INITRORAPI__    \
+                          \
+struct _Header {          \
+   char     sig[3];       \
+   uint8_t  ver;          \
+   uint32_t elems;        \
+   uint32_t attrs;        \
+   uint32_t grouptocaddr; \
+   uint32_t attrtocaddr;  \
+   uint32_t attrvalsaddr; \
+};                        \
+                          \
+                          \
+struct _Group {           \
+   char     group[4];     \
+   uint16_t elems;        \
+   uint16_t attrs;        \
+   uint32_t elem0idx;     \
+   uint32_t attr0idx;     \
+};                        \
+                          \
+                          \
+struct _Attr {            \
+   char     group[4];     \
+   char     attr[4];      \
+   uint16_t groupidx;     \
+   uint16_t type;         \
+   uint32_t addr;         \
+};
+
+
+#define header(rordata)  (*(Header*)(rordata))
+#define group(rordata, G)  (*((Group*)(rordata+header(rordata).grouptocaddr) + G))
+#define attr(rordata, G, A)  (*((Attr*)(rordata+header(rordata).attrtocaddr) + (group(rordata, G).attr0idx) + A))
+#define val0reladdr(rordata, G, A)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr)
 #define val0absaddr(rordata, G, A)  (rordata+val0reladdr(rordata, G, A))
 #define valsize(rordata, G, A)  (attr(rordata, G, A).type & 0x00FF)
-#define valreladdr(rordata, G, A, i)  (ATTRVALS + attr(rordata, G, A).addr)+(i*valsize(rordata, G, A))
+#define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
 #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
 
 #define SIZE 1584
-
-#define GROUPTOC 0x0018
-#define ATTRTOC 0x0068
-#define ATTRVALS 0x0228
-
-#define GROUPTOC_ITEMSIZE 8
-#define ATTRTOC_ITEMSIZE 8
-
-#define GROUPTOC_ELEMS 0
-#define GROUPTOC_ATTRS 2
-#define GROUPTOC_FIRSTATTR 4
-#define ATTRTOC_GROUP 0
-#define ATTRTOC_TYPE 2
-#define ATTRTOC_ADDR 4
 
 #define G_NULL 0
 #define G_GAME 1
