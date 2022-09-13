@@ -17,33 +17,17 @@ __INITRORAPI__ // initializes the API structs
 int main(void)
 {
     Vector2 v;
-    Vector2 touchPosition = { 0, 0 };
-    //Rectangle r;
-    char str[9999];
+    char str[99];  // TODO: for debugging
 
     const int screenWidth = 800;
     const int screenHeight = 600;
 
     Font font;
 
-    int currentGesture = GESTURE_NONE;
-    int lastGesture = GESTURE_NONE;
-
     unsigned int rordataLength = SIZE;
     unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
  
-    Rectangle factionrects[NUM_FACTIONS] = {
-        {W, H * (1 + 6 * 0), W * 30 - L, H - L},
-        {W, H * (1 + 6 * 1), W * 30 - L, H - L},
-        {W, H * (1 + 6 * 2), W * 30 - L, H - L},
-        {W, H * (1 + 6 * 3), W * 30 - L, H - L},
-        {W, H * (1 + 6 * 4), W * 30 - L, H - L},
-        {W, H * (1 + 6 * 5), W * 30 - L, H - L},
-    };
-    
-    int holdfactionrecti = -1;
-    Vector2 holdfactionrectrelpoint = { 0, 0 };
-    int holdfactionrectoffset = 0;
+    Rectangle* rects = (Rectangle *)MemAlloc(header(rordata).elems*sizeof(Rectangle));
 
     SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(screenWidth, screenHeight, "RoRRAY");
@@ -55,60 +39,6 @@ int main(void)
     while (!WindowShouldClose())
     {
 
-        lastGesture = currentGesture;
-        currentGesture = GetGestureDetected();
-        touchPosition = GetTouchPosition(0);
-
-        if (holdfactionrecti == -1 && currentGesture != lastGesture && currentGesture == GESTURE_TAP)
-        {
-            for (int i = 0; i < NUM_FACTIONS; i++)
-            {
-                if (CheckCollisionPointRec(touchPosition, factionrects[i]))
-                {
-                    holdfactionrecti = i;
-                    holdfactionrectrelpoint.x = touchPosition.x - factionrects[i].x;
-                    holdfactionrectrelpoint.y = touchPosition.y - factionrects[i].y;
-                    break;
-                };
-            };
-        }
-        else if (currentGesture != lastGesture)
-        {
-            switch (currentGesture)
-            {
-                case GESTURE_NONE:
-                {
-                    factionrects[holdfactionrecti].x = touchPosition.x - holdfactionrectrelpoint.x;
-                    factionrects[holdfactionrecti].y = touchPosition.y - holdfactionrectrelpoint.y;
-                    /* snap to grid */
-                    holdfactionrectoffset = (int)factionrects[holdfactionrecti].x % W;
-                    if ((W / 2) < holdfactionrectoffset)
-                    {
-                        factionrects[holdfactionrecti].x += W - holdfactionrectoffset;
-                    }
-                    else
-                    {
-                        factionrects[holdfactionrecti].x -= holdfactionrectoffset;
-                    };
-                    holdfactionrectoffset = (int)factionrects[holdfactionrecti].y % H;
-                    if ((H / 2) < holdfactionrectoffset)
-                    {
-                        factionrects[holdfactionrecti].y += H - holdfactionrectoffset;
-                    }
-                    else
-                    {
-                        factionrects[holdfactionrecti].y -= holdfactionrectoffset;
-                    };
-                    holdfactionrecti = -1;
-                } break;
-            };
-        }
-        else
-        {
-            factionrects[holdfactionrecti].x = touchPosition.x - holdfactionrectrelpoint.x;
-            factionrects[holdfactionrecti].y = touchPosition.y - holdfactionrectrelpoint.y;
-        };
-
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
@@ -116,14 +46,16 @@ int main(void)
 
         DrawFPS(screenWidth-100, 10);        
 
-        sprintf(str, "%X", header(rordata).grouptocaddr);
-        DrawText(str, 400, 100, 20, BLUE);
-
         for (int i = 0; i < group(rordata, G_FACT).elems; i++)
         {
-            v.x = factionrects[i].x + FONTSPACING;
-            v.y = factionrects[i].y;           
-            DrawRectangleRec(factionrects[i], DARKGRAY);
+            rects[group(rordata, G_FACT).elem0idx].x = W;
+            rects[group(rordata, G_FACT).elem0idx].y = H * (1 + 6 * i);
+            rects[group(rordata, G_FACT).elem0idx].width = W * 30 - L;
+            rects[group(rordata, G_FACT).elem0idx].height = H - L;
+
+            v.x = rects[group(rordata, G_FACT).elem0idx].x + FONTSPACING;
+            v.y = rects[group(rordata, G_FACT).elem0idx].y;           
+            DrawRectangleRec(rects[group(rordata, G_FACT).elem0idx], DARKGRAY);
             DrawTextEx(font, TextToUpper((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))), v, font.baseSize*1.0f, FONTSPACING, WHITE);
             for (int j = 0; j < group(rordata, G_SENA).elems; j++)
             {
