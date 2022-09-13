@@ -4,10 +4,10 @@ import struct
 import sys
 
 ALIGN = 8
-GROUPDEF_STRUCTFMT = "=HHL"
-ATTRDEF_STRUCTFMT = "=HHL"
-#GROUPDEF_STRUCTFMT = "=4sHHL"
-#ATTRDEF_STRUCTFMT = "=4s4sHHL"
+#GROUPDEF_STRUCTFMT = "=HHLL"
+#ATTRDEF_STRUCTFMT = "=HHL"
+GROUPDEF_STRUCTFMT = "=4sHHLL"  # debug version
+ATTRDEF_STRUCTFMT = "=4s4sHHL"  # debug vesion
 
 TEMPLATE = """#ifndef __DEFINE_RORHFILE__
 #define __DEFINE_RORHFILE__
@@ -186,6 +186,7 @@ if __name__ == "__main__":
         _i += 1
 
 
+    _elem0idx = 0
     for _dg in grouplist:
 
         for i, _da in enumerate(_dg["attrs"]):
@@ -202,9 +203,12 @@ if __name__ == "__main__":
                 _dg["elems"] = _vcnts0[0]
         assert all(_v == _dg["elems"] for _v in _vcnts0)
         assert all(_v < _dg["elems"] for _v in _vcnts1)
+        _dg["elem0idx"] = _elem0idx
+        _elem0idx += _dg["elems"]
 
-        _grouptocitem = [_dg["elems"], len(_dg["attrs"]), (0 if not _dg["attrs"] else _dg["attrs"][0]["attridx"])]
-        # _grouptocitem = [_dg["group"], _dg["elems"], len(_dg["attrs"]), (0 if not _dg["attrs"] else _dg["attrs"][0]["attridx"])]
+
+        #_grouptocitem = [_dg["elems"], len(_dg["attrs"]), _dg["elem0idx"], (0 if not _dg["attrs"] else _dg["attrs"][0]["attridx"])]
+        _grouptocitem = [_dg["group"], _dg["elems"], len(_dg["attrs"]), _dg["elem0idx"], (0 if not _dg["attrs"] else _dg["attrs"][0]["attridx"])]  # debug version
         _dg["grouptocitem"] = _grouptocitem
         _b = struct.pack(GROUPDEF_STRUCTFMT, *_grouptocitem)
         _b += align_bytes(_b)
@@ -234,8 +238,8 @@ if __name__ == "__main__":
         _da["values_offset"] = len(ba_attrvals)
         ba_attrvals.extend(_b)
 
-        _attrtocitem = [_da["groupidx"], _attrtypeinfo["id"], _da["values_offset"]]
-        # _attrtocitem = [_da["group"], _da["attr"], _da["groupidx"], _attrtypeinfo["id"], _da["values_offset"]]
+        # _attrtocitem = [_da["groupidx"], _attrtypeinfo["id"], _da["values_offset"]]
+        _attrtocitem = [_da["group"], _da["attr"], _da["groupidx"], _attrtypeinfo["id"], _da["values_offset"]]  # debug version
         _da["attrtocitem"] = _attrtocitem
         _b = struct.pack(ATTRDEF_STRUCTFMT, *_attrtocitem)
         _b += align_bytes(_b)
@@ -275,7 +279,7 @@ if __name__ == "__main__":
         "typedef struct _Attr Attr;",
         "",
         "#define group(rordata, G)  (*((Group*)(rordata+GROUPTOC)+G))",
-        "#define attr(rordata, G, A)  (*((Attr*)(rordata+ATTRTOC)+(group(rordata, G).firstattridx)+A))",
+        "#define attr(rordata, G, A)  (*((Attr*)(rordata+ATTRTOC)+(group(rordata, G).attr0idx)+A))",
         "#define val0reladdr(rordata, G, A)  (ATTRVALS + attr(rordata, G, A).addr)",
         "#define val0absaddr(rordata, G, A)  (rordata+val0reladdr(rordata, G, A))",
         "#define valsize(rordata, G, A)  (attr(rordata, G, A).type & 0x00FF)",  # TODO: fix that hacky that 0x00FF, for strings it should be 0x3FFF etc
@@ -284,9 +288,9 @@ if __name__ == "__main__":
         "",
         f'#define SIZE {len(ba)}',
         "",
-        f'#define GROUPTOC {struct.unpack("=L", ba_header[8:12])[0]}',
-        f'#define ATTRTOC {struct.unpack("=L", ba_header[12:16])[0]}',
-        f'#define ATTRVALS {struct.unpack("=L", ba_header[16:20])[0]}',
+        f'#define GROUPTOC 0x{struct.unpack("=L", ba_header[8:12])[0]:0>4X}',
+        f'#define ATTRTOC 0x{struct.unpack("=L", ba_header[12:16])[0]:0>4X}',
+        f'#define ATTRVALS 0x{struct.unpack("=L", ba_header[16:20])[0]:0>4X}',
         "",
         f'#define GROUPTOC_ITEMSIZE 8',
         f'#define ATTRTOC_ITEMSIZE 8',

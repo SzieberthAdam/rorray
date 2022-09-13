@@ -13,13 +13,17 @@
 
 
 struct _Group {
-   uint16_t items;
+   char     group[4];  // debug version
+   uint16_t elems;
    uint16_t attrs;
-   uint32_t firstattridx;
+   uint32_t elem0idx;
+   uint32_t attr0idx;
 };
 
 
 struct _Attr {
+   char     group[4];  // debug version
+   char     attr[4];  // debug version
    uint16_t groupidx;
    uint16_t type;
    uint32_t addr;
@@ -31,7 +35,7 @@ int main(void)
     Vector2 v;
     Vector2 touchPosition = { 0, 0 };
     //Rectangle r;
-    //char str[9999];
+    char str[9999];
 
     const int screenWidth = 800;
     const int screenHeight = 600;
@@ -128,22 +132,18 @@ int main(void)
 
         DrawFPS(screenWidth-100, 10);        
 
-        for (int i = 0; i < group(rordata, G_FACT).items; i++)
+        for (int i = 0; i < group(rordata, G_FACT).elems; i++)
         {
             v.x = factionrects[i].x + FONTSPACING;
             v.y = factionrects[i].y;           
             DrawRectangleRec(factionrects[i], DARKGRAY);
             DrawTextEx(font, TextToUpper((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))), v, font.baseSize*1.0f, FONTSPACING, WHITE);
-            for (int j = 0; j < group(rordata, G_SENA).items; j++)
+            for (int j = 0; j < group(rordata, G_SENA).elems; j++)
             {
-                //if (rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ] == PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE)
-                //if (unsigned short *)(rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE ]) == PLA_REF_ADDR + (i << PLA_VAL_BITS) * VAL_SIZE )
-                //if (((unsigned short *)rordata[SEN_REF_ADDR / 2 + (j << SEN_VAL_BITS) ]) == PLA_REF_ADDR / 2 + (i << PLA_VAL_BITS) )
                 if (
                     ( *((A_SENA_CNGR_t*)(val0absaddr(rordata, G_SENA, A_SENA_CNGR))+j) == (A_SENA_CNGR_t)(G_FACT) ) // typecast is a must!
                     &&
                     ( *((A_SENA_CNNR_t*)(val0absaddr(rordata, G_SENA, A_SENA_CNNR))+j) == i )
-                    //(rordata[SEN_REF_ADDR + (j << SEN_VAL_BITS) * VAL_SIZE + 1 ] == PLA_REF_ADDR & 0xFF)
                 )
                 {
                     v.y += H;

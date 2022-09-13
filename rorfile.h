@@ -6,18 +6,18 @@ typedef struct _Group Group;
 typedef struct _Attr Attr;
 
 #define group(rordata, G)  (*((Group*)(rordata+GROUPTOC)+G))
-#define attr(rordata, G, A)  (*((Attr*)(rordata+ATTRTOC)+(group(rordata, G).firstattridx)+A))
+#define attr(rordata, G, A)  (*((Attr*)(rordata+ATTRTOC)+(group(rordata, G).attr0idx)+A))
 #define val0reladdr(rordata, G, A)  (ATTRVALS + attr(rordata, G, A).addr)
 #define val0absaddr(rordata, G, A)  (rordata+val0reladdr(rordata, G, A))
 #define valsize(rordata, G, A)  (attr(rordata, G, A).type & 0x00FF)
 #define valreladdr(rordata, G, A, i)  (ATTRVALS + attr(rordata, G, A).addr)+(i*valsize(rordata, G, A))
 #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
 
-#define SIZE 1320
+#define SIZE 1584
 
-#define GROUPTOC 24
-#define ATTRTOC 64
-#define ATTRVALS 288
+#define GROUPTOC 0x0018
+#define ATTRTOC 0x0068
+#define ATTRVALS 0x0228
 
 #define GROUPTOC_ITEMSIZE 8
 #define ATTRTOC_ITEMSIZE 8
