@@ -128,5 +128,16 @@ struct _Attr {            \
 #define A_SENA_ALIG 12
 #define A_SENA_ALIG_t int16_t
 
+#define T_ATTR 0x0A02
+#define T_BOOL 0x0F11
+#define T_GROUP 0x0602
+#define T_INT16 0x0102
+#define T_INT32 0x0104
+#define T_INT8 0x0101
+#define T_ELEM 0x0E02
+#define T_UINT16 0x0002
+#define T_UINT32 0x0004
+#define T_UINT8 0x0001
+
 #endif  /* #ifndef __DEFINE_RORHFILE__ */
 ;

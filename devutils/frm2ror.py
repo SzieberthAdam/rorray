@@ -329,8 +329,11 @@ struct _Attr {            \\
             rorh_lines.append(f'#define A_{_da["group"].decode("ascii")}_{_da["attr"].decode("ascii")} {_da["groupattridx"]}',)
             rorh_lines.append(f'#define A_{_da["group"].decode("ascii")}_{_da["attr"].decode("ascii")}_t {ATTRTYPE[_da["type"]]["ctype"]}',)
 
+    rorh_lines.append("")
     for _k, _d in ATTRTYPE.items():
-        0x4000
+        if not isinstance(_k, str): continue
+        if ATTRTYPE["string"]["id"] <= _d["id"]: continue
+        rorh_lines.append(f'#define T_{_k.upper()} 0x{_d["id"]:0>4X}')
 
     rorhstr = TEMPLATE.replace("{{rorh}}", rorh_prefix + "\n" +"\n".join(rorh_lines))
 
