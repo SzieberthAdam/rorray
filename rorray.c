@@ -194,7 +194,7 @@ int main(void)
                             DrawText((char*)&key, 10, 570, 10, WHITE); 
                             sprintf(str, "%d", key);
                             DrawText(str, 10, 580, 10, WHITE); 
-                            if (  ( ((key >= 65) && (key <= 90))||((key >= 97) && (key <= 122)) ) && (letterCount < maxletterCount)  )
+                            if (  ( ((key >= 65) && (key <= 90))||((key >= 97) && (key <= 122))||(key == 32) ) && (letterCount < maxletterCount)  )
                             {
                                 DrawText((char*)&key, 40, 570, 10, WHITE); 
                                 *((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))+letterCount) = (char)key;
