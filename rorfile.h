@@ -114,7 +114,7 @@ struct _Attr {            \
 #define A_SENA_INF0 5
 #define A_SENA_INF0_t uint8_t
 #define A_SENA_POP0 6
-#define A_SENA_POP0_t uint8_t
+#define A_SENA_POP0_t int8_t
 #define A_SENA_MIL1 7
 #define A_SENA_MIL1_t uint8_t
 #define A_SENA_ORA1 8
@@ -124,7 +124,7 @@ struct _Attr {            \
 #define A_SENA_INF1 10
 #define A_SENA_INF1_t uint8_t
 #define A_SENA_POP1 11
-#define A_SENA_POP1_t uint8_t
+#define A_SENA_POP1_t int8_t
 #define A_SENA_ALIG 12
 #define A_SENA_ALIG_t int16_t
 

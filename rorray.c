@@ -31,6 +31,7 @@ void decrease(unsigned char *rordata, uint16_t groupidx, uint16_t attridx, uint1
     Attr attr = attr(rordata, groupidx, attridx);
     switch (attr.type)
     {
+        case T_INT8:
         case T_UINT8:
         {
             (*valabsaddr(rordata, groupidx, attridx, elemidx))--;
@@ -43,6 +44,7 @@ void increase(unsigned char *rordata, uint16_t groupidx, uint16_t attridx, uint1
     Attr attr = attr(rordata, groupidx, attridx);
     switch (attr.type)
     {
+        case T_INT8:
         case T_UINT8:
         {
             (*valabsaddr(rordata, groupidx, attridx, elemidx))++;
@@ -209,7 +211,7 @@ int main(void)
                     }
                     DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
                     cursor.x += 2 * RIGHT;
-                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_POP1, j));
+                    sprintf(str, "%i", (int8_t)(*valabsaddr(rordata, G_SENA, A_SENA_POP1, j)));
                     r = rect(cursor, 2, 1);
                     if (CheckCollisionPointRec(mouse, r))
                     {
