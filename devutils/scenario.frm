@@ -51,7 +51,7 @@
 
 
 :G FACT ; "Faction"
-:A CNGR group NULL, * ; connection, PLYR (in play) or NULL (not in play); note that factions represent clockwise order
+:A CNGR group GAME, PLYR, * ; connection, PLYR (in play) or NULL (not in play); note that factions represent clockwise order
 :A CNNR elem 0, * ; connection (player) number X if taken by player X, otherwise 0
 :A NAME string(16) ; faction name
         "unaligned", "Aquila", "Luna Crescens", "Parma", "Corona", "Manus", "Porta"
