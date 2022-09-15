@@ -46,7 +46,7 @@ struct _Attr {            \
 #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
 #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
 
-#define SIZE 1584
+#define SIZE 1912
 
 #define G_NULL 0
 #define G_GAME 1
@@ -101,14 +101,32 @@ struct _Attr {            \
 #define A_FACT_NAME 2
 #define A_FACT_NAME_t char[16]
 #define G_SENA 4
-#define A_SENA_CNGR 0
-#define A_SENA_CNGR_t uint16_t
-#define A_SENA_CNNR 1
-#define A_SENA_CNNR_t uint16_t
-#define A_SENA_IDNR 2
+#define A_SENA_IDNR 0
 #define A_SENA_IDNR_t uint8_t
-#define A_SENA_NAME 3
+#define A_SENA_NAME 1
 #define A_SENA_NAME_t char[16]
+#define A_SENA_MIL0 2
+#define A_SENA_MIL0_t uint8_t
+#define A_SENA_ORA0 3
+#define A_SENA_ORA0_t uint8_t
+#define A_SENA_LOY0 4
+#define A_SENA_LOY0_t uint8_t
+#define A_SENA_INF0 5
+#define A_SENA_INF0_t uint8_t
+#define A_SENA_POP0 6
+#define A_SENA_POP0_t uint8_t
+#define A_SENA_MIL1 7
+#define A_SENA_MIL1_t uint8_t
+#define A_SENA_ORA1 8
+#define A_SENA_ORA1_t uint8_t
+#define A_SENA_LOY1 9
+#define A_SENA_LOY1_t uint8_t
+#define A_SENA_INF1 10
+#define A_SENA_INF1_t uint8_t
+#define A_SENA_POP1 11
+#define A_SENA_POP1_t uint8_t
+#define A_SENA_ALIG 12
+#define A_SENA_ALIG_t int16_t
 
 #endif  /* #ifndef __DEFINE_RORHFILE__ */
 ;

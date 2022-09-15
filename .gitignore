@@ -1,4 +1,6 @@
 *.bak
-rorray.exe
-devutils/scenario.ror
 devutils/rorfile.h
+devutils/scenario.ror
+rorray.exe
+rorray.zip
+rorray/**

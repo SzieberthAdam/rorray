@@ -123,7 +123,7 @@ if __name__ == "__main__":
     _i = 0
     while _i < len(_L):
         li = _L[_i]
-        # print(li)
+        print(li)
         # TODO: global string :S with TOC
         # TODO: global raw bytes :B with TOC
         if li.startswith(":G "):
@@ -162,6 +162,7 @@ if __name__ == "__main__":
                 _s = _s.rstrip("*").rstrip(" ").rstrip(",")
             else:
                 _sstar = False
+            print(f'{_s!r}')
             if _attrtypeinfo["name"] == "group":
                 _v = [s.strip().encode("ascii") for s in _s.split(",")]
             elif _attrtypeinfo["type"] is int:

@@ -54,28 +54,62 @@
 :A CNGR group NULL, * ; connection, PLYR (in play) or NULL (not in play); note that factions represent clockwise order
 :A CNNR elem 0, * ; connection (player) number X if taken by player X, otherwise 0
 :A NAME string(16) ; faction name
-        "Aquila", "Luna Crescens", "Parma", "Corona", "Manus", "Porta"
+        "unaligned", "Aquila", "Luna Crescens", "Parma", "Corona", "Manus", "Porta"
 
 
 :G SENA ; "Family Card / Senator"
-:A CNGR group ; group connection: faction (aligned), forum (unaligned), deck, null (not in play)
-        FACT, FACT, FACT, FACT, FACT, FACT, NULL, FACT, FACT, FACT, 
-	FACT, FACT, FACT, FACT, FACT, FACT, NULL, FACT, FACT, FACT,
-	NULL, *
-:A CNNR elem ; connection elem (usually faction index (faction#-1))
-        0, 1, 5, 2, 0, 1, 0, 1, 4, 2,
-	0, 4, 3, 3, 2, 5, 0, 4, 3, 5, 
-	0, *
 :A IDNR uint8 ; family ID number (#X)
          1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 
 	11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
-	21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-	31, 32, 33, 34
+	21, 22, 23, 24, 25, 26, 27, 28, 29, 30
 :A NAME string(16) ; family name
         "Cornelius" , "Fabius"    , "Valerius"  , "Julius"    , "Claudius"  , 
 	"Manlius"   , "Fulvius"   , "Furius"    , "Aurelius"  , "Junius"    ,
 	"Papirius"  , "Acilius"   , "Flaminius" , "Aelius"    , "Sulpicius" ,
 	"Calpurnius", "Plautius"  , "Quinctius" , "Aemilius"  , "Terentius" ,
 	"Servilius" , "Porcius"   , "Popillius" , "Cassius"   , "Sempronius",
-	"Octavius"  , "Marius"    , "Tullius"   , "Licinius"  , "Pompeius"  ,
-	"Domitius"  , "Antonius"  , "Caecilius" , "Marcius"
+	"Octavius"  , "Marius"    , "Tullius"   , "Licinius"  , "Pompeius"
+:A MIL0 uint8 ; initial Military
+	4,  4,  1,  4,  2,  3,  2,  3,  2,  1,
+	1,  2,  4,  3,  3,  1,  2,  3,  4,  2,
+	3,  2,  1,  3,  1,  2,  4,  2,  3,  2
+:A ORA0 uint8 ; initial Oratory
+	3,  2,  2,  3,  3,  2,  2,  3,  3,  2,
+	2,  2,  2,  4,  2,  2,  1,  2,  2,  1,
+	4,  4,  3,  3,  3,  3,  2,  3,  2,  2
+:A LOY0 uint8 ; initial Loyalty
+	9,  9, 10,  9,  7,  7,  8,  8,  7,  8,
+	6,  7,  6,  7,  8,  9,  6,  6,  8,  6,
+	9, 10,  7,  9,  6,  9,  9,  7,  9,  7
+:A INF0 uint8 ; initial Influence
+	5,  5,  5,  4,  4,  4,  4,  3,  3,  3,
+	3,  3,  3,  2,  2,  2,  2,  1,  1,  1,
+	4,  1,  3,  3,  3,  4,  4,  3,  3,  2
+:A POP0 uint8 ; initial Popularity
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+:A MIL1 uint8 ; current Military
+	4,  4,  1,  4,  2,  3,  2,  3,  2,  1,
+	1,  2,  4,  3,  3,  1,  2,  3,  4,  2,
+	3,  2,  1,  3,  1,  2,  4,  2,  3,  2
+:A ORA1 uint8 ; current Oratory
+	3,  2,  2,  3,  3,  2,  2,  3,  3,  2,
+	2,  2,  2,  4,  2,  2,  1,  2,  2,  1,
+	4,  4,  3,  3,  3,  3,  2,  3,  2,  2
+:A LOY1 uint8 ; current Loyalty
+	9,  9, 10,  9,  7,  7,  8,  8,  7,  8,
+	6,  7,  6,  7,  8,  9,  6,  6,  8,  6,
+	9, 10,  7,  9,  6,  9,  9,  7,  9,  7
+:A INF1 uint8 ; current Influence
+	5,  5,  5,  4,  4,  4,  4,  3,  3,  3,
+	3,  3,  3,  2,  2,  2,  2,  1,  1,  1,
+	4,  1,  3,  3,  3,  4,  4,  3,  3,  2
+:A POP1 uint8 ; current Popularity
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+:A ALIG int16 ; aligned to faction  ; mimics http://www.amarriner.com/ror/auctoritas/turn1-10.htm
+         1,  2,  6,  3,  1,  2, -1,  2,  5,  3,
+	 1,  5,  4,  4,  3,  6, -1,  5,  4,  6,  
+	-2, *
