@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "raylib.h"
 
@@ -134,10 +135,17 @@ int main(void)
     unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
  
     Vector2 mouse;    
+    Vector2 mousedelta;
     int currentGesture = GESTURE_NONE;
     int lastGesture = GESTURE_NONE;
 
-    //Rectangle* rects = (Rectangle *)MemAlloc(header(rordata).elems*sizeof(Rectangle));
+    clock_t clockval;
+    uint8_t newentropy;
+    uint8_t entropy[256] = {0};
+    uint32_t newentropyidx = 0;
+    uint8_t newentropynextbit = 0;
+    uint32_t entropyidx = 0;
+    uint8_t entropynextbit = 0;
 
     SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(screenWidth, screenHeight, "RoRRAY");
@@ -151,9 +159,34 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        lastGesture = currentGesture;
         mouse = GetTouchPosition(0);
+        lastGesture = currentGesture;
         currentGesture = GetGestureDetected();
+
+        if (currentGesture == GESTURE_DRAG)
+        {
+            mousedelta = GetGestureDragVector();
+        }
+        else
+        {
+            mousedelta = GetMouseDelta();
+        }
+        if (mousedelta.x != (float)(0) || mousedelta.y != (float)(0))
+        {
+            clockval = clock();
+            newentropy = (uint8_t)((uint32_t)((uint32_t)clockval ^ (uint32_t)mouse.x ^ (uint32_t)mouse.y ^ (uint32_t)mousedelta.x ^ (uint32_t)mousedelta.y) & (uint32_t)0x01); // keep last bit
+            entropy[(uint8_t)(newentropyidx % 256)] += (newentropy << newentropynextbit);
+            newentropynextbit += 1;
+            if (newentropynextbit == 8)
+            {
+                newentropynextbit = 0;
+                newentropyidx = (newentropyidx + 1) % 256;
+            }
+        }
+        else
+        {
+            newentropy = 0xFF;
+        }
 
         BeginDrawing();
 
@@ -161,7 +194,21 @@ int main(void)
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
 
         // DrawFPS(screenWidth-100, 10); // for debug
-
+        sprintf(str, "(%f, %f)", mouse.x, mouse.y);
+        DrawText(str, screenWidth-360, screenHeight-20, 10, MAGENTA);
+        sprintf(str, "(%f, %f)", mousedelta.x, mousedelta.y);
+        DrawText(str, screenWidth-220, screenHeight-20, 10, MAGENTA);
+        sprintf(str, "%X", newentropy);
+        DrawText(str, screenWidth-90, screenHeight-20, 10, MAGENTA);
+        sprintf(str, "%i", newentropyidx);
+        DrawText(str, screenWidth-70, screenHeight-20, 10, MAGENTA);
+        sprintf(str, "%i", entropyidx);
+        DrawText(str, screenWidth-30, screenHeight-20, 10, MAGENTA);
+        for (uint32_t i = entropyidx; i < entropyidx + 16; i++)
+        {
+            sprintf(str, "%X", entropy[(uint8_t)(i % 256)]);
+            DrawText(str, screenWidth-360 + 20 * (i - entropyidx), screenHeight-10, 10, MAGENTA);
+        }
 
         switch (*(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)))
         {
