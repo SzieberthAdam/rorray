@@ -335,6 +335,15 @@ struct _Attr {            \\
         if ATTRTYPE["string"]["id"] <= _d["id"]: continue
         rorh_lines.append(f'#define T_{_k.upper()} 0x{_d["id"]:0>4X}')
 
+    rorh_lines.extend([
+        "",
+        "#define PHSE_PREP 0",
+        "",
+        "#define SPHS_PREP_TAKEFACTIONS 0",
+        "#define SPHS_PREP_DEALSENATORS 1",
+        "#define SPHS_PREP_SELECTFACTIONLEADERS 2",
+    ])
+
     rorhstr = TEMPLATE.replace("{{rorh}}", rorh_prefix + "\n" +"\n".join(rorh_lines))
 
     _file = frm_path.parent / "rorfile.h"

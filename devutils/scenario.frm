@@ -4,6 +4,10 @@
 
 :G NULL ;
 
+:G SETT ; "Settings"
+:GELEMS 1
+:A NSEN uint8 3 ; initial number of senators per faction (4.4)
+:ANOPAD
 
 :G GAME ; "Game"
 :A NAME string(16) "Ludus" ; name
@@ -43,6 +47,12 @@
 :ANOPAD
 
 
+:G FORU ; "Forum"
+
+
+:G REPR ; "Curia / Repopulating Rome"
+
+
 :G PLYR ; "Player"
 :GELEMS 7
 :A GAME group GAME, * ; belongs to GAME (in play) or NULL (not in play)
@@ -56,6 +66,9 @@
 :A NAME string(16) ; faction name
         "unaligned", "Aquila", "Luna Crescens", "Parma", "Corona", "Manus", "Porta"
 
+
+:G DECK ; "Deck"
+:GELEMS 1
 
 :G SENA ; "Family Card / Senator"
 :A IDNR uint8 ; family ID number (#X)
@@ -109,7 +122,12 @@
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-:A ALIG int16 ; aligned to faction  ; mimics http://www.amarriner.com/ror/auctoritas/turn1-10.htm
-         1,  2,  6,  3,  1,  2, -1,  2,  5,  3,
-	 1,  5,  4,  4,  3,  6, -1,  5,  4,  6,  
+:A ALIG int16 ; aligned to faction
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-2, *
+:A CNGR group ; connection group (NULL, DECK, FORU, REPR, PROV, WARE)
+	DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK,
+	DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK,
+	NULL, *
+:A CNNR elem 0, * ; connection group elem index

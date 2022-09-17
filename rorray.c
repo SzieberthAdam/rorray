@@ -26,7 +26,17 @@ __INITRORAPI__ // initializes the API structs
 
 
 #define SENATORNAMEWIDTH  8
-#define MOUSEHOVERCOLOR  DARKBLUE
+
+#define COLOR_BLACKCARDBG WHITE
+#define COLOR_BUTTON DARKGRAY
+#define COLOR_BUTTONCLICKED YELLOW
+#define COLOR_BUTTONOUTLINE ORANGE
+#define COLOR_FACTIONHEADER DARKGRAY
+#define COLOR_MOUSEDRAG  DARKBLUE
+#define COLOR_MOUSEHOVER_DRAGABLE  DARKBLUE
+#define COLOR_MOUSEHOVER_DROPTARGET  DARKGREEN
+#define COLOR_MOUSEHOVER_EDITABLE  ORANGE
+#define COLOR_MOUSEHOVER_GAMEMASTER  MAGENTA
 
 
 void decrease(unsigned char *rordata, uint16_t groupidx, uint16_t attridx, uint16_t elemidx)
@@ -124,7 +134,8 @@ int main(void)
     unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
  
     Vector2 mouse;    
-    int currentGesture;
+    int currentGesture = GESTURE_NONE;
+    int lastGesture = GESTURE_NONE;
 
     //Rectangle* rects = (Rectangle *)MemAlloc(header(rordata).elems*sizeof(Rectangle));
 
@@ -140,6 +151,7 @@ int main(void)
 
     while (!WindowShouldClose())
     {
+        lastGesture = currentGesture;
         mouse = GetTouchPosition(0);
         currentGesture = GetGestureDetected();
 
@@ -148,114 +160,404 @@ int main(void)
         ClearBackground(RAYWHITE);
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
 
-        DrawFPS(screenWidth-100, 10);        
+        // DrawFPS(screenWidth-100, 10); // for debug
 
 
         switch (*(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)))
         {
-
-            /* PREPARE TO PLAY */
-            case 0:
+            case PHSE_PREP: /* PREPARE TO PLAY */
             {
-                cursor.x = RIGHT;
-                cursor.y = DOWN;
-                DrawTextEx(font, "NAME THE PLAYING FACTIONS OR DELETE NAMES FOR EXCLUSION", cursor, FONTSIZE, FONTSPACING, ORANGE);
-                cursor.y = 3 * DOWN;
-                
-                bool anyselected = false;
-                int maxletterCount = (attr(rordata, G_FACT, A_FACT_NAME).type & 0x3FFF)-1;
-                int rectwidth = ceil(((MeasureTextEx(font, "M", 2 * FONTSIZE, FONTSPACING).x + FONTSPACING) * (maxletterCount) + FONTSPACING)/RIGHT);
-                sprintf(str, "%d", rectwidth);
-                DrawText(str, 10, 540, 10, WHITE); 
-                for (int i = 1; i < group(rordata, G_FACT).elems; i++)
+                switch (*(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)))
                 {
-                    cursor.x = RIGHT;
+                    case SPHS_PREP_TAKEFACTIONS: /* 4.1 GAMEBOARD (Take Seets) */
+                    {
+                        cursor.x = RIGHT;
+                        cursor.y = 1* DOWN;
+                        DrawTextEx(font, "NAME THE PLAYING FACTIONS OR DELETE NAMES FOR EXCLUSION", cursor, FONTSIZE, FONTSPACING, ORANGE);
 
-                    r = rect(cursor, rectwidth, 2);
-                    if (CheckCollisionPointRec(mouse, r))
-                    {
-                        anyselected = true;
-                        if (i != selected)
+                        cursor.x = screenWidth - ceil(0.5 * DOWN) - 12 * RIGHT;
+                        cursor.y = floor(0.5 * DOWN);
+                        r = rect(cursor, 12, 2);
+                        if (CheckCollisionPointRec(mouse, r))
                         {
-                            selected = i;
-                            framesCounter = 0;
-                        }
-                        int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i)));
-                        
-                        sprintf(str, "%d", letterCount);
-                        DrawText(str, 10, 560, 10, WHITE); 
-                        sprintf(str, "%d", maxletterCount);
-                        DrawText(str, 40, 560, 10, WHITE); 
-                        DrawRectangleRec(r, MOUSEHOVERCOLOR);
-                        SetMouseCursor(MOUSE_CURSOR_IBEAM);
-                        int key = GetCharPressed();
-                        while (key > 0)
-                        {
-                            DrawText((char*)&key, 10, 570, 10, WHITE); 
-                            sprintf(str, "%d", key);
-                            DrawText(str, 10, 580, 10, WHITE); 
-                            if (  ( ((key >= 65) && (key <= 90))||((key >= 97) && (key <= 122))||(key == 32) ) && (letterCount < maxletterCount)  )
+                            if (currentGesture == GESTURE_TAP)
                             {
-                                DrawText((char*)&key, 40, 570, 10, WHITE); 
-                                *((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))+letterCount) = (char)key;
-                                *((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))+letterCount+1) = '\0'; // Add null terminator at the end of the string.
-                                letterCount++;
+                                DrawRectangleRec(r, COLOR_BUTTONCLICKED);
+                                *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS;
+                                for (int i = 1; i < group(rordata, G_FACT).elems; i++)
+                                {
+                                    int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i)));
+                                    if (letterCount == 0)
+                                    {
+                                        *(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, i) = (A_FACT_CNGR_t)(G_NULL);
+                                    }
+                                }
+                                selected = -1;
+                                framesCounter = 0;
                             }
-                            key = GetCharPressed();  // Check next character in the queue
+                            else
+                            {
+                                DrawRectangleRec(r, COLOR_BUTTON);
+                            }
                         }
-                        if (IsKeyPressed(KEY_BACKSPACE))
-                        {
-                            letterCount--;
-                            if (letterCount < 0) letterCount = 0;
-                            *((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))+letterCount) = '\0';
-                        } 
-                        if ((letterCount < maxletterCount) && (((framesCounter/10)%2) == 0))
-                        {
-                            Vector2 textsize = MeasureTextEx(font, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i)), 2 * FONTSIZE, FONTSPACING);
-                            Rectangle _r = {r.x + textsize.x + FONTSPACING, r.y, r.width - textsize.x - FONTSPACING, r.height};
-                            DrawText2(font, "_", _r, 2 * FONTSIZE, FONTSPACING, WHITE, TextLeft);
-                        }
-                        framesCounter++;
-                    }
-                    else
-                    {
-                        DrawRectangleRec(r, DARKGRAY);
-                    }
-                    DrawText2(font, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i)), r, 2 * FONTSIZE, FONTSPACING, WHITE, TextLeft);
-                    cursor.y += 2 * DOWN;
-                }
-                if (!anyselected)
-                {
-                    SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-                    selected = -1;
-                    framesCounter = 0;
-                }
-                sprintf(str, "%i", framesCounter);
-                DrawText(str, 10, 550, 10, WHITE);
-                cursor.y += 1 * DOWN;
-                r = rect(cursor, 12, 3);
-                if (CheckCollisionPointRec(mouse, r))
-                {
-                    if (currentGesture == GESTURE_TAP)
-                    {
-                        DrawRectangleRec(r, WHITE);
-                        *(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)) = (A_GAME_PHSE_t)1;
+                        DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
+                        DrawText2(font, "DONE", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+
+                        cursor.y = 3 * DOWN;
+
+                        bool anyselected = false;
+                        int maxletterCount = (attr(rordata, G_FACT, A_FACT_NAME).type & 0x3FFF)-1;
+                        int rectwidth = ceil(((MeasureTextEx(font, "M", 2 * FONTSIZE, FONTSPACING).x + FONTSPACING) * (maxletterCount) + FONTSPACING)/RIGHT);
+                        sprintf(str, "%d", rectwidth);
+                        DrawText(str, 10, 540, 10, WHITE); 
                         for (int i = 1; i < group(rordata, G_FACT).elems; i++)
                         {
-                            int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i)));
-                            if (letterCount == 0)
+                            cursor.x = RIGHT;
+
+                            r = rect(cursor, rectwidth, 2);
+                            if (CheckCollisionPointRec(mouse, r))
                             {
-                                *(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, i) = (A_FACT_CNGR_t)(G_NULL);
+                                anyselected = true;
+                                if (i != selected)
+                                {
+                                    selected = i;
+                                    framesCounter = 0;
+                                }
+                                int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i)));
+
+                                sprintf(str, "%d", letterCount);
+                                DrawText(str, 10, 560, 10, WHITE); 
+                                sprintf(str, "%d", maxletterCount);
+                                DrawText(str, 40, 560, 10, WHITE); 
+                                DrawRectangleRec(r, COLOR_MOUSEHOVER_EDITABLE);
+                                SetMouseCursor(MOUSE_CURSOR_IBEAM);
+                                int key = GetCharPressed();
+                                while (key > 0)
+                                {
+                                    DrawText((char*)&key, 10, 570, 10, WHITE); 
+                                    sprintf(str, "%d", key);
+                                    DrawText(str, 10, 580, 10, WHITE); 
+                                    if (  ( ((key >= 65) && (key <= 90))||((key >= 97) && (key <= 122))||(key == 32) ) && (letterCount < maxletterCount)  )
+                                    {
+                                        DrawText((char*)&key, 40, 570, 10, WHITE); 
+                                        *((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))+letterCount) = (char)key;
+                                        *((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))+letterCount+1) = '\0'; // Add null terminator at the end of the string.
+                                        letterCount++;
+                                    }
+                                    key = GetCharPressed();  // Check next character in the queue
+                                }
+                                if (IsKeyPressed(KEY_BACKSPACE))
+                                {
+                                    letterCount--;
+                                    if (letterCount < 0) letterCount = 0;
+                                    *((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))+letterCount) = '\0';
+                                } 
+                                if ((letterCount < maxletterCount) && (((framesCounter/10)%2) == 0))
+                                {
+                                    Vector2 textsize = MeasureTextEx(font, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i)), 2 * FONTSIZE, FONTSPACING);
+                                    Rectangle _r = {r.x + textsize.x + FONTSPACING, r.y, r.width - textsize.x - FONTSPACING, r.height};
+                                    DrawText2(font, "_", _r, 2 * FONTSIZE, FONTSPACING, WHITE, TextLeft);
+                                }
+                                framesCounter++;
+                            }
+                            else
+                            {
+                                DrawRectangleRec(r, COLOR_FACTIONHEADER);
+                            }
+                            DrawText2(font, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i)), r, 2 * FONTSIZE, FONTSPACING, WHITE, TextLeft);
+                            cursor.y += 2 * DOWN;
+                        }
+                        if (!anyselected)
+                        {
+                            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+                            selected = -1;
+                            framesCounter = 0;
+                        }
+                        sprintf(str, "%i", framesCounter);
+                        DrawText(str, 10, 550, 10, WHITE);
+                    } break;
+
+                    case SPHS_PREP_DEALSENATORS: /* 4.4 CARDS (Deal Senators) */
+                    {
+                        Vector2 selectedvector;
+                        cursor.x = RIGHT;
+                        cursor.y = 1 * DOWN;
+                        sprintf(str, "DEAL %i SENATORS TO EACH FACTIONS (DRAG AND DROP)", *val0absaddr(rordata, G_SETT, A_SETT_NSEN));
+                        DrawTextEx(font, str, cursor, FONTSIZE, FONTSPACING, ORANGE);
+
+                        cursor.x = screenWidth - ceil(0.5 * DOWN) - 12 * RIGHT;
+                        cursor.y = ceil(0.5 * DOWN);
+                        r = rect(cursor, 12, 2);
+                        if (CheckCollisionPointRec(mouse, r))
+                        {
+                            if (currentGesture == GESTURE_TAP)
+                            {
+                                DrawRectangleRec(r, COLOR_BUTTONCLICKED);
+                                *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+                                selected = -1;
+                            }
+                            else
+                            {
+                                DrawRectangleRec(r, COLOR_BUTTON);
                             }
                         }
-                    }
-                    else
-                    {
-                        DrawRectangleRec(r, DARKGRAY);
-                    }
+                        DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
+                        DrawText2(font, "DONE", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+
+                        cursor.y = 3 * DOWN;
+
+                        for (int i = 1; i < group(rordata, G_FACT).elems; i++)
+                        {
+                            if (*(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, i) == (A_FACT_CNGR_t)(G_NULL)) continue;
+                            cursor.x = RIGHT;
+                            r = rect(cursor, 30, 2);
+                            if (selected != -1 && CheckCollisionPointRec(mouse, r))
+                            {
+                                DrawRectangleRec(r, COLOR_MOUSEHOVER_DROPTARGET);
+                                if (currentGesture != lastGesture && currentGesture == GESTURE_NONE)
+                                {
+                                    *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, selected) = (A_SENA_ALIG_t)(i);
+                                    *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, selected) = (A_SENA_CNGR_t)(G_FORU);
+                                    *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, selected) = (A_SENA_CNNR_t)(0);
+                                    selected = -1;
+                                }
+                            }
+                            else
+                            {
+                                DrawRectangleRec(r, COLOR_FACTIONHEADER);
+                            }
+                            DrawText2(font, TextToUpper((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))), r, FONTSIZE, FONTSPACING, WHITE, TextTopLeft);
+                            cursor.y += 1 * DOWN;
+                            cursor.x += (2 + 2 + SENATORNAMEWIDTH) * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "M", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "O", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "L", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "I", rect(cursor, 2, 1), FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "P", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.y += 1 * DOWN;
+
+                            for (int j = 0; j < group(rordata, G_SENA).elems; j++)
+                            {
+                                if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+j) == (A_SENA_ALIG_t)(i) )  // typecast is a must!
+                                {
+                                    cursor.x = RIGHT;
+                                    r = rect(cursor, 30, 1);
+                                    if (selected == -1 && CheckCollisionPointRec(mouse, r))
+                                    {
+                                        if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
+                                        {
+                                            selected = j;
+                                            selectedvector.x = mouse.x - r.x;
+                                            selectedvector.y = mouse.y - r.y;
+                                        }
+                                        else
+                                        {
+                                            DrawRectangleRec(r, COLOR_MOUSEHOVER_DRAGABLE);
+                                        }
+                                    }
+                                    else if (selected != j)
+                                    {
+                                        DrawRectangleRec(r, COLOR_BLACKCARDBG);
+                                    }
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, j));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextRight);
+                                    cursor.x += 2 * RIGHT;
+                                    r = rect(cursor, SENATORNAMEWIDTH, 1);
+                                    DrawText2(font, (char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, j)), r, FONTSIZE, FONTSPACING, BLACK, TextLeft);
+                                    cursor.x += SENATORNAMEWIDTH * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, j));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_ORA1, j));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_LOY1, j));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_INF1, j));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%i", (int8_t)(*valabsaddr(rordata, G_SENA, A_SENA_POP1, j)));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                                    cursor.y += DOWN;
+
+                                }
+                            }
+                            cursor.y += DOWN;
+
+                        } 
+
+                        cursor.y = 3 * DOWN;
+                        cursor.x = (1+30+2) * RIGHT;
+                        r = rect(cursor, 30, 2);
+                        if (selected != -1 && CheckCollisionPointRec(mouse, r))
+                        {
+                            DrawRectangleRec(r, COLOR_MOUSEHOVER_DROPTARGET);
+                            if (currentGesture != lastGesture && currentGesture == GESTURE_NONE)
+                            {
+                                *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, selected) = (A_SENA_ALIG_t)(-1);
+                                *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, selected) = (A_SENA_CNGR_t)(G_DECK);
+                                *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, selected) = (A_SENA_CNNR_t)(0);
+                                selected = -1;
+                            }
+                        }
+                        else
+                        {
+                            DrawRectangleRec(r, COLOR_FACTIONHEADER);
+                        }
+                        DrawText2(font, "SENATORS", r, FONTSIZE, FONTSPACING, WHITE, TextTopLeft);
+                        cursor.y += 1 * DOWN;
+                        cursor.x += (2 + 2 + SENATORNAMEWIDTH) * RIGHT;
+                        r = rect(cursor, 2, 1);
+                        DrawText2(font, "M", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                        cursor.x += 2 * RIGHT;
+                        r = rect(cursor, 2, 1);
+                        DrawText2(font, "O", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                        cursor.x += 2 * RIGHT;
+                        r = rect(cursor, 2, 1);
+                        DrawText2(font, "L", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                        cursor.x += 2 * RIGHT;
+                        r = rect(cursor, 2, 1);
+                        DrawText2(font, "I", rect(cursor, 2, 1), FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                        cursor.x += 2 * RIGHT;
+                        r = rect(cursor, 2, 1);
+                        DrawText2(font, "P", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                        cursor.y += 1 * DOWN;
+
+                        for (int j = 0; j < group(rordata, G_SENA).elems; j++)
+                        {
+                            if (
+                                (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, j) != (A_SENA_CNGR_t)(G_DECK))
+                                ||
+                                (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, j) != (A_SENA_CNNR_t)(0))
+                            ) continue;
+                            if (j == selected) continue;
+                            cursor.x = (1+30+2) * RIGHT;
+                            r = rect(cursor, 30, 1);
+                            if (selected == -1 && CheckCollisionPointRec(mouse, r))
+                            {
+                                if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
+                                {
+                                    selected = j;
+                                    selectedvector.x = mouse.x - r.x;
+                                    selectedvector.y = mouse.y - r.y;
+                                }
+                                else
+                                {
+                                    DrawRectangleRec(r, COLOR_MOUSEHOVER_DRAGABLE);
+                                }
+                            }
+                            else if (selected != j)
+                            {
+                                DrawRectangleRec(r, COLOR_BLACKCARDBG);
+                            }
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextRight);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, SENATORNAMEWIDTH, 1);
+                            DrawText2(font, (char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, j)), r, FONTSIZE, FONTSPACING, BLACK, TextLeft);
+                            cursor.x += SENATORNAMEWIDTH * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_ORA1, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_LOY1, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_INF1, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%i", (int8_t)(*valabsaddr(rordata, G_SENA, A_SENA_POP1, j)));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
+                            cursor.y += 1 * DOWN;
+                        }
+                        if (selected != -1) // draw selected senator on top off all other
+                        {
+                            int j = selected;
+                            DrawText((char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, j)), 10, 570, 10, WHITE); 
+                            cursor.x = mouse.x - selectedvector.x;
+                            cursor.y = mouse.y - selectedvector.y;
+                            r = rect(cursor, 30, 1);
+                            DrawRectangleRec(r, COLOR_MOUSEDRAG);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextRight);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, SENATORNAMEWIDTH, 1);
+                            DrawText2(font, (char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, j)), r, FONTSIZE, FONTSPACING, WHITE, TextLeft);
+                            cursor.x += SENATORNAMEWIDTH * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_ORA1, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_LOY1, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_INF1, j));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            sprintf(str, "%i", (int8_t)(*valabsaddr(rordata, G_SENA, A_SENA_POP1, j)));
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            sprintf(str, "%d", *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, j));
+                            cursor.x += 3 * RIGHT;
+                            r = rect(cursor, 3, 1);
+                            DrawText2(font, str, r, FONTSIZE, FONTSPACING, MAGENTA, TextLeft);
+                        }
+                        if (selected != -1)
+                        {
+                            sprintf(str, "%X", valreladdr(rordata, G_SENA, A_SENA_CNGR, selected));
+                            DrawText(str, 10, 550, 10, WHITE);
+                            sprintf(str, "%i", *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, selected));
+                            DrawText(str, 60, 550, 10, WHITE);
+                            sprintf(str, "%i", (A_SENA_CNGR_t)(G_DECK));
+                            DrawText(str, 110, 550, 10, WHITE);
+                            //*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, selected) = (A_SENA_CNGR_t)(G_DECK);
+                            //sprintf(str, "%i", *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, selected));
+                            //DrawText(str, 160, 550, 10, WHITE);
+                        }
+                        if (selected != -1 && currentGesture != lastGesture && currentGesture == GESTURE_NONE) // drop
+                        {
+                            DrawText("drop", 10, 560, 10, WHITE); 
+                            selected = -1;
+                        }
+                        sprintf(str, "%i", selected);
+                        DrawText(str, 10, 580, 10, WHITE); 
+                    } break;
                 }
-                DrawRectangleLinesEx(r, 2, ORANGE);
-                DrawText2(font, "DONE", r, 2 * FONTSIZE, FONTSPACING, WHITE, TextCenter);
+
             } break;
 
 
@@ -268,19 +570,14 @@ int main(void)
 
                 for (int i = 0; i < group(rordata, G_FACT).elems; i++)
                 {
-                    if (*(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, i) == (A_FACT_CNGR_t)(G_NULL))
-                    {
-                        continue;
-                    }
+                    if (*(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, i) == (A_FACT_CNGR_t)(G_NULL)) continue;
                     cursor.x = RIGHT;
 
                     r = rect(cursor, 30, 2);
-                    DrawRectangleRec(r, DARKGRAY);
+                    DrawRectangleRec(r, COLOR_FACTIONHEADER);
                     DrawText2(font, TextToUpper((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, i))), r, FONTSIZE, FONTSPACING, WHITE, TextTopLeft);
-
                     cursor.y += 1 * DOWN;
                     cursor.x += (2 + 2 + SENATORNAMEWIDTH) * RIGHT;
-
                     r = rect(cursor, 2, 1);
                     DrawText2(font, "M", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
                     cursor.x += 2 * RIGHT;
@@ -314,7 +611,7 @@ int main(void)
                             r = rect(cursor, 2, 1);
                             if (CheckCollisionPointRec(mouse, r))
                             {
-                                DrawRectangleRec(r, MOUSEHOVERCOLOR);
+                                DrawRectangleRec(r, COLOR_MOUSEHOVER_GAMEMASTER);
                                 if (IsKeyPressed(KEY_KP_ADD)) increase(rordata, G_SENA, A_SENA_MIL1, j);
                                 if (IsKeyPressed(KEY_KP_SUBTRACT)) decrease(rordata, G_SENA, A_SENA_MIL1, j);
                                 if (IsKeyPressed(KEY_BACKSPACE)) *valabsaddr(rordata, G_SENA, A_SENA_MIL1, j) = *valabsaddr(rordata, G_SENA, A_SENA_MIL0, j);
@@ -325,7 +622,7 @@ int main(void)
                             r = rect(cursor, 2, 1);
                             if (CheckCollisionPointRec(mouse, r))
                             {
-                                DrawRectangleRec(r, MOUSEHOVERCOLOR);
+                                DrawRectangleRec(r, COLOR_MOUSEHOVER_GAMEMASTER);
                                 if (IsKeyPressed(KEY_KP_ADD)) increase(rordata, G_SENA, A_SENA_ORA1, j);
                                 if (IsKeyPressed(KEY_KP_SUBTRACT)) decrease(rordata, G_SENA, A_SENA_ORA1, j);
                                 if (IsKeyPressed(KEY_BACKSPACE)) *valabsaddr(rordata, G_SENA, A_SENA_ORA1, j) = *valabsaddr(rordata, G_SENA, A_SENA_ORA0, j);
@@ -336,7 +633,7 @@ int main(void)
                             r = rect(cursor, 2, 1);
                             if (CheckCollisionPointRec(mouse, r))
                             {
-                                DrawRectangleRec(r, MOUSEHOVERCOLOR);
+                                DrawRectangleRec(r, COLOR_MOUSEHOVER_GAMEMASTER);
                                 if (IsKeyPressed(KEY_KP_ADD)) increase(rordata, G_SENA, A_SENA_LOY1, j);
                                 if (IsKeyPressed(KEY_KP_SUBTRACT)) decrease(rordata, G_SENA, A_SENA_LOY1, j);
                                 if (IsKeyPressed(KEY_BACKSPACE)) *valabsaddr(rordata, G_SENA, A_SENA_LOY1, j) = *valabsaddr(rordata, G_SENA, A_SENA_LOY0, j);
@@ -347,7 +644,7 @@ int main(void)
                             r = rect(cursor, 2, 1);
                             if (CheckCollisionPointRec(mouse, r))
                             {
-                                DrawRectangleRec(r, MOUSEHOVERCOLOR);
+                                DrawRectangleRec(r, COLOR_MOUSEHOVER_GAMEMASTER);
                                 if (IsKeyPressed(KEY_KP_ADD)) increase(rordata, G_SENA, A_SENA_INF1, j);
                                 if (IsKeyPressed(KEY_KP_SUBTRACT)) decrease(rordata, G_SENA, A_SENA_INF1, j);
                                 if (IsKeyPressed(KEY_BACKSPACE)) *valabsaddr(rordata, G_SENA, A_SENA_INF1, j) = *valabsaddr(rordata, G_SENA, A_SENA_INF0, j);
@@ -358,7 +655,7 @@ int main(void)
                             r = rect(cursor, 2, 1);
                             if (CheckCollisionPointRec(mouse, r))
                             {
-                                DrawRectangleRec(r, MOUSEHOVERCOLOR);
+                                DrawRectangleRec(r, COLOR_MOUSEHOVER_GAMEMASTER);
                                 if (IsKeyPressed(KEY_KP_ADD)) increase(rordata, G_SENA, A_SENA_POP1, j);
                                 if (IsKeyPressed(KEY_KP_SUBTRACT)) decrease(rordata, G_SENA, A_SENA_POP1, j);
                                 if (IsKeyPressed(KEY_BACKSPACE)) *valabsaddr(rordata, G_SENA, A_SENA_POP1, j) = *valabsaddr(rordata, G_SENA, A_SENA_POP0, j);

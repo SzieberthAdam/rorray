@@ -46,10 +46,13 @@ struct _Attr {            \
 #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
 #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
 
-#define SIZE 1912
+#define SIZE 2153
 
 #define G_NULL 0
-#define G_GAME 1
+#define G_SETT 1
+#define A_SETT_NSEN 0
+#define A_SETT_NSEN_t uint8_t
+#define G_GAME 2
 #define A_GAME_NAME 0
 #define A_GAME_NAME_t char[16]
 #define A_GAME_TURN 1
@@ -86,21 +89,24 @@ struct _Attr {            \
 #define A_GAME_ENSE_t uint8_t
 #define A_GAME_ENMS 17
 #define A_GAME_ENMS_t uint16_t
-#define G_PLYR 2
+#define G_FORU 3
+#define G_REPR 4
+#define G_PLYR 5
 #define A_PLYR_GAME 0
 #define A_PLYR_GAME_t uint16_t
 #define A_PLYR_NAME 1
 #define A_PLYR_NAME_t char[16]
 #define A_PLYR_PERM 2
 #define A_PLYR_PERM_t uint8_t
-#define G_FACT 3
+#define G_FACT 6
 #define A_FACT_CNGR 0
 #define A_FACT_CNGR_t uint16_t
 #define A_FACT_CNNR 1
 #define A_FACT_CNNR_t uint16_t
 #define A_FACT_NAME 2
 #define A_FACT_NAME_t char[16]
-#define G_SENA 4
+#define G_DECK 7
+#define G_SENA 8
 #define A_SENA_IDNR 0
 #define A_SENA_IDNR_t uint8_t
 #define A_SENA_NAME 1
@@ -127,6 +133,10 @@ struct _Attr {            \
 #define A_SENA_POP1_t int8_t
 #define A_SENA_ALIG 12
 #define A_SENA_ALIG_t int16_t
+#define A_SENA_CNGR 13
+#define A_SENA_CNGR_t uint16_t
+#define A_SENA_CNNR 14
+#define A_SENA_CNNR_t uint16_t
 
 #define T_ATTR 0x0A02
 #define T_BOOL 0x0F11
@@ -138,6 +148,12 @@ struct _Attr {            \
 #define T_UINT16 0x0002
 #define T_UINT32 0x0004
 #define T_UINT8 0x0001
+
+#define PHSE_PREP 0
+
+#define SPHS_PREP_TAKEFACTIONS 0
+#define SPHS_PREP_DEALSENATORS 1
+#define SPHS_PREP_SELECTFACTIONLEADERS 2
 
 #endif  /* #ifndef __DEFINE_RORHFILE__ */
 ;
