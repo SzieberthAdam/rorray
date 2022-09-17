@@ -337,11 +337,14 @@ struct _Attr {            \\
 
     rorh_lines.extend([
         "",
+        "#define FACT_ELEMCOUNT 7",
+        "",
         "#define PHSE_PREP 0",
         "",
         "#define SPHS_PREP_TAKEFACTIONS 0",
         "#define SPHS_PREP_DEALSENATORS 1",
-        "#define SPHS_PREP_SELECTFACTIONLEADERS 2",
+        "#define SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ 2",
+        "#define SPHS_PREP_SELECTFACTIONLEADERS 3",
     ])
 
     rorhstr = TEMPLATE.replace("{{rorh}}", rorh_prefix + "\n" +"\n".join(rorh_lines))

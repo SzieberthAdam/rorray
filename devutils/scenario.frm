@@ -10,42 +10,13 @@
 :ANOPAD
 
 :G GAME ; "Game"
-:A NAME string(16) "Ludus" ; name
+:A NFAC int8 -1 ; number of factions + 1 (faction#0 is unaligned) (value -1: unset)
 :A TURN int16 0 ; turn
 :ANOPAD
 :A PHSE int16 0 ; phase
 :ANOPAD
 :A SPHS uint32 0 ; subphase (technical)
 :ANOPAD
-:A STYR uint8 0 ; start year (0: 1990, 1: 1991, ...)
-:ANOPAD
-:A STMO uint8 0 ; start month
-:ANOPAD
-:A STDY uint8 0 ; start day
-:ANOPAD
-:A STHO uint8 0 ; start hour
-:ANOPAD
-:A STMI uint8 0 ; start minute
-:ANOPAD
-:A STSE uint8 0 ; start seconds
-:ANOPAD
-:A STMS uint16 0 ; start milliseconds
-:ANOPAD
-:A ENYR uint8 0 ; end year (0: 1990, 1: 1991, ...)
-:ANOPAD
-:A ENMO uint8 0 ; end month
-:ANOPAD
-:A ENDY uint8 0 ; end day
-:ANOPAD
-:A ENHO uint8 0 ; end hour
-:ANOPAD
-:A ENMI uint8 0 ; end minute
-:ANOPAD
-:A ENSE uint8 0 ; end seconds
-:ANOPAD
-:A ENMS uint16 0 ; end milliseconds
-:ANOPAD
-
 
 :G FORU ; "Forum"
 
