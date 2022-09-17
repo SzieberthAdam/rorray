@@ -14,7 +14,7 @@
 #define FONTSPACING     2
 #define FONTSIZE        font.baseSize*1.0f
 
-#define TARGET_FPS     30
+#define TARGET_FPS     10
 
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -147,6 +147,8 @@ int main(void)
     uint32_t entropyidx = 0;
     uint8_t entropynextbit = 0;
 
+    SetTraceLogLevel(LOG_DEBUG);
+
     SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(screenWidth, screenHeight, "RoRRAY");
 
@@ -248,7 +250,7 @@ int main(void)
                             }
                         }
                         DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
-                        DrawText2(font, "DONE", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                        DrawText2(font, "NEXT", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
 
                         cursor.y = 3 * DOWN;
 
@@ -332,6 +334,144 @@ int main(void)
                         sprintf(str, "DEAL %i SENATORS TO EACH FACTIONS (DRAG AND DROP)", *val0absaddr(rordata, G_SETT, A_SETT_NSEN));
                         DrawTextEx(font, str, cursor, FONTSIZE, FONTSPACING, ORANGE);
 
+                        cursor.x = screenWidth - ceil(0.5 * DOWN) - (12+1+12) * RIGHT;
+                        cursor.y = ceil(0.5 * DOWN);
+                        r = rect(cursor, 12, 2);
+                        uint8_t c0 = 0;
+                        for (int j = 0; j < group(rordata, G_SENA).elems; j++)
+                        {
+                            if (
+                                (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, j) == (A_SENA_CNGR_t)(G_DECK))
+                                &&
+                                (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, j) == (A_SENA_CNNR_t)(0))
+                            ) c0 += 1;
+                        }
+                        sprintf(str, "%i", c0);
+                        DrawText(str, screenWidth-30, 50, 10, MAGENTA);
+                        if (CheckCollisionPointRec(mouse, r))
+                        {
+                            if (0 < c0 && currentGesture == GESTURE_TAP)
+                            {
+                                for (int i = 1; i < group(rordata, G_FACT).elems; i++)
+                                {
+                                    if (*(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, i) == (A_FACT_CNGR_t)(G_NULL)) continue;
+                                    uint8_t c1 = 0;
+                                    for (int j = 0; j < group(rordata, G_SENA).elems; j++)
+                                    {
+                                        if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+j) == (A_SENA_ALIG_t)(i) ) c1 += 1;
+                                    }
+                                    sprintf(str, "FACT: %i; ROUND 1; c0: %i, c1: %i", i, c0, c1);
+                                    TraceLog(LOG_DEBUG, str);
+                                    if ((uint8_t)(*val0absaddr(rordata, G_SETT, A_SETT_NSEN)) < c1)  // more senators than allowed, put them all back to deck
+                                    {
+                                        for (int j = 0; j < group(rordata, G_SENA).elems; j++)
+                                        {
+                                            if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+j) == (A_SENA_ALIG_t)(i) )
+                                            {
+                                                *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, j) = (A_SENA_ALIG_t)(-1);
+                                                *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, j) = (A_SENA_CNGR_t)(G_DECK);
+                                                *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, j) = (A_SENA_CNNR_t)(0);
+                                                c1 -= 1;
+                                                c0 += 1;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                for (int i = 1; i < group(rordata, G_FACT).elems; i++)
+                                {
+                                    if (*(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, i) == (A_FACT_CNGR_t)(G_NULL)) continue;
+
+                                    uint8_t c1 = 0;
+                                    for (int j = 0; j < group(rordata, G_SENA).elems; j++)
+                                    {
+                                        if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+j) == (A_SENA_ALIG_t)(i) ) c1 += 1;
+                                    }
+
+                                    sprintf(str, "FACT: %i; ROUND 2; c0: %i, c1: %i", i, c0, c1);
+                                    TraceLog(LOG_DEBUG, str);
+
+                                    while (1 < c0 && c1 < (uint8_t)(*val0absaddr(rordata, G_SETT, A_SETT_NSEN)))
+                                    {
+                                        uint8_t k = ((c0 == 1) ? 0 : 0xFF);
+                                        int b;
+                                        for (b = 0; b < 8; b++)
+                                        {
+                                            if ( (c0 - 1) <= (1 << b) ) break;
+                                        }
+                                        sprintf(str, "b: %i, k: %i, entropyidx: %i, entropynextbit: %i", b, k, entropyidx, entropynextbit);
+                                        TraceLog(LOG_DEBUG, str);
+                                        while (c0 - 1 < k)
+                                        {
+                                            if (k == 0xFF)
+                                            {
+                                                if (8 < entropynextbit + b)
+                                                {
+                                                    k = entropy[(uint8_t)((entropyidx+1) % 256)];
+                                                    k = k & (0xFF >> (16 - (entropynextbit + b)));
+                                                    k += entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit;
+                                                    entropyidx += 1;
+                                                    entropynextbit = (entropynextbit + b) - 8;
+                                                }
+                                                else
+                                                {
+                                                    k = (entropy[(uint8_t)(entropyidx % 256)] << (8 - (entropynextbit + b)) ) >> (entropynextbit + b);
+                                                    entropynextbit += b;
+                                                    if (entropynextbit == 8)
+                                                    {
+                                                        entropyidx += 1;
+                                                        entropynextbit = 0;
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                k = (k << 1) & (0xFF >> (8 - b));
+                                                k += entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit;
+                                                entropynextbit += 1;
+                                                if (entropynextbit == 8)
+                                                {
+                                                    entropyidx += 1;
+                                                    entropynextbit = 0;
+                                                }
+                                            }
+                                            sprintf(str, "k: %i, entropyidx: %i, entropynextbit: %i", k, entropyidx, entropynextbit);
+                                            TraceLog(LOG_DEBUG, str);
+                                        } 
+                                    uint8_t m = 0;
+                                    for (int j = 0; j < group(rordata, G_SENA).elems; j++)
+                                    {
+                                        if (
+                                            (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, j) == (A_SENA_CNGR_t)(G_DECK))
+                                            &&
+                                            (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, j) == (A_SENA_CNNR_t)(0))
+                                        ) 
+                                        {
+                                            if (m == k)
+                                            {
+                                                *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, j) = (A_SENA_ALIG_t)(i);
+                                                *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, j) = (A_SENA_CNGR_t)(G_FORU);
+                                                *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, j) = (A_SENA_CNNR_t)(0);
+                                                c1 += 1;
+                                                c0 -= 1;
+                                                break;
+                                            }
+                                            m += 1;
+                                        }
+                                    }
+                                        //if (c0 == 1) goto SPHS_PREP_DEALSENATORS_done;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                DrawRectangleRec(r, COLOR_BUTTON);
+                            }
+                        }
+                        //SPHS_PREP_DEALSENATORS_done:
+                        DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
+                        DrawText2(font, "RANDOM", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+
                         cursor.x = screenWidth - ceil(0.5 * DOWN) - 12 * RIGHT;
                         cursor.y = ceil(0.5 * DOWN);
                         r = rect(cursor, 12, 2);
@@ -349,7 +489,7 @@ int main(void)
                             }
                         }
                         DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
-                        DrawText2(font, "DONE", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                        DrawText2(font, "NEXT", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
 
                         cursor.y = 3 * DOWN;
 
