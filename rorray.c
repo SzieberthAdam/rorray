@@ -218,6 +218,7 @@ int main(void)
             {
                 switch (*(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)))
                 {
+                    case 0:
                     case SPHS_PREP_TAKEFACTIONS: /* 4.1 GAMEBOARD (Take Seets) */
                     {
                         cursor.x = RIGHT;
@@ -349,7 +350,7 @@ int main(void)
                         Vector2 selectedvector;
                         cursor.x = RIGHT;
                         cursor.y = 1 * DOWN;
-                        sprintf(str, "DEAL %i SENATORS TO EACH FACTIONS (DRAG AND DROP)", *val0absaddr(rordata, G_SETT, A_SETT_NSEN));
+                        sprintf(str, "DEAL %i SENATORS TO EACH FACTIONS (DRAG AND DROP)", *val0absaddr(rordata, G_RULE, A_RULE_NSEN));
                         DrawTextEx(font, str, cursor, FONTSIZE, FONTSPACING, ORANGE);
 
                         cursor.x = screenWidth - ceil(0.5 * DOWN) - (12+1+12) * RIGHT;
@@ -370,7 +371,7 @@ int main(void)
                         {
                             if (0 < deck_size && currentGesture == GESTURE_TAP)
                             {
-                                uint8_t target_count = (uint8_t)(*val0absaddr(rordata, G_SETT, A_SETT_NSEN));
+                                uint8_t target_count = (uint8_t)(*val0absaddr(rordata, G_RULE, A_RULE_NSEN));
                                 uint8_t faction_counts[FACT_ELEMCOUNT] = {0};
                                 bool allfull = true;
 
@@ -919,7 +920,7 @@ int main(void)
                             ) deck_size += 1;
                         }
 
-                        uint8_t target_count = (uint8_t)(*val0absaddr(rordata, G_SETT, A_SETT_NSEN));
+                        uint8_t target_count = (uint8_t)(*val0absaddr(rordata, G_RULE, A_RULE_NSEN));
                         uint8_t faction_counts[FACT_ELEMCOUNT] = {0};
 
                         for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)

@@ -4,8 +4,10 @@
 
 :G NULL ;
 
-:G SETT ; "Settings"
+:G RULE ; "Rules"
 :GELEMS 1
+:A TERC uint8 0 ; Temporary Rome Consul (0xFF: no Temporary Rome Consul; bit0-1: resolve before(1)/after(0) faction leaders; bit1: lowest ID family card(hard)-AH(0)/random draw-VG(1))
+	; uncovered AHLRB: If, during the first mortality phase, the number is drawn of the Temporary Rome Consul and the senator is killed (faction leader or not) this process is immediately repeated.
 :A NSEN uint8 3 ; initial number of senators per faction (4.4)
 :ANOPAD
 

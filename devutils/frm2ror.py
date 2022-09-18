@@ -341,10 +341,11 @@ struct _Attr {            \\
         "",
         "#define PHSE_PREP 0",
         "",
-        "#define SPHS_PREP_TAKEFACTIONS 0",
-        "#define SPHS_PREP_DEALSENATORS 1",
-        "#define SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ 2",
-        "#define SPHS_PREP_SELECTFACTIONLEADERS 3",
+        "#define SPHS_PREP_TAKEFACTIONS 201200",
+        "#define SPHS_PREP_DEALSENATORS 301420",
+        "#define SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ 301421",
+        "#define SPHS_PREP_TEMPORARYROMECONSUL 301600",
+        "#define SPHS_PREP_SELECTFACTIONLEADERS 301700",
     ])
 
     rorhstr = TEMPLATE.replace("{{rorh}}", rorh_prefix + "\n" +"\n".join(rorh_lines))
