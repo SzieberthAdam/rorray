@@ -338,6 +338,7 @@ struct _Attr {            \\
     rorh_lines.extend([
         "",
         "#define FACT_ELEMCOUNT 7",
+        "#define OFFICE_ROME_CONSUL 3",
         "",
         "#define PHSE_PREP 0",
         "",
@@ -345,6 +346,7 @@ struct _Attr {            \\
         "#define SPHS_PREP_DEALSENATORS 301420",
         "#define SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ 301421",
         "#define SPHS_PREP_TEMPORARYROMECONSUL 301600",
+        "#define SPHS_PREP_TEMPORARYROMECONSUL_RANDOM_ENTROPYREQ 301601",
         "#define SPHS_PREP_SELECTFACTIONLEADERS 301700",
     ])
 

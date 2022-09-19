@@ -38,6 +38,8 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_MOUSEHOVER_DROPTARGET  DARKGREEN
 #define COLOR_MOUSEHOVER_EDITABLE  ORANGE
 #define COLOR_MOUSEHOVER_GAMEMASTER  MAGENTA
+#define COLOR_MOUSEHOVER_SELECTABLE  DARKGREEN
+#define COLOR_OFFICE RED
 
 
 void decrease(unsigned char *rordata, uint16_t groupidx, uint16_t attridx, uint16_t elemidx)
@@ -124,7 +126,7 @@ int main(void)
 {
     Vector2 cursor;
     Rectangle r;
-    char str[99];  // TODO: for debugging
+    char str[256];
 
     const int screenWidth = 800;
     const int screenHeight = 600;
@@ -182,6 +184,10 @@ int main(void)
             if (newentropynextbit == 8)
             {
                 newentropynextbit = 0;
+                if (newentropyidx == 255)
+                {
+                    SaveFileData("entropy.dat", entropy, 256);
+                }
                 newentropyidx += 1;
             }
         }
@@ -212,14 +218,16 @@ int main(void)
             DrawText(str, screenWidth-360 + 20 * (i - entropyidx), screenHeight-10, 10, MAGENTA);
         }
 
+        LABEL_GAME_TREE:
         switch (*(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)))
         {
+            // *(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)) = (A_GAME_PHSE_t)1;
             case PHSE_PREP: /* PREPARE TO PLAY */
             {
                 switch (*(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)))
                 {
                     case 0:
-                    case SPHS_PREP_TAKEFACTIONS: /* 4.1 GAMEBOARD (Take Seets) */
+                    case SPHS_PREP_TAKEFACTIONS: /* 3.01.2 [4.1] GAMEBOARD (Take Seets) */
                     {
                         cursor.x = RIGHT;
                         cursor.y = 1* DOWN;
@@ -345,7 +353,7 @@ int main(void)
                         DrawText(str, 10, 550, 10, WHITE);
                     } break;
 
-                    case SPHS_PREP_DEALSENATORS: /* 4.4 CARDS (Deal Senators) */
+                    case SPHS_PREP_DEALSENATORS: /* 3.01.4 B. [4.4] CARDS (Deal Senators) */
                     {
                         Vector2 selectedvector;
                         cursor.x = RIGHT;
@@ -353,9 +361,6 @@ int main(void)
                         sprintf(str, "DEAL %i SENATORS TO EACH FACTIONS (DRAG AND DROP)", *val0absaddr(rordata, G_RULE, A_RULE_NSEN));
                         DrawTextEx(font, str, cursor, FONTSIZE, FONTSPACING, ORANGE);
 
-                        cursor.x = screenWidth - ceil(0.5 * DOWN) - (12+1+12) * RIGHT;
-                        cursor.y = ceil(0.5 * DOWN);
-                        r = rect(cursor, 12, 2);
                         uint8_t deck_size = 0;  // deck size
                         for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
                         {
@@ -367,6 +372,10 @@ int main(void)
                         }
                         sprintf(str, "%i", deck_size);
                         DrawText(str, screenWidth-30, 50, 10, MAGENTA);
+
+                        cursor.x = screenWidth - ceil(0.5 * DOWN) - (12+1+12) * RIGHT;
+                        cursor.y = ceil(0.5 * DOWN);
+                        r = rect(cursor, 12, 2);
                         if (CheckCollisionPointRec(mouse, r))
                         {
                             if (0 < deck_size && currentGesture == GESTURE_TAP)
@@ -432,23 +441,21 @@ int main(void)
                                         if (newentropyidx <= entropyidx + 1)
                                         {
                                             *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ;
-                                            goto SPHS_PREP_DEALSENATORS_done;
+                                            goto LABEL_SPHS_PREP_DEALSENATORS_done;
                                         }
                                         while (deck_size - 1 < k)
                                         {
-                                            if (k == 0xFF)
+                                            if (k == 0xFF)  // initial value
                                             {
                                                 if (8 < entropynextbit + b)
                                                 {
-                                                    k = entropy[(uint8_t)((entropyidx+1) % 256)];
-                                                    k = k & (0xFF >> (16 - (entropynextbit + b)));
-                                                    k += entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit;
+                                                    k = (entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) + ((((entropy[(uint8_t)((entropyidx+1) % 256)] << (16 - b - entropynextbit)) & 0xFF) >> (8 - b)));
                                                     entropyidx += 1;
                                                     entropynextbit = (entropynextbit + b) - 8;
                                                 }
                                                 else
                                                 {
-                                                    k = (entropy[(uint8_t)(entropyidx % 256)] << (8 - (entropynextbit + b)) ) >> (entropynextbit + b);
+                                                    k = ( (entropy[(uint8_t)(entropyidx % 256)] << (8 - b - entropynextbit) ) & 0xFF ) >> (8 - b);
                                                     entropynextbit += b;
                                                     if (entropynextbit == 8)
                                                     {
@@ -459,8 +466,7 @@ int main(void)
                                             }
                                             else
                                             {
-                                                k = (k << 1) & (0xFF >> (8 - b));
-                                                k += entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit;
+                                                k = ((((k >> 1) + (((entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) & 0x01) << (b - 1))) << (8 - b)) & 0xFF) >> (8 - b);
                                                 entropynextbit += 1;
                                                 if (entropynextbit == 8)
                                                 {
@@ -494,6 +500,7 @@ int main(void)
                                     }
                                     }
                                 }
+                                DrawRectangleRec(r, COLOR_BUTTONCLICKED);
                             }
                             else
                             {
@@ -511,8 +518,15 @@ int main(void)
                             if (currentGesture == GESTURE_TAP)
                             {
                                 DrawRectangleRec(r, COLOR_BUTTONCLICKED);
-                                // *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
-                                *(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)) = (A_GAME_PHSE_t)1;  // TODO: temporary!
+                                uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                                if (temporaryromeconsulflags == 0xFF || (temporaryromeconsulflags & 0x01)==0x01)
+                                {
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+                                }
+                                else
+                                {
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
+                                }
                                 selected = -1;
                             }
                             else
@@ -772,7 +786,7 @@ int main(void)
                         }
                         sprintf(str, "%i", selected);
                         DrawText(str, 10, 580, 10, WHITE);
-                        SPHS_PREP_DEALSENATORS_done:
+                        LABEL_SPHS_PREP_DEALSENATORS_done:
                     } break;
 
                     case SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ:
@@ -946,7 +960,7 @@ int main(void)
                                 if (newentropyidx <= entropyidx + 1)
                                 {
                                     *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ;
-                                    goto SPHS_PREP_DEALSENATORS_done;
+                                    goto LABEL_SPHS_PREP_DEALSENATORS_done;
                                 }
                                 while (deck_size - 1 < k)
                                 {
@@ -1010,8 +1024,257 @@ int main(void)
                         }
                         *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS;
                     } break;
-                }
 
+                    case SPHS_PREP_TEMPORARYROMECONSUL:
+                    {
+                        cursor.x = RIGHT;
+                        cursor.y = 1 * DOWN;
+                        DrawTextEx(font, "TEMPORARY ROME CONSUL", cursor, FONTSIZE, FONTSPACING, ORANGE);
+
+                        uint8_t senator_count = 0;  // determine population
+                        for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                        {
+                            if (0 <= *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx)) senator_count += 1;
+                        }
+                        sprintf(str, "%i", senator_count);
+                        DrawText(str, screenWidth-30, 50, 10, MAGENTA);
+
+                        uint8_t m = 0;
+                        if (senator_count == 1) goto LABEL_SPHS_PREP_TEMPORARYROMECONSUL_POSTRANDOM;
+
+                        uint8_t* p_temporaryromeconsulflags = (A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+
+                        sprintf(str, "0x%X", (((*p_temporaryromeconsulflags) & 0x82) == 0x00));
+                        DrawText(str, screenWidth-30, 80, 10, MAGENTA);
+
+                        cursor.x = screenWidth - ceil(0.5 * DOWN) - (12+1+12) * RIGHT;
+                        cursor.y = ceil(0.5 * DOWN);
+                        r = rect(cursor, 12, 2);
+                        bool hovering = CheckCollisionPointRec(mouse, r);
+                        if (((*p_temporaryromeconsulflags) & 0x82) == 0x02)
+                        {
+                            A_SENA_IDNR_t lowest_idnr = 0xFF;
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                if (0 <= *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx))
+                                {
+                                    A_SENA_IDNR_t idnr = *(A_SENA_IDNR_t*)valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx);
+                                    lowest_idnr = min(lowest_idnr, idnr);
+                                }
+                            }
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                if (0 <= *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx))
+                                {
+                                    A_SENA_IDNR_t idnr = *(A_SENA_IDNR_t*)valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx);
+                                    if (idnr == lowest_idnr)
+                                    {
+                                        *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) += *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
+                                        *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(1);
+                                        *p_temporaryromeconsulflags = *p_temporaryromeconsulflags | 0x80;
+                                    }
+                                }
+                            }
+                        }
+                        else if (((*p_temporaryromeconsulflags) & 0x82) == 0x00 || (hovering && currentGesture == GESTURE_TAP))
+                        {
+                            int b;  // bitcount of population
+                            for (b = 0; b < 8; b++)
+                            {
+                                if ( (senator_count - 1) <= (1 << b) ) break;
+                            }
+
+                            sprintf(str, "TRC; b: %i", b);
+                            TraceLog(LOG_DEBUG, str);
+
+                            if (newentropyidx <= entropyidx + 1)
+                            {
+                                *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL_RANDOM_ENTROPYREQ;
+                                goto LABEL_GAME_TREE;
+                            }
+
+                            uint8_t k = 0xFF;
+                            while (senator_count - 1 < k)
+                            {
+                                sprintf(str, "TRC; entropyidx: %i, entropynextbit: %i; %X %X", entropyidx, entropynextbit, entropy[(uint8_t)(entropyidx % 256)], entropy[(uint8_t)((entropyidx+1) % 256)]);
+                                TraceLog(LOG_DEBUG, str);
+                                if (k == 0xFF)  // initial value
+                                {
+                                        if (8 < entropynextbit + b)
+                                        {
+                                            k = (entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) + ((((entropy[(uint8_t)((entropyidx+1) % 256)] << (16 - b - entropynextbit)) & 0xFF) >> (8 - b)));
+                                            entropyidx += 1;
+                                            entropynextbit = (entropynextbit + b) - 8;
+                                            sprintf(str, "TRC; 2 bytes; k: %i", k);
+                                        }
+                                        else
+                                        {
+                                            k = ( (entropy[(uint8_t)(entropyidx % 256)] << (8 - b - entropynextbit) ) & 0xFF ) >> (8 - b);
+                                            entropynextbit += b;
+                                            if (entropynextbit == 8)
+                                            {
+                                                entropyidx += 1;
+                                                entropynextbit = 0;
+                                            }
+                                            sprintf(str, "TRC; 1 byte; k: %i", k);
+                                        }
+                                }
+                                else
+                                {
+                                    k = ((((k >> 1) + (((entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) & 0x01) << (b - 1))) << (8 - b)) & 0xFF) >> (8 - b);
+                                    entropynextbit += 1;
+                                    if (entropynextbit == 8)
+                                    {
+                                        entropyidx += 1;
+                                        entropynextbit = 0;
+                                    }
+                                    sprintf(str, "TRC; 1 bit; k: %i", k);
+                                }
+                                TraceLog(LOG_DEBUG, str);
+                            }
+
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                A_SENA_OFFI_t* p_current_office = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
+                                if (*p_current_office == (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL))
+                                {
+                                    *p_current_office = (A_SENA_OFFI_t)(0);
+                                    *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) -= *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
+                                    *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(0);
+                                }
+                            }
+
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                if (0 <= *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx))
+                                {
+                                    A_SENA_OFFI_t* p_current_office = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
+                                    if (m == k)
+                                    {
+                                        *p_current_office = (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL);
+                                        *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) += *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
+                                        *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(1);
+                                        *p_temporaryromeconsulflags = *p_temporaryromeconsulflags | 0x80;
+                                        break;
+                                    }
+                                    m += 1;
+                                }
+                            }
+                            if (hovering && currentGesture == GESTURE_TAP)
+                            {
+                                DrawRectangleRec(r, COLOR_BUTTONCLICKED);
+                            }
+                            else if (hovering)
+                            {
+                                DrawRectangleRec(r, COLOR_BUTTON);
+                            }
+                        }
+                        DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
+                        DrawText2(font, "RANDOM", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+
+                        LABEL_SPHS_PREP_TEMPORARYROMECONSUL_POSTRANDOM:
+
+                        cursor.y = 3 * DOWN;
+
+                        for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
+                        {
+                            cursor.x = RIGHT;
+                            r = rect(cursor, 30, 2);
+                            DrawRectangleRec(r, COLOR_FACTIONHEADER);
+                            DrawText2(font, TextToUpper((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx))), r, FONTSIZE, FONTSPACING, WHITE, TextTopLeft);
+                            cursor.y += 1 * DOWN;
+                            cursor.x += (2 + 2 + SENATORNAMEWIDTH) * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "M", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "O", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "L", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "I", rect(cursor, 2, 1), FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.x += 2 * RIGHT;
+                            r = rect(cursor, 2, 1);
+                            DrawText2(font, "P", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                            cursor.y += 1 * DOWN;
+
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) )  // typecast is a must!
+                                {
+                                    cursor.x = RIGHT;
+                                    r = rect(cursor, 30, 1);
+                                    if (CheckCollisionPointRec(mouse, r))
+                                    {
+                                        if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // select manually
+                                        {
+
+                                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                                            {
+                                                A_SENA_OFFI_t* p_current_office = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
+                                                if (*p_current_office == (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL))
+                                                {
+                                                    *p_current_office = (A_SENA_OFFI_t)(0);
+                                                    *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) -= *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
+                                                    *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(0);
+                                                }
+                                            }
+                                            *(A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx) = (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL);
+                                            *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) += *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
+                                            *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(1);
+                                            *p_temporaryromeconsulflags = *p_temporaryromeconsulflags | 0x80;
+                                        }
+                                        else
+                                        {
+                                            DrawRectangleRec(r, COLOR_MOUSEHOVER_SELECTABLE);
+                                        }
+                                    }
+                                    // else if (selected != senaidx)
+                                    // {
+                                    //     DrawRectangleRec(r, COLOR_BLACKCARDBG);
+                                    // }
+                                    if (*(A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx) == (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL))
+                                    {
+                                        r = rect(cursor, 2, 1);
+                                        DrawRectangleRec(r, COLOR_OFFICE);
+                                        DrawText2(font, (char*)(valabsaddr(rordata, G_OFFI, A_OFFI_SNAM, OFFICE_ROME_CONSUL)), r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                                    }
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextRight);
+                                    cursor.x += 2 * RIGHT;
+                                    r = rect(cursor, SENATORNAMEWIDTH, 1);
+                                    DrawText2(font, (char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), r, FONTSIZE, FONTSPACING, WHITE, TextLeft);
+                                    cursor.x += SENATORNAMEWIDTH * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, senaidx));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_ORA1, senaidx));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_LOY1, senaidx));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                                    cursor.x += 2 * RIGHT;
+                                    sprintf(str, "%i", (int8_t)(*valabsaddr(rordata, G_SENA, A_SENA_POP1, senaidx)));
+                                    r = rect(cursor, 2, 1);
+                                    DrawText2(font, str, r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
+                                    cursor.y += DOWN;
+                                }
+                            }
+                            cursor.y += DOWN;
+                        } 
+                    }
+                }
             } break;
 
 

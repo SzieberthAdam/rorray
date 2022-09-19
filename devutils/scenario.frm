@@ -6,7 +6,7 @@
 
 :G RULE ; "Rules"
 :GELEMS 1
-:A TERC uint8 0 ; Temporary Rome Consul (0xFF: no Temporary Rome Consul; bit0-1: resolve before(1)/after(0) faction leaders; bit1: lowest ID family card(hard)-AH(0)/random draw-VG(1))
+:A TERC uint8 0 ; Temporary Rome Consul (0xFF: no Temporary Rome Consul; bit0: resolve before(0)/after(1) faction leaders; bit1: lowest ID family card(hard)-AH(1)/random draw-VG(0); bit7: random draw has been done)
 	; uncovered AHLRB: If, during the first mortality phase, the number is drawn of the Temporary Rome Consul and the senator is killed (faction leader or not) this process is immediately repeated.
 :A NSEN uint8 3 ; initial number of senators per faction (4.4)
 :ANOPAD
@@ -104,3 +104,26 @@
 	DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK, DECK,
 	NULL, *
 :A CNNR elem 0, * ; connection group elem index
+:A OFFI uint8 ; office
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+:A PRCO uint8 ; Prior Consul
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+
+
+:G OFFI; "Office"
+:A NAME string(24) 
+	"none", "Consul for Life", "Dictator", "Rome Consul", "Field Consul", 
+	"Censor", "Master of Horse", "Dominant Player", "Pontifex Maximus",
+	"Proconsul"
+:A SNAM string(4) ; short name
+	"", "CfL", "DI", "RC", "FC", "CE", "MoH", "DP", "PM", "PC"
+:A ORDR string(1) ; order of precedence mark
+	"", "*", "1", "2", "3", "4", "5", "5", "6", "X"
+:A FORL uint8 ; applies for life
+	0, 1, 0, 0, 0, 0, 0, 0, 1, 0
+:A INFL int8 ; influence gain for taking
+	0, 0, 7, 5, 5, 5, 3, 3, 5, 0
