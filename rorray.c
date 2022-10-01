@@ -62,19 +62,21 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_RICH_GOLD ((Color){236, 190, 7, 255})
 
 #define COLOR_ANTIQUE_RUBY ((Color){127, 33, 34, 255})
-#define COLOR_OLD_LACE ((Color){229, 219, 183, 255})  
+#define COLOR_OLD_LACE ((Color){229, 219, 183, 255})
 
+#define COLOR_BACKGROUND COLOR_BIRREN_BONE_BLACK
+#define COLOR_BACKGROUNDAREA BLACK
 #define COLOR_BLACKCARDBACKGROUND COLOR_BIRREN_IVORY_WHITE
 #define COLOR_BLACKCARDTEXT COLOR_BIRREN_BONE_BLACK
-#define COLOR_BUTTONBACKGROUND COLOR_BIRREN_BONE_BLACK
+#define COLOR_BUTTONBACKGROUND WHITE
 #define COLOR_BUTTONCLICKED COLOR_BIRREN_RICH_GOLD
-#define COLOR_BUTTONOUTLINE COLOR_BIRREN_IVORY_WHITE
-#define COLOR_BUTTONTEXT COLOR_BIRREN_RICH_GOLD
+#define COLOR_BUTTONOUTLINE BLACK
+#define COLOR_BUTTONTEXT BLACK
+#define COLOR_FACTION COLOR_BIRREN_NUBIAN_BROWN
 #define COLOR_FACTIONHEADER COLOR_BIRREN_BRIGHT_COPPER
 #define COLOR_FACTIONHEADERTEXT COLOR_BIRREN_IVORY_WHITE
-#define COLOR_FACTION COLOR_BIRREN_NUBIAN_BROWN
 #define COLOR_FACTIONTEXT COLOR_BIRREN_RICH_CORAL
-#define COLOR_MOUSEDRAG  COLOR_BIRREN_LIGHT_POMPEII_GREEN
+#define COLOR_MOUSEDRAG  COLOR_BIRREN_LIGHT_ROMAN_BLUE
 #define COLOR_MOUSEDRAGTEXT  BLACK
 #define COLOR_MOUSEHOVER_CLICKABLE COLOR_BIRREN_MEDIUM_POMPEII_GREEN
 #define COLOR_MOUSEHOVER_DRAGABLE  COLOR_BIRREN_MEDIUM_ROMAN_BLUE
@@ -85,8 +87,10 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_OFFICE RED
 #define COLOR_TITLEBACKGROUND COLOR_BIRREN_NUBIAN_BROWN
 #define COLOR_TITLETEXT COLOR_BIRREN_POMPEII_ROSE
-#define COLOR_BACKGROUND COLOR_BIRREN_BONE_BLACK
-#define COLOR_BACKGROUNDAREA BLACK
+#define COLOR_TOOLTIPBACKGROUND COLOR_BIRREN_RICH_GOLD
+#define COLOR_TOOLTIPOUTLINE BLACK
+#define COLOR_TOOLTIPTEXT BLACK
+
 
 #define Font1H font1.baseSize
 #define Font2H font2.baseSize
@@ -237,7 +241,7 @@ int main(void)
     uint16_t screenRights = (windowedScreenWidth - 2 * PAD) / RIGHT;
     uint16_t screenDowns = (windowedScreenHeight - 2 * PAD) / DOWN;
     uint16_t screenOffsetX = (windowedScreenWidth - RIGHT * screenRights) / 2;
-    uint16_t screenOffsetY = (windowedScreenHeight - DOWN * screenDowns) / 2;   
+    uint16_t screenOffsetY = (windowedScreenHeight - DOWN * screenDowns) / 2;
     uint16_t screenWidth = windowedScreenWidth;
     uint16_t screenHeight = windowedScreenHeight;
 
@@ -245,8 +249,8 @@ int main(void)
 
     unsigned int rordataLength = SIZE;
     unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
- 
-    Vector2 mouse;    
+
+    Vector2 mouse;
     Vector2 mousedelta;
     int currentGesture = GESTURE_NONE;
     int lastGesture = GESTURE_NONE;
@@ -305,7 +309,7 @@ int main(void)
             }
             else
             {
-                windowPos = GetWindowPosition(); 
+                windowPos = GetWindowPosition();
                 windowedScreenWidth = GetScreenWidth();
                 windowedScreenHeight = GetScreenHeight();
                 screenWidth = GetMonitorWidth(display);
@@ -411,7 +415,7 @@ int main(void)
                                     letterCount--;
                                     if (letterCount < 0) letterCount = 0;
                                     *((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx))+letterCount) = '\0';
-                                } 
+                                }
                                 if ((letterCount <= maxLetterCount) && (((framesCounter/10)%2) == 0))
                                 {
                                     uint8_t factionNameLength = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
@@ -619,7 +623,7 @@ int main(void)
                                 if
                                 (
                                     (currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN)
-                                    && 
+                                    &&
                                     (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
                                 )
                                 {
@@ -672,209 +676,210 @@ int main(void)
                             }
                             r_senator.y = r_faction.y + r_faction.height + 2 * UNIT;
                         }
-//                        // BUTTON PREP
-//                        fontScale = 3;
-//                        uint16_t buttonRectHeightDowns = 1 * fontScale;
-//                        uint16_t buttonRectWidthRights = 14 * fontScale;
-//                        // BACK BUTTON
-//                        cursor.y = screenOffsetY + DOWN * (screenDowns - buttonRectHeightDowns - 1);
-//                        cursor.x = screenVCenter - RIGHT * 6 - RIGHT * buttonRectWidthRights * 2;
-//                        r = rect(cursor, buttonRectWidthRights, buttonRectHeightDowns);
-//                        DrawPixel(cursor.x-1, cursor.y-1, MAGENTA);
-//                        DrawPixel(cursor.x-2, cursor.y-2, MAGENTA);
-//                        DrawRectangleRounded(r, 0.2f, 10, DARKGRAY);
-//                        //DrawRectangleRoundedLines(r, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-//                        DrawText2(font1, "@BACK@", r, SFONTSIZE, SFONTSPACING, COLOR_BUTTONTEXT, TextCenter);
-//                        // NEXT BUTTON
-//                        cursor.y = screenOffsetY + DOWN * (screenDowns - buttonRectHeightDowns - 1);
-//                        cursor.x = screenVCenter + RIGHT * 6 + RIGHT * buttonRectWidthRights;
-//                        r = rect(cursor, buttonRectWidthRights, buttonRectHeightDowns);
-//                        DrawRectangleRoundedLines(r, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-//                        DrawText2(font1, "NEXT", r, SFONTSIZE, SFONTSPACING, COLOR_BUTTONTEXT, TextCenter);
-//                        // RESET BUTTON
-//                        fontScale = 1;
-//                        buttonRectHeightDowns = 1 * fontScale;
-//                        buttonRectWidthRights = 14 * fontScale;
-//                        cursor.y = screenOffsetY + DOWN * (screenDowns - buttonRectHeightDowns - 1);
-//                        cursor.x = screenVCenter + RIGHT * 2;
-//                        r = rect(cursor, buttonRectWidthRights, buttonRectHeightDowns);
-//                        DrawPixel(cursor.x-1, cursor.y-1, MAGENTA);
-//                        DrawPixel(cursor.x-2, cursor.y-2, MAGENTA);
-//                        DrawRectangleRounded(r, 0.2f, 10, DARKGRAY);
-//                        //DrawRectangleRoundedLines(r, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-//                        DrawText2(font1, "@RESET@", r, SFONTSIZE, SFONTSPACING, COLOR_BUTTONTEXT, TextCenter);
-//                        fontScale = 3;
-//                        buttonRectHeightDowns = 1 * fontScale;
-//                        buttonRectWidthRights = 14 * fontScale;
-//                        // RANDOM BUTTON
-//                        // buttonRectWidthRights = 12 + ceil((PAD + MeasureTextEx(font1, "RANDOM", SFONTSIZE, SFONTSPACING).x) / RIGHT);
-//                        cursor.y = screenOffsetY + DOWN * (screenDowns - buttonRectHeightDowns - 1);
-//                        cursor.x = screenVCenter - RIGHT * (buttonRectWidthRights + 2);
-//                        r = rect(cursor, buttonRectWidthRights, buttonRectHeightDowns);
-//                        if (selected == -501000 && currentGesture != lastGesture && lastGesture == GESTURE_DRAG)
-//                        {
-//                            selected = -1;
-//                        }
-//                        if (selected == -1 && CheckCollisionPointRec(mouse, r))
-//                        {
-//                            if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
-//                            {
-//                                selected = -501000;
-//                                selectedvector.x = mouse.x - r.x;
-//                                selectedvector.y = mouse.y - r.y;
-//                            }
-//                            else
-//                            {
-//                                DrawRectangleRounded(r, 0.2f, 10, COLOR_MOUSEHOVER_DRAGABLE);
-//                                DrawRectangleRoundedLines(r, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-//                                DrawText2(font1, "RANDOM", r, SFONTSIZE, SFONTSPACING, COLOR_BUTTONTEXT, TextCenter);
-//                            }
-//                        }
-//                        else if (selected == -501000 && currentGesture == GESTURE_DRAG)
-//                        {
-//                            cursor.x = mouse.x - selectedvector.x;
-//                            cursor.y = mouse.y - selectedvector.y;
-//                            r = rect(cursor, buttonRectWidthRights, buttonRectHeightDowns);
-//                            DrawRectangleRounded(r, 0.2f, 10, COLOR_MOUSEDRAG);
-//                            DrawRectangleRoundedLines(r, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-//                            DrawText2(font1, "RANDOM", r, SFONTSIZE, SFONTSPACING, COLOR_MOUSEDRAGTEXT, TextCenter);
-//                        }
-//                        else
-//                        {
-//                            DrawRectangleRounded(r, 0.2f, 10, COLOR_BUTTONBACKGROUND);
-//                            DrawRectangleRoundedLines(r, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-//                            DrawText2(font1, "RANDOM", r, SFONTSIZE, SFONTSPACING, COLOR_BUTTONTEXT, TextCenter);
-//                        }
-//
-//                        {
-//                            // if (CheckCollisionPointRec(mouse, r))
-//                            // {
-//                            //       if (0 < deckSize && currentGesture == GESTURE_TAP)
-//                            //       {
-//                            //           uint8_t targetSenatorCount = (uint8_t)(*val0absaddr(rordata, G_RULE, A_RULE_NSEN));
-//                            //           uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
-//                            //           bool allfull = true;
-//                            //           for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
-//                            //           {
-//                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-//                            //               {
-//                            //                   if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) ) factionSenatorCounts[factidx] += 1;
-//                            //               }
-//                            //               sprintf(str, "FACT: %i; ROUND 1; deck_cards: %i, faction_cards: %i", factidx, deckSize, factionSenatorCounts[factidx]);
-//                            //               TraceLog(LOG_DEBUG, str);
-//                            //               if (targetSenatorCount < factionSenatorCounts[factidx])  // more senators than allowed, put them all back to deck
-//                            //               {
-//                            //                   allfull = false;
-//                            //                   for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-//                            //                   {
-//                            //                       if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) )
-//                            //                       {
-//                            //                           *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(-1);
-//                            //                           *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_DECK);
-//                            //                           *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
-//                            //                           factionSenatorCounts[factidx] -= 1;
-//                            //                           deckSize += 1;
-//                            //                       }
-//                            //                   }
-//                            //               }
-//                            //               else if (targetSenatorCount > factionSenatorCounts[factidx]) allfull = false;
-//                            //           }
-//                            //           if (allfull) // perform a full redraw
-//                            //           {
-//                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-//                            //               {
-//                            //                   if ( -1 < *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) )
-//                            //                   {
-//                            //                       *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(-1);
-//                            //                       *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_DECK);
-//                            //                       *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
-//                            //                       deckSize += 1;
-//                            //                   }
-//                            //               }
-//                            //               for (int factidx = 1; factidx < FACT_ELEMCOUNT; factidx++) factionSenatorCounts[factidx] = 0;
-//                            //           }
-//                            //           for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
-//                            //           {
-//                            //               while (1 < deckSize && factionSenatorCounts[factidx] < targetSenatorCount)
-//                            //               {
-//                            //                   uint8_t k = ((deckSize == 1) ? 0 : 0xFF);
-//                            //                   int b;
-//                            //                   for (b = 0; b < 8; b++)
-//                            //                   {
-//                            //                       if ( (deckSize - 1) <= (1 << b) ) break;
-//                            //                   }
-//                            //                   sprintf(str, "b: %i, k: %i, entropyidx: %i, entropynextbit: %i, newentropyidx: %i, newentropynextbit: %i", b, k, entropyidx, entropynextbit, newentropyidx, newentropynextbit);
-//                            //                   TraceLog(LOG_DEBUG, str);
-//                            //                   if (newentropyidx <= entropyidx + 1)
-//                            //                   {
-//                            //                       *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ;
-//                            //                       //goto LABEL_SPHS_PREP_DEALSENATORS_done;
-//                            //                   }
-//                            //                   while (deckSize - 1 < k)
-//                            //                   {
-//                            //                       if (k == 0xFF)  // initial value
-//                            //                       {
-//                            //                           if (8 < entropynextbit + b)
-//                            //                           {
-//                            //                               k = (entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) + ((((entropy[(uint8_t)((entropyidx+1) % 256)] << (16 - b - entropynextbit)) & 0xFF) >> (8 - b)));
-//                            //                               entropyidx += 1;
-//                            //                               entropynextbit = (entropynextbit + b) - 8;
-//                            //                           }
-//                            //                           else
-//                            //                           {
-//                            //                               k = ( (entropy[(uint8_t)(entropyidx % 256)] << (8 - b - entropynextbit) ) & 0xFF ) >> (8 - b);
-//                            //                               entropynextbit += b;
-//                            //                               if (entropynextbit == 8)
-//                            //                               {
-//                            //                                   entropyidx += 1;
-//                            //                                   entropynextbit = 0;
-//                            //                               }
-//                            //                           }
-//                            //                       }
-//                            //                       sprintf(str, "k: %i, entropyidx: %i, entropynextbit: %i", k, entropyidx, entropynextbit);
-//                            //                       TraceLog(LOG_DEBUG, str);
-//                            //                   } 
-//                            //               uint8_t m = 0;
-//                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-//                            //               {
-//                            //                   if (
-//                            //                       (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) == (A_SENA_CNGR_t)(G_DECK))
-//                            //                       &&
-//                            //                       (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) == (A_SENA_CNNR_t)(0))
-//                            //                   ) 
-//                            //                   {
-//                            //                       if (m == k)
-//                            //                       {
-//                            //                           *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(factidx);
-//                            //                           *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_FORU);
-//                            //                           *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
-//                            //                           factionSenatorCounts[factidx] += 1;
-//                            //                           deckSize -= 1;
-//                            //                           break;
-//                            //                       }
-//                            //                       m += 1;
-//                            //                   }
-//                            //               }
-//                            //               }
-//                            //           }
-//                            //           DrawRectangleRec(r, COLOR_BUTTONCLICKED);
-//                            //       }
-//                            //       else
-//                            //       {
-//                            //           DrawRectangleRec(r, COLOR_MOUSEHOVER_CLICKABLE);
-//                            //       }
-//                            // }
-//                            // DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
-//                            // DrawText2(font1, "RANDOM", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-//                        }
-//
+                        // NEXT BUTTON
+                        Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+                        if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
+                        {
+                            if (currentGesture == GESTURE_TAP)
+                            {
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONCLICKED);
+                                uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                                if (temporaryromeconsulflags == 0xFF || (temporaryromeconsulflags & 0x01)==0x01)
+                                {
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+                                }
+                                else
+                                {
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
+                                }
+                                selected = -1;
+                                framesCounter = 0;
+                            }
+                            else
+                            {
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                            }
+                        }
+                        else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                        DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                        DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                        // RANDOM BUTTON
+                        r_button.width = UNITCLAMP(6 * Font3HUnit);
+                        r_button.x -= 2 * UNIT + r_button.width;
+                        if (selected == -501000)
+                        {
+                            if
+                            (
+                                (currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN)
+                                &&
+                                (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
+                            )
+                            {
+                                selected = -1;
+                            }
+                        }
+                        if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
+                        {
+                            if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
+                            {
+                                selected = -501000;
+                                selectedvector.x = mouse.x - r_button.x;
+                                selectedvector.y = mouse.y - r_button.y;
+                            }
+                            else
+                            {
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_DRAGABLE);
+                                DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                                DrawFont3("RANDOM", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                                strcpy(str, "drag and shake it for the deal");
+                                Vector2 textsize = MeasureTextEx(font2, str, Font2H, Font2Spacing);
+                                textsize.x += 4 * Font2Spacing;
+                                Rectangle r_tooltip = {UNITCLAMP(r_button.x + r_button.width / 2 - textsize.x / 2), r_button.y + r_button.height + 1 * UNIT, UNITCLAMP(textsize.x), Font2RectH};
+                                DrawRectangleRec(r_tooltip, COLOR_TOOLTIPBACKGROUND);
+                                DrawRectangleLinesEx(r_tooltip, 1.0f, COLOR_TOOLTIPOUTLINE);
+                                DrawFont2(str, r_tooltip, COLOR_TOOLTIPTEXT, TextCenter, ((Vector2){0, -1}));
+                            }
+                        }
+                        else if (selected == -501000 && (currentGesture == GESTURE_DRAG || currentGesture == GESTURE_HOLD))
+                        {
+                            r_button.x = mouse.x - selectedvector.x;
+                            r_button.y = mouse.y - selectedvector.y;
+                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEDRAG);
+                            DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                            DrawFont3("RANDOM", r_button, COLOR_MOUSEDRAGTEXT, TextCenter, ((Vector2){0, 1}));
+                        }
+                        else
+                        {
+                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                            DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                            DrawFont3("RANDOM", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                        }
+                        {
+                            // if (CheckCollisionPointRec(mouse, r))
+                            // {
+                            //       if (0 < deckSize && currentGesture == GESTURE_TAP)
+                            //       {
+                            //           uint8_t targetSenatorCount = (uint8_t)(*val0absaddr(rordata, G_RULE, A_RULE_NSEN));
+                            //           uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
+                            //           bool allfull = true;
+                            //           for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
+                            //           {
+                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            //               {
+                            //                   if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) ) factionSenatorCounts[factidx] += 1;
+                            //               }
+                            //               sprintf(str, "FACT: %i; ROUND 1; deck_cards: %i, faction_cards: %i", factidx, deckSize, factionSenatorCounts[factidx]);
+                            //               TraceLog(LOG_DEBUG, str);
+                            //               if (targetSenatorCount < factionSenatorCounts[factidx])  // more senators than allowed, put them all back to deck
+                            //               {
+                            //                   allfull = false;
+                            //                   for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            //                   {
+                            //                       if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) )
+                            //                       {
+                            //                           *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(-1);
+                            //                           *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_DECK);
+                            //                           *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
+                            //                           factionSenatorCounts[factidx] -= 1;
+                            //                           deckSize += 1;
+                            //                       }
+                            //                   }
+                            //               }
+                            //               else if (targetSenatorCount > factionSenatorCounts[factidx]) allfull = false;
+                            //           }
+                            //           if (allfull) // perform a full redraw
+                            //           {
+                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            //               {
+                            //                   if ( -1 < *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) )
+                            //                   {
+                            //                       *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(-1);
+                            //                       *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_DECK);
+                            //                       *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
+                            //                       deckSize += 1;
+                            //                   }
+                            //               }
+                            //               for (int factidx = 1; factidx < FACT_ELEMCOUNT; factidx++) factionSenatorCounts[factidx] = 0;
+                            //           }
+                            //           for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
+                            //           {
+                            //               while (1 < deckSize && factionSenatorCounts[factidx] < targetSenatorCount)
+                            //               {
+                            //                   uint8_t k = ((deckSize == 1) ? 0 : 0xFF);
+                            //                   int b;
+                            //                   for (b = 0; b < 8; b++)
+                            //                   {
+                            //                       if ( (deckSize - 1) <= (1 << b) ) break;
+                            //                   }
+                            //                   sprintf(str, "b: %i, k: %i, entropyidx: %i, entropynextbit: %i, newentropyidx: %i, newentropynextbit: %i", b, k, entropyidx, entropynextbit, newentropyidx, newentropynextbit);
+                            //                   TraceLog(LOG_DEBUG, str);
+                            //                   if (newentropyidx <= entropyidx + 1)
+                            //                   {
+                            //                       *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ;
+                            //                       //goto LABEL_SPHS_PREP_DEALSENATORS_done;
+                            //                   }
+                            //                   while (deckSize - 1 < k)
+                            //                   {
+                            //                       if (k == 0xFF)  // initial value
+                            //                       {
+                            //                           if (8 < entropynextbit + b)
+                            //                           {
+                            //                               k = (entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) + ((((entropy[(uint8_t)((entropyidx+1) % 256)] << (16 - b - entropynextbit)) & 0xFF) >> (8 - b)));
+                            //                               entropyidx += 1;
+                            //                               entropynextbit = (entropynextbit + b) - 8;
+                            //                           }
+                            //                           else
+                            //                           {
+                            //                               k = ( (entropy[(uint8_t)(entropyidx % 256)] << (8 - b - entropynextbit) ) & 0xFF ) >> (8 - b);
+                            //                               entropynextbit += b;
+                            //                               if (entropynextbit == 8)
+                            //                               {
+                            //                                   entropyidx += 1;
+                            //                                   entropynextbit = 0;
+                            //                               }
+                            //                           }
+                            //                       }
+                            //                       sprintf(str, "k: %i, entropyidx: %i, entropynextbit: %i", k, entropyidx, entropynextbit);
+                            //                       TraceLog(LOG_DEBUG, str);
+                            //                   }
+                            //               uint8_t m = 0;
+                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            //               {
+                            //                   if (
+                            //                       (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) == (A_SENA_CNGR_t)(G_DECK))
+                            //                       &&
+                            //                       (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) == (A_SENA_CNNR_t)(0))
+                            //                   )
+                            //                   {
+                            //                       if (m == k)
+                            //                       {
+                            //                           *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(factidx);
+                            //                           *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_FORU);
+                            //                           *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
+                            //                           factionSenatorCounts[factidx] += 1;
+                            //                           deckSize -= 1;
+                            //                           break;
+                            //                       }
+                            //                       m += 1;
+                            //                   }
+                            //               }
+                            //               }
+                            //           }
+                            //           DrawRectangleRec(r, COLOR_BUTTONCLICKED);
+                            //       }
+                            //       else
+                            //       {
+                            //           DrawRectangleRec(r, COLOR_MOUSEHOVER_CLICKABLE);
+                            //       }
+                            // }
+                        }
                         // SELECTION
                         if (0 <= selected) // draw selected senator on top off all other
                         {
                             if
                             (
                                 (currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN)
-                                && 
+                                &&
                                 (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
                             )
                             {
@@ -1142,7 +1147,7 @@ int main(void)
                                     }
                                     sprintf(str, "k: %i, entropyidx: %i, entropynextbit: %i", k, entropyidx, entropynextbit);
                                     TraceLog(LOG_DEBUG, str);
-                                } 
+                                }
                             uint8_t m = 0;
                             for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
                             {
@@ -1150,7 +1155,7 @@ int main(void)
                                     (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) == (A_SENA_CNGR_t)(G_DECK))
                                     &&
                                     (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) == (A_SENA_CNNR_t)(0))
-                                ) 
+                                )
                                 {
                                     if (m == k)
                                     {
@@ -1405,7 +1410,7 @@ int main(void)
                                 }
                             }
                             cursor.y += DOWN;
-                        } 
+                        }
                     }
                 }
             } break;
