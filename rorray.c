@@ -41,6 +41,23 @@ __INITRORAPI__ // initializes the API structs
 
 #define SENATORNAMEWIDTH  8
 
+
+#define COLOR_BrownYellow     ((Color){0xCC, 0x99, 0x66, 0xFF})
+#define COLOR_DarkCharcoal    ((Color){0x33, 0x33, 0x33, 0xFF})
+#define COLOR_CopperRose      ((Color){0x99, 0x66, 0x66, 0xFF})
+#define COLOR_Black           ((Color){0x00, 0x00, 0x00, 0xFF})
+#define COLOR_ChineseSilver   ((Color){0xCC, 0xCC, 0xCC, 0xFF})
+#define COLOR_DarkVanilla     ((Color){0xCC, 0xCC, 0x99, 0xFF})
+#define COLOR_PeachOrange     ((Color){0xFF, 0xCC, 0x99, 0xFF})
+#define COLOR_GraniteGray     ((Color){0x66, 0x66, 0x66, 0xFF})
+#define COLOR_White           ((Color){0xFF, 0xFF, 0xFF, 0xFF})
+#define COLOR_SpanishGray     ((Color){0x99, 0x99, 0x99, 0xFF})
+#define COLOR_DeepCarminePink ((Color){0xFF, 0x33, 0x33, 0xFF})
+#define COLOR_MediumVioletRed ((Color){0xCC, 0x00, 0x99, 0xFF})
+#define COLOR_FrenchLilac     ((Color){0x99, 0x66, 0x99, 0xFF})
+#define COLOR_SheenGreen      ((Color){0x99, 0xCC, 0x00, 0xFF})
+
+
 #define COLOR_BIRREN_SCARLET ((Color){209, 33, 33, 255})
 #define COLOR_BIRREN_IVORY_WHITE ((Color){234, 229, 224, 255})
 #define COLOR_BIRREN_POMPEII_ROSE ((Color){192, 95, 79, 255})
@@ -64,32 +81,34 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_ANTIQUE_RUBY ((Color){127, 33, 34, 255})
 #define COLOR_OLD_LACE ((Color){229, 219, 183, 255})
 
-#define COLOR_BACKGROUND COLOR_BIRREN_BONE_BLACK
-#define COLOR_BACKGROUNDAREA BLACK
-#define COLOR_BLACKCARDBACKGROUND COLOR_BIRREN_IVORY_WHITE
-#define COLOR_BLACKCARDTEXT COLOR_BIRREN_BONE_BLACK
-#define COLOR_BUTTONBACKGROUND WHITE
-#define COLOR_BUTTONCLICKED COLOR_BIRREN_RICH_GOLD
-#define COLOR_BUTTONOUTLINE BLACK
-#define COLOR_BUTTONTEXT BLACK
-#define COLOR_FACTION COLOR_BIRREN_NUBIAN_BROWN
-#define COLOR_FACTIONHEADER COLOR_BIRREN_BRIGHT_COPPER
-#define COLOR_FACTIONHEADERTEXT COLOR_BIRREN_IVORY_WHITE
-#define COLOR_FACTIONTEXT COLOR_BIRREN_RICH_CORAL
+#define COLOR_BACKGROUND COLOR_DarkCharcoal
+#define COLOR_BACKGROUNDAREA COLOR_Black
+#define COLOR_BLACKCARDBACKGROUND COLOR_White
+#define COLOR_BLACKCARDTEXT COLOR_Black
+#define COLOR_BUTTONBACKGROUND COLOR_White
+#define COLOR_BUTTONCLICKED COLOR_PeachOrange
+#define COLOR_BUTTONOUTLINE COLOR_Black
+#define COLOR_BUTTONTEXT COLOR_Black
+#define COLOR_FACTION COLOR_DarkVanilla
+#define COLOR_FACTIONHEADER COLOR_SpanishGray
+#define COLOR_FACTIONHEADERTEXT COLOR_Black
+#define COLOR_FACTIONTEXT COLOR_Black
 #define COLOR_MOUSEDRAG  COLOR_BIRREN_LIGHT_ROMAN_BLUE
-#define COLOR_MOUSEDRAGTEXT  BLACK
-#define COLOR_MOUSEHOVER_CLICKABLE COLOR_BIRREN_MEDIUM_POMPEII_GREEN
-#define COLOR_MOUSEHOVER_DRAGABLE  COLOR_BIRREN_MEDIUM_ROMAN_BLUE
-#define COLOR_MOUSEHOVER_DROPTARGET  COLOR_BIRREN_DEEP_COBALT
-#define COLOR_MOUSEHOVER_EDITABLE  COLOR_BIRREN_DEEP_POMPEII_GREEN
+#define COLOR_MOUSEDRAGTEXT  COLOR_Black
+#define COLOR_MOUSEHOVER_CLICKABLE COLOR_SheenGreen
+#define COLOR_MOUSEHOVER_DRAGABLE  COLOR_FrenchLilac
+#define COLOR_MOUSEHOVER_DROPTARGET  COLOR_MediumVioletRed
+#define COLOR_MOUSEHOVER_EDITABLE  COLOR_CopperRose
 #define COLOR_MOUSEHOVER_GAMEMASTER  MAGENTA
-#define COLOR_MOUSEHOVER_SELECTABLE  DARKGREEN
-#define COLOR_OFFICE RED
-#define COLOR_TITLEBACKGROUND COLOR_BIRREN_NUBIAN_BROWN
-#define COLOR_TITLETEXT COLOR_BIRREN_POMPEII_ROSE
-#define COLOR_TOOLTIPBACKGROUND COLOR_BIRREN_RICH_GOLD
-#define COLOR_TOOLTIPOUTLINE BLACK
-#define COLOR_TOOLTIPTEXT BLACK
+#define COLOR_MOUSEHOVER_SELECTABLE  COLOR_DarkVanilla
+#define COLOR_OFFICE COLOR_DeepCarminePink
+#define COLOR_TITLEBACKGROUND COLOR_BrownYellow
+#define COLOR_TITLETEXT COLOR_Black
+#define COLOR_TOOLTIPBACKGROUND COLOR_PeachOrange
+#define COLOR_TOOLTIPOUTLINE COLOR_Black
+#define COLOR_TOOLTIPTEXT COLOR_Black
+
+#define COLOR_DEBUGTEXT WHITE
 
 
 #define Font1H font1.baseSize
@@ -111,6 +130,28 @@ __INITRORAPI__ // initializes the API structs
 #define DrawFont3(text, box, tint, align, offset) (DrawTextEx2(font3, text, box, Font3H, Font3Spacing, ((Vector2){Font3PaddingX, 0}), tint, align, offset))
 #define DrawTitle(text, box, tint, align) (DrawTextEx2(font3, text, box, Font3H, Font3Spacing, ((Vector2){Font3PaddingX + 2 * UNIT, 0}), tint, align, ((Vector2){0, 1})))
 #define TITLEHEIGHT (Font3RectH + 4 * UNIT)
+
+
+unsigned flp2(unsigned x)
+{
+    x = x | (x >> 1);
+    x = x | (x >> 2);
+    x = x | (x >> 4);
+    x = x | (x >> 8);
+    x = x | (x >> 16);
+    return x - (x >> 1);
+}
+
+unsigned clp2(unsigned x)
+{
+    x = x - 1;
+    x = x | (x >> 1);
+    x = x | (x >> 2);
+    x = x | (x >> 4);
+    x = x | (x >> 8);
+    x = x | (x >> 16);
+    return x + 1;
+}
 
 
 void decrease(unsigned char *rordata, uint16_t groupidx, uint16_t attridx, uint16_t elemidx)
@@ -256,17 +297,9 @@ int main(void)
     int lastGesture = GESTURE_NONE;
 
     unsigned char randbits = 0;
-    unsigned char newrandbits = 0;
-    uint8_t randbitreq = 0;
+    int8_t randbitreq = -1;
 
-    uint8_t newentropy;
-    uint8_t entropy[256] = {0};
-    uint32_t newentropyidx = 0;
-    uint8_t newentropynextbit = 0;
-    uint32_t entropyidx = 0;
-    uint8_t entropynextbit = 0;
-
-    // SetTraceLogLevel(LOG_DEBUG); // DEBUG
+    SetTraceLogLevel(LOG_DEBUG); // TODO: DEBUG
 
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
     InitWindow(windowedScreenWidth, windowedScreenHeight, "RoRRAY");
@@ -329,30 +362,6 @@ int main(void)
         // DEBUG
         // sprintf(str, "lastGesture: %i; currentGesture: %i", lastGesture, currentGesture);
         // TraceLog(LOG_DEBUG, str);
-
-        if (currentGesture == GESTURE_DRAG)
-        {
-            mousedelta = GetGestureDragVector();
-        }
-        else
-        {
-            mousedelta = GetMouseDelta();
-        }
-        if (mousedelta.x != (float)(0) || mousedelta.y != (float)(0))
-        {
-            newentropy = (uint8_t)(__rdtsc() & 0x01); // keep last bit
-            entropy[(uint8_t)(newentropyidx % 256)] += (newentropy << newentropynextbit);
-            newentropynextbit += 1;
-            if (newentropynextbit == 8)
-            {
-                newentropynextbit = 0;
-                newentropyidx += 1;
-            }
-        }
-        else
-        {
-            newentropy = 0xFF;
-        }
 
         BeginDrawing();
 
@@ -474,6 +483,8 @@ int main(void)
                                 *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC) = (A_GAME_NFAC_t)(nfac);
                                 selected = -1;
                                 framesCounter = 0;
+                                randbits = 0;
+                                randbitreq = -1;
                             }
                             else
                             {
@@ -500,6 +511,8 @@ int main(void)
                         }
                         uint8_t targetSenatorCount = (uint8_t)(*val0absaddr(rordata, G_RULE, A_RULE_NSEN));
                         uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
+                        uint8_t minFactionSenatorCount = 255;
+                        uint8_t dealTargetFactionIdx = 255;
                         int8_t dealStatus = 0;
                         for (int factidx = 1; factidx < numFactions + 1; factidx++)
                         {
@@ -509,25 +522,42 @@ int main(void)
                             }
                             if (factionSenatorCounts[factidx] == 0)
                             {
-                                dealStatus &= 0x01;
+                                dealStatus |= 0x01;
                             }
                             else if (factionSenatorCounts[factidx] < targetSenatorCount)
                             {
-                                dealStatus &= 0x02;
+                                dealStatus |= 0x02;
                             }
                             else if (factionSenatorCounts[factidx] == targetSenatorCount)
                             {
-                                dealStatus &= 0x04;
+                                dealStatus |= 0x04;
                             }
                             else
                             {
-                                dealStatus &= 0x08;
+                                dealStatus |= 0x08;
                             }
                         }
+                        for (int factidx = 1; factidx < numFactions + 1; factidx++)
+                        {
+                            minFactionSenatorCount = min(minFactionSenatorCount, factionSenatorCounts[factidx]);
+                        }
+                        if (0 < dealStatus & 0x03)
+                        {
+                            for (int factidx = 1; factidx < numFactions + 1; factidx++)
+                            {
+                                if (factionSenatorCounts[factidx] == minFactionSenatorCount)
+                                {
+                                    dealTargetFactionIdx = factidx;
+                                    break;
+                                }
+                            }
+                        }
+                        sprintf(str, "deckSize: %i; minFactionSenatorCount: %i, dealTargetFactionIdx: %i, dealStatus: %i", deckSize, minFactionSenatorCount, dealTargetFactionIdx, dealStatus);
+                        DrawText(str, 10, windowedScreenHeight-20, 10, COLOR_DEBUGTEXT);
                         // TITLE
                         Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                         DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
-                        sprintf(str, "DEAL %i SENATORS TO EACH FACTIONS", targetSenatorCount);
+                        sprintf(str, "DEAL %i SENATORS TO EACH FACTION", targetSenatorCount);
                         DrawTitle(str, r_title, COLOR_TITLETEXT, TextLeft);
                         // SENATORS AND FACTIONS PREP
                         Vector2 selectedvector;
@@ -544,9 +574,10 @@ int main(void)
                             DrawRectangleRec(r_header, COLOR_MOUSEHOVER_DROPTARGET);
                             if (currentGesture != lastGesture && currentGesture == GESTURE_NONE)
                             {
-                                *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, selected) = (A_SENA_ALIG_t)(-1);
-                                *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, selected) = (A_SENA_CNGR_t)(G_DECK);
-                                *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, selected) = (A_SENA_CNNR_t)(0);
+                                int senaidx = selected; // for code coherence
+                                *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(-1);
+                                *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_DECK);
+                                *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
                                 selected = -1;
                             }
                         }
@@ -627,9 +658,10 @@ int main(void)
                                     (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
                                 )
                                 {
-                                    *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, selected) = (A_SENA_ALIG_t)(factidx);
-                                    *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, selected) = (A_SENA_CNGR_t)(G_FORU);
-                                    *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, selected) = (A_SENA_CNNR_t)(0);
+                                    int senaidx = selected; // for code coherence
+                                    *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(factidx);
+                                    *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_FORU);
+                                    *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
                                     selected = -1;
                                 }
                             }
@@ -704,55 +736,103 @@ int main(void)
                         DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                         DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
                         // RANDOM BUTTON
-                        r_button.width = UNITCLAMP(6 * Font3HUnit);
-                        r_button.x -= 2 * UNIT + r_button.width;
-                        if (selected == -501000)
+                        if (0 <deckSize && 0 < (dealStatus & 0x03))
                         {
-                            if
-                            (
-                                (currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN)
-                                &&
-                                (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
-                            )
+                            r_button.width = UNITCLAMP(6 * Font3HUnit);
+                            r_button.x -= 2 * UNIT + r_button.width;
+                            if (selected == -501000)
                             {
-                                selected = -1;
+                                if
+                                (
+                                    (currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN)
+                                    &&
+                                    (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
+                                )
+                                {
+                                    selected = -1;
+                                }
                             }
-                        }
-                        if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
-                        {
-                            if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
+                            if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
                             {
-                                selected = -501000;
-                                selectedvector.x = mouse.x - r_button.x;
-                                selectedvector.y = mouse.y - r_button.y;
+                                if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
+                                {
+                                    selected = -501000;
+                                    selectedvector.x = mouse.x - r_button.x;
+                                    selectedvector.y = mouse.y - r_button.y;
+                                }
+                                else
+                                {
+                                    DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_DRAGABLE);
+                                    DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                                    DrawFont3("RANDOM", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                                    strcpy(str, "drag and shake it for the deal");
+                                    Vector2 textsize = MeasureTextEx(font2, str, Font2H, Font2Spacing);
+                                    textsize.x += 4 * Font2Spacing;
+                                    Rectangle r_tooltip = {UNITCLAMP(r_button.x + r_button.width / 2 - textsize.x / 2), r_button.y + r_button.height + 1 * UNIT, UNITCLAMP(textsize.x), Font2RectH};
+                                    DrawRectangleRec(r_tooltip, COLOR_TOOLTIPBACKGROUND);
+                                    DrawRectangleLinesEx(r_tooltip, 1.0f, COLOR_TOOLTIPOUTLINE);
+                                    DrawFont2(str, r_tooltip, COLOR_TOOLTIPTEXT, TextCenter, ((Vector2){0, -1}));
+                                }
+                            }
+                            else if (selected == -501000 && (currentGesture == GESTURE_DRAG || currentGesture == GESTURE_HOLD))
+                            {
+                                r_button.x = mouse.x - selectedvector.x;
+                                r_button.y = mouse.y - selectedvector.y;
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEDRAG);
+                                DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                                DrawFont3("RANDOM", r_button, COLOR_MOUSEDRAGTEXT, TextCenter, ((Vector2){0, 1}));
+                                if (currentGesture == GESTURE_DRAG)
+                                {
+                                    int n = clp2(deckSize);
+                                    uint8_t total_randbitreq = log2(n & -n) + 1;
+                                    if (randbitreq == -1) randbitreq = total_randbitreq;
+                                    uint8_t bit = __rdtsc() & 0x01; // keep LSB (least significant bit)
+                                    randbits = (randbits << 1) + bit;
+                                    randbitreq -= 1;
+                                    if (randbitreq == 0)
+                                    {
+                                        if (randbits < deckSize)  // random result within bound
+                                        {
+                                            int counter = 0;
+                                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                                            {
+                                                if (
+                                                    (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) != (A_SENA_CNGR_t)(G_DECK))
+                                                    ||
+                                                    (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) != (A_SENA_CNNR_t)(0))
+                                                ) continue;
+                                                if (counter == randbits)
+                                                {
+                                                    int factidx = dealTargetFactionIdx; // for code coherence
+                                                    *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(factidx);
+                                                    *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_FORU);
+                                                    *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
+                                                    break;
+                                                }
+                                                counter += 1;
+                                            }
+                                        }
+                                        // TODO: keep some bits if possible
+                                        else
+                                        {
+                                            randbits = 0;
+                                            randbitreq -= 1;
+                                        }
+                                    }
+                                    sprintf(str, "total_randbitreq: %i; bit: %i; randbits: %i, randbitreq: %i", total_randbitreq, bit, randbits, randbitreq);
+                                    DrawText(str, 10, windowedScreenHeight-40, 10, COLOR_DEBUGTEXT);
+                                }
                             }
                             else
                             {
-                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_DRAGABLE);
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
                                 DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                                 DrawFont3("RANDOM", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
-                                strcpy(str, "drag and shake it for the deal");
-                                Vector2 textsize = MeasureTextEx(font2, str, Font2H, Font2Spacing);
-                                textsize.x += 4 * Font2Spacing;
-                                Rectangle r_tooltip = {UNITCLAMP(r_button.x + r_button.width / 2 - textsize.x / 2), r_button.y + r_button.height + 1 * UNIT, UNITCLAMP(textsize.x), Font2RectH};
-                                DrawRectangleRec(r_tooltip, COLOR_TOOLTIPBACKGROUND);
-                                DrawRectangleLinesEx(r_tooltip, 1.0f, COLOR_TOOLTIPOUTLINE);
-                                DrawFont2(str, r_tooltip, COLOR_TOOLTIPTEXT, TextCenter, ((Vector2){0, -1}));
                             }
                         }
-                        else if (selected == -501000 && (currentGesture == GESTURE_DRAG || currentGesture == GESTURE_HOLD))
+                        else if (selected == -501000)
                         {
-                            r_button.x = mouse.x - selectedvector.x;
-                            r_button.y = mouse.y - selectedvector.y;
-                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEDRAG);
-                            DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-                            DrawFont3("RANDOM", r_button, COLOR_MOUSEDRAGTEXT, TextCenter, ((Vector2){0, 1}));
-                        }
-                        else
-                        {
-                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
-                            DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-                            DrawFont3("RANDOM", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                            selected = -1;
                         }
                         {
                             // if (CheckCollisionPointRec(mouse, r))
@@ -906,272 +986,6 @@ int main(void)
                                 DrawFont2(str, ((Rectangle){r_senator.x + 23 * Font2HUnit, r_senator.y, 2 * Font2HUnit, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
                             }
                         }
-
-
-//                        cursor.x = windowedScreenWidth - ceil(0.5 * DOWN) - 12 * RIGHT;
-//                        cursor.y = ceil(0.5 * DOWN);
-//                        r = rect(cursor, 12, 2);
-//                        if (CheckCollisionPointRec(mouse, r))
-//                        {
-//                            if (currentGesture == GESTURE_TAP)
-//                            {
-//                                DrawRectangleRec(r, COLOR_BUTTONCLICKED);
-//                                uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
-//                                if (temporaryromeconsulflags == 0xFF || (temporaryromeconsulflags & 0x01)==0x01)
-//                                {
-//                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
-//                                }
-//                                else
-//                                {
-//                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
-//                                }
-//                                selected = -1;
-//                            }
-//                            else
-//                            {
-//                                DrawRectangleRec(r, COLOR_MOUSEHOVER_CLICKABLE);
-//                            }
-//                        }
-//                        DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
-//                        DrawText2(font1, "NEXT", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-//
-//                        LABEL_SPHS_PREP_DEALSENATORS_done:
-                    } break;
-
-                    case SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ:
-                    {
-                        cursor.x = RIGHT;
-                        cursor.y = 1 * DOWN;
-                        DrawTextEx(font1, "PLEASE GIVE SOME ENTROPY FOR THE DRAW BY MOVING THE POINTER", cursor, FONTSIZE, FONTSPACING, ORANGE);
-
-                        cursor.y = 3 * DOWN;
-
-                        for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
-                        {
-                            cursor.x = RIGHT;
-                            Rectangle r = rect(cursor, 30, 2);
-                            DrawRectangleRec(r, COLOR_FACTIONHEADER);
-                            DrawText2(font1, TextToUpper((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx))), r, FONTSIZE, FONTSPACING, WHITE, TextTopLeft);
-                            cursor.y += 1 * DOWN;
-                            cursor.x += (2 + 2 + SENATORNAMEWIDTH) * RIGHT;
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, "M", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                            cursor.x += 2 * RIGHT;
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, "O", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                            cursor.x += 2 * RIGHT;
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, "L", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                            cursor.x += 2 * RIGHT;
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, "I", rect(cursor, 2, 1), FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                            cursor.x += 2 * RIGHT;
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, "P", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                            cursor.y += 1 * DOWN;
-
-                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            {
-                                if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) )  // typecast is a must!
-                                {
-                                    cursor.x = RIGHT;
-                                    r = rect(cursor, 30, 1);
-                                    DrawRectangleRec(r, COLOR_BLACKCARDBACKGROUND);
-                                    cursor.x += 2 * RIGHT;
-                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
-                                    r = rect(cursor, 2, 1);
-                                    DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextRight);
-                                    cursor.x += 2 * RIGHT;
-                                    r = rect(cursor, SENATORNAMEWIDTH, 1);
-                                    DrawText2(font1, (char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), r, FONTSIZE, FONTSPACING, BLACK, TextLeft);
-                                    cursor.x += SENATORNAMEWIDTH * RIGHT;
-                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, senaidx));
-                                    r = rect(cursor, 2, 1);
-                                    DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                                    cursor.x += 2 * RIGHT;
-                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_ORA1, senaidx));
-                                    r = rect(cursor, 2, 1);
-                                    DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                                    cursor.x += 2 * RIGHT;
-                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_LOY1, senaidx));
-                                    r = rect(cursor, 2, 1);
-                                    DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                                    cursor.x += 2 * RIGHT;
-                                    sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx));
-                                    r = rect(cursor, 2, 1);
-                                    DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                                    cursor.x += 2 * RIGHT;
-                                    sprintf(str, "%i", (int8_t)(*valabsaddr(rordata, G_SENA, A_SENA_POP1, senaidx)));
-                                    r = rect(cursor, 2, 1);
-                                    DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                                    cursor.y += DOWN;
-                                }
-                            }
-                            cursor.y += DOWN;
-                        }
-
-                        cursor.y = 3 * DOWN;
-                        cursor.x = (1+30+2) * RIGHT;
-                        Rectangle r = rect(cursor, 30, 2);
-                        DrawRectangleRec(r, COLOR_FACTIONHEADER);
-                        DrawText2(font1, "SENATORS", r, FONTSIZE, FONTSPACING, WHITE, TextTopLeft);
-                        cursor.y += 1 * DOWN;
-                        cursor.x += (2 + 2 + SENATORNAMEWIDTH) * RIGHT;
-                        r = rect(cursor, 2, 1);
-                        DrawText2(font1, "M", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                        cursor.x += 2 * RIGHT;
-                        r = rect(cursor, 2, 1);
-                        DrawText2(font1, "O", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                        cursor.x += 2 * RIGHT;
-                        r = rect(cursor, 2, 1);
-                        DrawText2(font1, "L", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                        cursor.x += 2 * RIGHT;
-                        r = rect(cursor, 2, 1);
-                        DrawText2(font1, "I", rect(cursor, 2, 1), FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                        cursor.x += 2 * RIGHT;
-                        r = rect(cursor, 2, 1);
-                        DrawText2(font1, "P", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
-                        cursor.y += 1 * DOWN;
-
-                        for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                        {
-                            if (
-                                (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) != (A_SENA_CNGR_t)(G_DECK))
-                                ||
-                                (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) != (A_SENA_CNNR_t)(0))
-                            ) continue;
-                            cursor.x = (1+30+2) * RIGHT;
-                            r = rect(cursor, 30, 1);
-                            DrawRectangleRec(r, COLOR_BLACKCARDBACKGROUND);
-                            cursor.x += 2 * RIGHT;
-                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextRight);
-                            cursor.x += 2 * RIGHT;
-                            r = rect(cursor, SENATORNAMEWIDTH, 1);
-                            DrawText2(font1, (char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), r, FONTSIZE, FONTSPACING, BLACK, TextLeft);
-                            cursor.x += SENATORNAMEWIDTH * RIGHT;
-                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, senaidx));
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                            cursor.x += 2 * RIGHT;
-                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_ORA1, senaidx));
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                            cursor.x += 2 * RIGHT;
-                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_LOY1, senaidx));
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                            cursor.x += 2 * RIGHT;
-                            sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx));
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                            cursor.x += 2 * RIGHT;
-                            sprintf(str, "%i", (int8_t)(*valabsaddr(rordata, G_SENA, A_SENA_POP1, senaidx)));
-                            r = rect(cursor, 2, 1);
-                            DrawText2(font1, str, r, FONTSIZE, FONTSPACING, BLACK, TextCenter);
-                            cursor.y += 1 * DOWN;
-                        }
-
-                        uint8_t deckSize = 0;  // deck size
-                        for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                        {
-                            if (
-                                (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) == (A_SENA_CNGR_t)(G_DECK))
-                                &&
-                                (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) == (A_SENA_CNNR_t)(0))
-                            ) deckSize += 1;
-                        }
-
-                        uint8_t targetSenatorCount = (uint8_t)(*val0absaddr(rordata, G_RULE, A_RULE_NSEN));
-                        uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
-
-                        for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
-                        {
-                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            {
-                                if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) ) factionSenatorCounts[factidx] += 1;
-                            }
-                        }
-
-                        for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
-                        {
-                            while (1 < deckSize && factionSenatorCounts[factidx] < targetSenatorCount)
-                            {
-                                uint8_t k = ((deckSize == 1) ? 0 : 0xFF);
-                                int b;
-                                for (b = 0; b < 8; b++)
-                                {
-                                    if ( (deckSize - 1) <= (1 << b) ) break;
-                                }
-                                sprintf(str, "b: %i, k: %i, entropyidx: %i, entropynextbit: %i, newentropyidx: %i, newentropynextbit: %i", b, k, entropyidx, entropynextbit, newentropyidx, newentropynextbit);
-                                TraceLog(LOG_DEBUG, str);
-                                if (newentropyidx <= entropyidx + 1)
-                                {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ;
-//                                    goto LABEL_SPHS_PREP_DEALSENATORS_done;
-                                }
-                                while (deckSize - 1 < k)
-                                {
-                                    if (k == 0xFF)
-                                    {
-                                        if (8 < entropynextbit + b)
-                                        {
-                                            k = entropy[(uint8_t)((entropyidx+1) % 256)];
-                                            k = k & (0xFF >> (16 - (entropynextbit + b)));
-                                            k += entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit;
-                                            entropyidx += 1;
-                                            entropynextbit = (entropynextbit + b) - 8;
-                                        }
-                                        else
-                                        {
-                                            k = (entropy[(uint8_t)(entropyidx % 256)] << (8 - (entropynextbit + b)) ) >> (entropynextbit + b);
-                                            entropynextbit += b;
-                                            if (entropynextbit == 8)
-                                            {
-                                                entropyidx += 1;
-                                                entropynextbit = 0;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        k = (k << 1) & (0xFF >> (8 - b));
-                                        k += entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit;
-                                        entropynextbit += 1;
-                                        if (entropynextbit == 8)
-                                        {
-                                            entropyidx += 1;
-                                            entropynextbit = 0;
-                                        }
-                                    }
-                                    sprintf(str, "k: %i, entropyidx: %i, entropynextbit: %i", k, entropyidx, entropynextbit);
-                                    TraceLog(LOG_DEBUG, str);
-                                }
-                            uint8_t m = 0;
-                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            {
-                                if (
-                                    (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) == (A_SENA_CNGR_t)(G_DECK))
-                                    &&
-                                    (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) == (A_SENA_CNNR_t)(0))
-                                )
-                                {
-                                    if (m == k)
-                                    {
-                                        *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(factidx);
-                                        *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_FORU);
-                                        *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
-                                        factionSenatorCounts[factidx] += 1;
-                                        deckSize -= 1;
-                                        break;
-                                    }
-                                    m += 1;
-                                }
-                            }
-                            }
-                        }
-                        *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS;
                     } break;
 
                     case SPHS_PREP_TEMPORARYROMECONSUL:
@@ -1225,88 +1039,88 @@ int main(void)
                                 }
                             }
                         }
-                        else if (((*p_temporaryromeconsulflags) & 0x82) == 0x00 || (hovering && currentGesture == GESTURE_TAP))
-                        {
-                            int b;  // bitcount of population
-                            for (b = 0; b < 8; b++)
-                            {
-                                if ( (senator_count - 1) <= (1 << b) ) break;
-                            }
-
-                            sprintf(str, "TRC; b: %i", b);
-                            TraceLog(LOG_DEBUG, str);
-
-                            if (newentropyidx <= entropyidx + 1)
-                            {
-                                *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL_RANDOM_ENTROPYREQ;
-                                goto LABEL_GAME_TREE;
-                            }
-
-                            uint8_t k = 0xFF;
-                            while (senator_count - 1 < k)
-                            {
-                                sprintf(str, "TRC; entropyidx: %i, entropynextbit: %i; %X %X", entropyidx, entropynextbit, entropy[(uint8_t)(entropyidx % 256)], entropy[(uint8_t)((entropyidx+1) % 256)]);
-                                TraceLog(LOG_DEBUG, str);
-                                if (k == 0xFF)  // initial value
-                                {
-                                        if (8 < entropynextbit + b)
-                                        {
-                                            k = (entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) + ((((entropy[(uint8_t)((entropyidx+1) % 256)] << (16 - b - entropynextbit)) & 0xFF) >> (8 - b)));
-                                            entropyidx += 1;
-                                            entropynextbit = (entropynextbit + b) - 8;
-                                            sprintf(str, "TRC; 2 bytes; k: %i", k);
-                                        }
-                                        else
-                                        {
-                                            k = ( (entropy[(uint8_t)(entropyidx % 256)] << (8 - b - entropynextbit) ) & 0xFF ) >> (8 - b);
-                                            entropynextbit += b;
-                                            if (entropynextbit == 8)
-                                            {
-                                                entropyidx += 1;
-                                                entropynextbit = 0;
-                                            }
-                                            sprintf(str, "TRC; 1 byte; k: %i", k);
-                                        }
-                                }
-                                TraceLog(LOG_DEBUG, str);
-                            }
-
-                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            {
-                                A_SENA_OFFI_t* p_current_office = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
-                                if (*p_current_office == (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL))
-                                {
-                                    *p_current_office = (A_SENA_OFFI_t)(0);
-                                    *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) -= *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
-                                    *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(0);
-                                }
-                            }
-
-                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            {
-                                if (0 <= *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx))
-                                {
-                                    A_SENA_OFFI_t* p_current_office = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
-                                    if (m == k)
-                                    {
-                                        *p_current_office = (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL);
-                                        *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) += *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
-                                        *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(1);
-                                        *p_temporaryromeconsulflags = *p_temporaryromeconsulflags | 0x80;
-                                        break;
-                                    }
-                                    m += 1;
-                                }
-                            }
-                            if (hovering && currentGesture == GESTURE_TAP)
-                            {
-                                DrawRectangleRec(r, COLOR_BUTTONCLICKED);
-                            }
-                            else if (hovering)
-                            {
-                                DrawRectangleRec(r, COLOR_MOUSEHOVER_CLICKABLE);
-                            }
-                        }
+                        // else if (((*p_temporaryromeconsulflags) & 0x82) == 0x00 || (hovering && currentGesture == GESTURE_TAP))
+                        // {
+//                            int b;  // bitcount of population
+//                            for (b = 0; b < 8; b++)
+//                            {
+//                                if ( (senator_count - 1) <= (1 << b) ) break;
+//                            }
+//
+//                            sprintf(str, "TRC; b: %i", b);
+//                            TraceLog(LOG_DEBUG, str);
+//
+//                            if (newentropyidx <= entropyidx + 1)
+//                            {
+//                                *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL_RANDOM_ENTROPYREQ;
+//                                goto LABEL_GAME_TREE;
+//                            }
+//
+//                            uint8_t k = 0xFF;
+//                            while (senator_count - 1 < k)
+//                            {
+//                                sprintf(str, "TRC; entropyidx: %i, entropynextbit: %i; %X %X", entropyidx, entropynextbit, entropy[(uint8_t)(entropyidx % 256)], entropy[(uint8_t)((entropyidx+1) % 256)]);
+//                                TraceLog(LOG_DEBUG, str);
+//                                if (k == 0xFF)  // initial value
+//                                {
+//                                        if (8 < entropynextbit + b)
+//                                        {
+//                                            k = (entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) + ((((entropy[(uint8_t)((entropyidx+1) % 256)] << (16 - b - entropynextbit)) & 0xFF) >> (8 - b)));
+//                                            entropyidx += 1;
+//                                            entropynextbit = (entropynextbit + b) - 8;
+//                                            sprintf(str, "TRC; 2 bytes; k: %i", k);
+//                                        }
+//                                        else
+//                                        {
+//                                            k = ( (entropy[(uint8_t)(entropyidx % 256)] << (8 - b - entropynextbit) ) & 0xFF ) >> (8 - b);
+//                                            entropynextbit += b;
+//                                            if (entropynextbit == 8)
+//                                            {
+//                                                entropyidx += 1;
+//                                                entropynextbit = 0;
+//                                            }
+//                                            sprintf(str, "TRC; 1 byte; k: %i", k);
+//                                        }
+//                                }
+//                                TraceLog(LOG_DEBUG, str);
+//                            }
+//
+//                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+//                            {
+//                                A_SENA_OFFI_t* p_current_office = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
+//                                if (*p_current_office == (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL))
+//                                {
+//                                    *p_current_office = (A_SENA_OFFI_t)(0);
+//                                    *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) -= *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
+//                                    *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(0);
+//                                }
+//                            }
+//
+//                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+//                            {
+//                                if (0 <= *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx))
+//                                {
+//                                    A_SENA_OFFI_t* p_current_office = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
+//                                    if (m == k)
+//                                    {
+//                                        *p_current_office = (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL);
+//                                        *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) += *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
+//                                        *(A_SENA_PRCO_t*)valabsaddr(rordata, G_SENA, A_SENA_PRCO, senaidx) =  (A_SENA_PRCO_t)(1);
+//                                        *p_temporaryromeconsulflags = *p_temporaryromeconsulflags | 0x80;
+//                                        break;
+//                                    }
+//                                    m += 1;
+//                                }
+//                            }
+//                            if (hovering && currentGesture == GESTURE_TAP)
+//                            {
+//                                DrawRectangleRec(r, COLOR_BUTTONCLICKED);
+//                            }
+//                            else if (hovering)
+//                            {
+//                                DrawRectangleRec(r, COLOR_MOUSEHOVER_CLICKABLE);
+//                            }
+                        // }
                         DrawRectangleLinesEx(r, 2, COLOR_BUTTONOUTLINE);
                         DrawText2(font1, "RANDOM", r, FONTSIZE, FONTSPACING, WHITE, TextCenter);
 
