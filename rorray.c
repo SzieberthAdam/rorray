@@ -577,8 +577,6 @@ int main(void)
                                 }
                             }
                         }
-                        sprintf(str, "deckSize: %i; minFactionSenatorCount: %i, dealTargetFactionIdx: %i, dealStatus: %i", deckSize, minFactionSenatorCount, dealTargetFactionIdx, dealStatus);
-                        DrawText(str, 10, windowedScreenHeight-20, 10, COLOR_DEBUGTEXT);
                         // TITLE
                         Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                         DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
@@ -826,8 +824,6 @@ int main(void)
                                         randVal = (randVal << 1) + bit;
                                         randBitReq -= 1;
                                     }
-                                    sprintf(debugstr[debugvar], "[0] val = %i ; size = %i | %i | %i ; bitreq = %i | %i ; factidx = %i", randVal, deckSize, randSize, randSizeHigh, randBitReq, randBitReqBase, factidx);
-                                    debugvar = (debugvar + 1) % 64;
                                     if (randBitReq == 0)
                                     {
                                         if (randVal < deckSize)  // random result within bound
@@ -853,7 +849,7 @@ int main(void)
                                             randVal = 0;
                                             randBitReq -= 1;
                                         }
-                                        else if ((0 < randSizeHigh) && ((randSize - randSizeHigh) <= randVal))  // keep some bits for next attempt
+                                        else if ((0 < randSizeHigh) && ((randSize - randSizeHigh) <= randVal))  // keep some bits for next attempt if possible
                                         {
                                             randVal -= (randSize - randSizeHigh);
                                             uint8_t randBitReqBaseHigh = ffs(randSizeHigh) - 1;
@@ -865,8 +861,6 @@ int main(void)
                                             randBitReq -= 1;
                                         }
                                     }
-                                    sprintf(debugstr[debugvar], "[1] val = %i ; size = %i | %i | %i ; bitreq = %i | %i ; factidx = %i", randVal, deckSize, randSize, randSizeHigh, randBitReq, randBitReqBase, factidx);
-                                    debugvar = (debugvar + 1) % 64;
                                 }
                             }
                             else
@@ -879,129 +873,6 @@ int main(void)
                         else if (selected == -501000)
                         {
                             selected = -1;
-                        }
-                        for (int i = 0; i <= debugvar; i++)
-                        {
-                            DrawText(debugstr[i], 10, 100 + 10 * i, 10, COLOR_DEBUGTEXT);
-                        }
-                        {
-                            // if (CheckCollisionPointRec(mouse, r))
-                            // {
-                            //       if (0 < deckSize && currentGesture == GESTURE_TAP)
-                            //       {
-                            //           uint8_t targetSenatorCount = (uint8_t)(*val0absaddr(rordata, G_RULE, A_RULE_NSEN));
-                            //           uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
-                            //           bool allfull = true;
-                            //           for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
-                            //           {
-                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            //               {
-                            //                   if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) ) factionSenatorCounts[factidx] += 1;
-                            //               }
-                            //               sprintf(str, "FACT: %i; ROUND 1; deck_cards: %i, faction_cards: %i", factidx, deckSize, factionSenatorCounts[factidx]);
-                            //               TraceLog(LOG_DEBUG, str);
-                            //               if (targetSenatorCount < factionSenatorCounts[factidx])  // more senators than allowed, put them all back to deck
-                            //               {
-                            //                   allfull = false;
-                            //                   for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            //                   {
-                            //                       if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) )
-                            //                       {
-                            //                           *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(-1);
-                            //                           *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_DECK);
-                            //                           *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
-                            //                           factionSenatorCounts[factidx] -= 1;
-                            //                           deckSize += 1;
-                            //                       }
-                            //                   }
-                            //               }
-                            //               else if (targetSenatorCount > factionSenatorCounts[factidx]) allfull = false;
-                            //           }
-                            //           if (allfull) // perform a full redraw
-                            //           {
-                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            //               {
-                            //                   if ( -1 < *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) )
-                            //                   {
-                            //                       *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(-1);
-                            //                       *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_DECK);
-                            //                       *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
-                            //                       deckSize += 1;
-                            //                   }
-                            //               }
-                            //               for (int factidx = 1; factidx < FACT_ELEMCOUNT; factidx++) factionSenatorCounts[factidx] = 0;
-                            //           }
-                            //           for (int factidx = 1; factidx < *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC); factidx++)
-                            //           {
-                            //               while (1 < deckSize && factionSenatorCounts[factidx] < targetSenatorCount)
-                            //               {
-                            //                   uint8_t k = ((deckSize == 1) ? 0 : 0xFF);
-                            //                   int b;
-                            //                   for (b = 0; b < 8; b++)
-                            //                   {
-                            //                       if ( (deckSize - 1) <= (1 << b) ) break;
-                            //                   }
-                            //                   sprintf(str, "b: %i, k: %i, entropyidx: %i, entropynextbit: %i, newentropyidx: %i, newentropynextbit: %i", b, k, entropyidx, entropynextbit, newentropyidx, newentropynextbit);
-                            //                   TraceLog(LOG_DEBUG, str);
-                            //                   if (newentropyidx <= entropyidx + 1)
-                            //                   {
-                            //                       *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ;
-                            //                       //goto LABEL_SPHS_PREP_DEALSENATORS_done;
-                            //                   }
-                            //                   while (deckSize - 1 < k)
-                            //                   {
-                            //                       if (k == 0xFF)  // initial value
-                            //                       {
-                            //                           if (8 < entropynextbit + b)
-                            //                           {
-                            //                               k = (entropy[(uint8_t)(entropyidx % 256)] >> entropynextbit) + ((((entropy[(uint8_t)((entropyidx+1) % 256)] << (16 - b - entropynextbit)) & 0xFF) >> (8 - b)));
-                            //                               entropyidx += 1;
-                            //                               entropynextbit = (entropynextbit + b) - 8;
-                            //                           }
-                            //                           else
-                            //                           {
-                            //                               k = ( (entropy[(uint8_t)(entropyidx % 256)] << (8 - b - entropynextbit) ) & 0xFF ) >> (8 - b);
-                            //                               entropynextbit += b;
-                            //                               if (entropynextbit == 8)
-                            //                               {
-                            //                                   entropyidx += 1;
-                            //                                   entropynextbit = 0;
-                            //                               }
-                            //                           }
-                            //                       }
-                            //                       sprintf(str, "k: %i, entropyidx: %i, entropynextbit: %i", k, entropyidx, entropynextbit);
-                            //                       TraceLog(LOG_DEBUG, str);
-                            //                   }
-                            //               uint8_t m = 0;
-                            //               for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
-                            //               {
-                            //                   if (
-                            //                       (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) == (A_SENA_CNGR_t)(G_DECK))
-                            //                       &&
-                            //                       (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) == (A_SENA_CNNR_t)(0))
-                            //                   )
-                            //                   {
-                            //                       if (m == k)
-                            //                       {
-                            //                           *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(factidx);
-                            //                           *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_FORU);
-                            //                           *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
-                            //                           factionSenatorCounts[factidx] += 1;
-                            //                           deckSize -= 1;
-                            //                           break;
-                            //                       }
-                            //                       m += 1;
-                            //                   }
-                            //               }
-                            //               }
-                            //           }
-                            //           DrawRectangleRec(r, COLOR_BUTTONCLICKED);
-                            //       }
-                            //       else
-                            //       {
-                            //           DrawRectangleRec(r, COLOR_MOUSEHOVER_CLICKABLE);
-                            //       }
-                            // }
                         }
                         // SELECTION
                         if (0 <= selected) // draw selected senator on top off all other

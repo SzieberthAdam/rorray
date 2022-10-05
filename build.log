@@ -61,20 +61,20 @@ rorray.c:793:37: warning: incompatible implicit declaration of built-in function
   793 |                                     strcpy(str, "drag and shake it");
       |                                     ^~~~~~
 rorray.c:793:37: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1052:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1052 |                         sprintf(str, "%i", senator_count);
+rorray.c:925:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  925 |                         sprintf(str, "%i", senator_count);
       |                         ^~~~~~~
-rorray.c:1052:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1066:30: warning: unused variable 'hovering' [-Wunused-variable]
- 1066 |                         bool hovering = CheckCollisionPointRec(mouse, r);
+rorray.c:925:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:939:30: warning: unused variable 'hovering' [-Wunused-variable]
+  939 |                         bool hovering = CheckCollisionPointRec(mouse, r);
       |                              ^~~~~~~~
-rorray.c:1055:33: warning: unused variable 'm' [-Wunused-variable]
- 1055 |                         uint8_t m = 0;
+rorray.c:928:33: warning: unused variable 'm' [-Wunused-variable]
+  928 |                         uint8_t m = 0;
       |                                 ^
-rorray.c:1321:29: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1321 |                             sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+rorray.c:1194:29: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1194 |                             sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
       |                             ^~~~~~~
-rorray.c:1321:29: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1194:29: note: include '<stdio.h>' or provide a declaration of 'sprintf'
 rorray.c:398:9: warning: label 'LABEL_GAME_TREE' defined but not used [-Wunused-label]
   398 |         LABEL_GAME_TREE:
       |         ^~~~~~~~~~~~~~~
@@ -93,27 +93,33 @@ rorray.c:337:13: warning: unused variable 'font1Ex' [-Wunused-variable]
 rorray.c:336:13: warning: unused variable 'font1Em' [-Wunused-variable]
   336 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
       |             ^~~~~~~
+rorray.c:327:10: warning: unused variable 'debugstr' [-Wunused-variable]
+  327 |     char debugstr[256][256] = {0};
+      |          ^~~~~~~~
+rorray.c:326:9: warning: unused variable 'debugvar' [-Wunused-variable]
+  326 |     int debugvar = 0;
+      |         ^~~~~~~~
 rorray.c:308:14: warning: unused variable 'screenOffsetY' [-Wunused-variable]
   308 |     uint16_t screenOffsetY = (windowedScreenHeight - DOWN * screenDowns) / 2;
       |              ^~~~~~~~~~~~~
 rorray.c:307:14: warning: unused variable 'screenOffsetX' [-Wunused-variable]
   307 |     uint16_t screenOffsetX = (windowedScreenWidth - RIGHT * screenRights) / 2;
       |              ^~~~~~~~~~~~~
-rorray.c:805:70: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
-  805 |                                 r_button.y = mouse.y - selectedvector.y;
-      |                                                        ~~~~~~~~~~~~~~^~
+rorray.c:895:71: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+  895 |                                 r_senator.y = mouse.y - selectedvector.y;
+      |                                                         ~~~~~~~~~~~~~~^~
 rorray.c:588:33: note: 'selectedvector.y' was declared here
   588 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:804:70: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
-  804 |                                 r_button.x = mouse.x - selectedvector.x;
-      |                                                        ~~~~~~~~~~~~~~^~
+rorray.c:894:71: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+  894 |                                 r_senator.x = mouse.x - selectedvector.x;
+      |                                                         ~~~~~~~~~~~~~~^~
 rorray.c:588:33: note: 'selectedvector.x' was declared here
   588 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:1229:73: warning: 'p_temporaryromeconsulflags' may be used uninitialized [-Wmaybe-uninitialized]
- 1229 |                                             *p_temporaryromeconsulflags = *p_temporaryromeconsulflags | 0x80;
+rorray.c:1102:73: warning: 'p_temporaryromeconsulflags' may be used uninitialized [-Wmaybe-uninitialized]
+ 1102 |                                             *p_temporaryromeconsulflags = *p_temporaryromeconsulflags | 0x80;
       |                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-rorray.c:1058:34: note: 'p_temporaryromeconsulflags' was declared here
- 1058 |                         uint8_t* p_temporaryromeconsulflags = (A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+rorray.c:931:34: note: 'p_temporaryromeconsulflags' was declared here
+  931 |                         uint8_t* p_temporaryromeconsulflags = (A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
       |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~
