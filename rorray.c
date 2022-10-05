@@ -132,6 +132,7 @@ __INITRORAPI__ // initializes the API structs
 #define TITLEHEIGHT (Font3RectH + 4 * UNIT)
 
 
+// Greatest power of 2 less than or equal to x. Hacker's Delight, Figure 3-1.
 unsigned flp2(unsigned x)
 {
     x = x | (x >> 1);
@@ -142,6 +143,7 @@ unsigned flp2(unsigned x)
     return x - (x >> 1);
 }
 
+// Least power of 2 greater than or equal to x. Hacker's Delight, Figure 3-3.
 unsigned clp2(unsigned x)
 {
     x = x - 1;
@@ -151,6 +153,27 @@ unsigned clp2(unsigned x)
     x = x | (x >> 8);
     x = x | (x >> 16);
     return x + 1;
+}
+
+// Find first set bit in an integer.
+unsigned ffs(int n)
+{
+    return log2(n & -n) + 1;
+}
+
+// Use the following formula to turn off the rightmost 1-bit in a word, producing 0 if none (e.g., 01011000 ⇒ 01010000)
+// This can be used to determine if an unsigned integer is a power of 2 or is 0: apply the formula followed by a 0-test on the result.
+// Hacker's Delight, 2-1.
+inline unsigned urmb(unsigned x)
+{
+    return x & (x - 1);
+}
+
+// Determine if an unsigned integer is a power of 2.
+bool ispow2(unsigned x)
+{
+    if (x==0) return 0;
+    else return (urmb(x) == 0);
 }
 
 
@@ -296,10 +319,12 @@ int main(void)
     int currentGesture = GESTURE_NONE;
     int lastGesture = GESTURE_NONE;
 
-    unsigned char randbits = 0;
-    int8_t randbitreq = -1;
+    unsigned char randVal = 0;
+    int8_t randBitReq = -1;
 
     SetTraceLogLevel(LOG_DEBUG); // TODO: DEBUG
+    int debugvar = 0;
+    char debugstr[256][256] = {0};
 
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
     InitWindow(windowedScreenWidth, windowedScreenHeight, "RoRRAY");
@@ -483,8 +508,8 @@ int main(void)
                                 *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC) = (A_GAME_NFAC_t)(nfac);
                                 selected = -1;
                                 framesCounter = 0;
-                                randbits = 0;
-                                randbitreq = -1;
+                                randVal = 0;
+                                randBitReq = -1;
                             }
                             else
                             {
@@ -736,7 +761,7 @@ int main(void)
                         DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                         DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
                         // RANDOM BUTTON
-                        if (0 <deckSize && 0 < (dealStatus & 0x03))
+                        if (0 < deckSize && 0 < (dealStatus & 0x03))
                         {
                             r_button.width = UNITCLAMP(6 * Font3HUnit);
                             r_button.x -= 2 * UNIT + r_button.width;
@@ -765,7 +790,7 @@ int main(void)
                                     DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_DRAGABLE);
                                     DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                                     DrawFont3("RANDOM", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
-                                    strcpy(str, "drag and shake it for the deal");
+                                    strcpy(str, "drag and shake it");
                                     Vector2 textsize = MeasureTextEx(font2, str, Font2H, Font2Spacing);
                                     textsize.x += 4 * Font2Spacing;
                                     Rectangle r_tooltip = {UNITCLAMP(r_button.x + r_button.width / 2 - textsize.x / 2), r_button.y + r_button.height + 1 * UNIT, UNITCLAMP(textsize.x), Font2RectH};
@@ -781,17 +806,31 @@ int main(void)
                                 DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEDRAG);
                                 DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                                 DrawFont3("RANDOM", r_button, COLOR_MOUSEDRAGTEXT, TextCenter, ((Vector2){0, 1}));
-                                if (currentGesture == GESTURE_DRAG)
+                                if (currentGesture == GESTURE_DRAG) mousedelta = GetGestureDragVector();
+                                else mousedelta = GetMouseDelta();
+                                if (mousedelta.x != (float)(0) || mousedelta.y != (float)(0))
                                 {
-                                    int n = clp2(deckSize);
-                                    uint8_t total_randbitreq = log2(n & -n) + 1;
-                                    if (randbitreq == -1) randbitreq = total_randbitreq;
-                                    uint8_t bit = __rdtsc() & 0x01; // keep LSB (least significant bit)
-                                    randbits = (randbits << 1) + bit;
-                                    randbitreq -= 1;
-                                    if (randbitreq == 0)
+                                    uint8_t randSize = clp2(deckSize);
+                                    uint8_t randBitReqBase = ffs(randSize) - 1;
+                                    uint8_t randSizeHigh = flp2(randSize - deckSize);
+                                    int factidx = dealTargetFactionIdx; // for code coherence
+                                    if (deckSize == 1)
                                     {
-                                        if (randbits < deckSize)  // random result within bound
+                                        randVal = 0;
+                                        randBitReq = 0;
+                                    }
+                                    else
+                                    {
+                                        if (randBitReq == -1) randBitReq = randBitReqBase;
+                                        uint8_t bit = __rdtsc() & 0x01; // keep LSB (least significant bit)
+                                        randVal = (randVal << 1) + bit;
+                                        randBitReq -= 1;
+                                    }
+                                    sprintf(debugstr[debugvar], "[0] val = %i ; size = %i | %i | %i ; bitreq = %i | %i ; factidx = %i", randVal, deckSize, randSize, randSizeHigh, randBitReq, randBitReqBase, factidx);
+                                    debugvar = (debugvar + 1) % 64;
+                                    if (randBitReq == 0)
+                                    {
+                                        if (randVal < deckSize)  // random result within bound
                                         {
                                             int counter = 0;
                                             for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
@@ -801,9 +840,9 @@ int main(void)
                                                     ||
                                                     (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) != (A_SENA_CNNR_t)(0))
                                                 ) continue;
-                                                if (counter == randbits)
+                                                if (counter == randVal)
                                                 {
-                                                    int factidx = dealTargetFactionIdx; // for code coherence
+
                                                     *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(factidx);
                                                     *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_FORU);
                                                     *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
@@ -811,16 +850,23 @@ int main(void)
                                                 }
                                                 counter += 1;
                                             }
+                                            randVal = 0;
+                                            randBitReq -= 1;
                                         }
-                                        // TODO: keep some bits if possible
+                                        else if ((0 < randSizeHigh) && ((randSize - randSizeHigh) <= randVal))  // keep some bits for next attempt
+                                        {
+                                            randVal -= (randSize - randSizeHigh);
+                                            uint8_t randBitReqBaseHigh = ffs(randSizeHigh) - 1;
+                                            randBitReq = randBitReqBase - randBitReqBaseHigh;
+                                        }
                                         else
                                         {
-                                            randbits = 0;
-                                            randbitreq -= 1;
+                                            randVal = 0;
+                                            randBitReq -= 1;
                                         }
                                     }
-                                    sprintf(str, "total_randbitreq: %i; bit: %i; randbits: %i, randbitreq: %i", total_randbitreq, bit, randbits, randbitreq);
-                                    DrawText(str, 10, windowedScreenHeight-40, 10, COLOR_DEBUGTEXT);
+                                    sprintf(debugstr[debugvar], "[1] val = %i ; size = %i | %i | %i ; bitreq = %i | %i ; factidx = %i", randVal, deckSize, randSize, randSizeHigh, randBitReq, randBitReqBase, factidx);
+                                    debugvar = (debugvar + 1) % 64;
                                 }
                             }
                             else
@@ -833,6 +879,10 @@ int main(void)
                         else if (selected == -501000)
                         {
                             selected = -1;
+                        }
+                        for (int i = 0; i <= debugvar; i++)
+                        {
+                            DrawText(debugstr[i], 10, 100 + 10 * i, 10, COLOR_DEBUGTEXT);
                         }
                         {
                             // if (CheckCollisionPointRec(mouse, r))
