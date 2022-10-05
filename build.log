@@ -1,128 +1,128 @@
 rorray.c: In function 'DrawText2':
-rorray.c:249:25: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-  249 |     Vector2 position = *(Vector2 *)(&box);
+rorray.c:255:25: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  255 |     Vector2 position = *(Vector2 *)(&box);
       |                         ^~~~~~~~~~~~~~~~~
 rorray.c: In function 'DrawTextEx2':
-rorray.c:285:25: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-  285 |     Vector2 position = *(Vector2 *)(&box);
+rorray.c:291:25: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  291 |     Vector2 position = *(Vector2 *)(&box);
       |                         ^~~~~~~~~~~~~~~~~
 rorray.c: In function 'main':
-rorray.c:446:29: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
-  446 |                             strcpy(str, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+rorray.c:452:29: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
+  452 |                             strcpy(str, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
       |                             ^~~~~~
 rorray.c:16:1: note: include '<string.h>' or provide a declaration of 'strcpy'
    15 | #include "rorfile.h"
   +++ |+#include <string.h>
    16 | 
-rorray.c:446:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  446 |                             strcpy(str, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+rorray.c:452:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  452 |                             strcpy(str, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
       |                             ^~~~~~
-rorray.c:446:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:455:51: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
-  455 |                                 int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+rorray.c:452:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:461:51: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
+  461 |                                 int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
       |                                                   ^~~~~~
-rorray.c:455:51: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:455:51: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-rorray.c:455:51: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:509:55: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-  509 |                                     int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+rorray.c:461:51: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:461:51: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+rorray.c:461:51: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:515:55: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+  515 |                                     int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
       |                                                       ^~~~~~
-rorray.c:509:55: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:524:49: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
-  524 |                                                 memcpy(addr1, addr0, size);  // copy
+rorray.c:515:55: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:530:49: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
+  530 |                                                 memcpy(addr1, addr0, size);  // copy
       |                                                 ^~~~~~
-rorray.c:524:49: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:524:49: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
-rorray.c:524:49: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:525:49: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
-  525 |                                                 memset(addr0, 0, size);  // zero
+rorray.c:530:49: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:530:49: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:530:49: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:531:49: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+  531 |                                                 memset(addr0, 0, size);  // zero
       |                                                 ^~~~~~
-rorray.c:525:49: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:525:49: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
-rorray.c:525:49: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:520:54: warning: unused variable 'attr_' [-Wunused-variable]
-  520 |                                                 Attr attr_ = attr(rordata, G_FACT, a);
+rorray.c:531:49: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:531:49: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+rorray.c:531:49: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:526:54: warning: unused variable 'attr_' [-Wunused-variable]
+  526 |                                                 Attr attr_ = attr(rordata, G_FACT, a);
       |                                                      ^~~~~
-rorray.c:595:31: warning: suggest parentheses around comparison in operand of '&' [-Wparentheses]
-  595 |                         if (0 < dealStatus & 0x03)
+rorray.c:601:31: warning: suggest parentheses around comparison in operand of '&' [-Wparentheses]
+  601 |                         if (0 < dealStatus & 0x03)
       |                             ~~^~~~~~~~~~~~
-rorray.c:609:25: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
-  609 |                         sprintf(str, "DEAL %i SENATORS TO EACH FACTION", targetSenatorCount);
+rorray.c:615:25: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
+  615 |                         sprintf(str, "DEAL %i SENATORS TO EACH FACTION", targetSenatorCount);
       |                         ^~~~~~~
 rorray.c:16:1: note: include '<stdio.h>' or provide a declaration of 'sprintf'
    15 | #include "rorfile.h"
   +++ |+#include <stdio.h>
    16 | 
-rorray.c:609:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  609 |                         sprintf(str, "DEAL %i SENATORS TO EACH FACTION", targetSenatorCount);
+rorray.c:615:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  615 |                         sprintf(str, "DEAL %i SENATORS TO EACH FACTION", targetSenatorCount);
       |                         ^~~~~~~
-rorray.c:609:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:817:37: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  817 |                                     strcpy(str, "drag and shake it");
+rorray.c:615:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:824:37: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  824 |                                     strcpy(str, "drag and shake it");
       |                                     ^~~~~~
-rorray.c:817:37: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1049:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1049 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+rorray.c:824:37: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1076:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1076 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
       |                                 ^~~~~~~
-rorray.c:1049:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1129:37: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1129 |                                     strcpy(str, "drag and shake it");
+rorray.c:1076:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1157:37: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1157 |                                     strcpy(str, "drag and shake it");
       |                                     ^~~~~~
-rorray.c:1129:37: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:421:9: warning: label 'LABEL_GAME_TREE' defined but not used [-Wunused-label]
-  421 |         LABEL_GAME_TREE:
+rorray.c:1157:37: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:427:9: warning: label 'LABEL_GAME_TREE' defined but not used [-Wunused-label]
+  427 |         LABEL_GAME_TREE:
       |         ^~~~~~~~~~~~~~~
-rorray.c:366:13: warning: unused variable 'font3Ex' [-Wunused-variable]
-  366 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
+rorray.c:372:13: warning: unused variable 'font3Ex' [-Wunused-variable]
+  372 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
       |             ^~~~~~~
-rorray.c:365:13: warning: unused variable 'font3Em' [-Wunused-variable]
-  365 |     Vector2 font3Em = MeasureTextEx(font1, "M", font3.baseSize, 0);
+rorray.c:371:13: warning: unused variable 'font3Em' [-Wunused-variable]
+  371 |     Vector2 font3Em = MeasureTextEx(font1, "M", font3.baseSize, 0);
       |             ^~~~~~~
-rorray.c:363:13: warning: unused variable 'font2Ex' [-Wunused-variable]
-  363 |     Vector2 font2Ex = MeasureTextEx(font1, "x", font2.baseSize, 0);
+rorray.c:369:13: warning: unused variable 'font2Ex' [-Wunused-variable]
+  369 |     Vector2 font2Ex = MeasureTextEx(font1, "x", font2.baseSize, 0);
       |             ^~~~~~~
-rorray.c:360:13: warning: unused variable 'font1Ex' [-Wunused-variable]
-  360 |     Vector2 font1Ex = MeasureTextEx(font1, "x", font1.baseSize, 0);
+rorray.c:366:13: warning: unused variable 'font1Ex' [-Wunused-variable]
+  366 |     Vector2 font1Ex = MeasureTextEx(font1, "x", font1.baseSize, 0);
       |             ^~~~~~~
-rorray.c:359:13: warning: unused variable 'font1Em' [-Wunused-variable]
-  359 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
+rorray.c:365:13: warning: unused variable 'font1Em' [-Wunused-variable]
+  365 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
       |             ^~~~~~~
-rorray.c:350:10: warning: unused variable 'debugstr' [-Wunused-variable]
-  350 |     char debugstr[256][256] = {0};
+rorray.c:356:10: warning: unused variable 'debugstr' [-Wunused-variable]
+  356 |     char debugstr[256][256] = {0};
       |          ^~~~~~~~
-rorray.c:349:9: warning: unused variable 'debugvar' [-Wunused-variable]
-  349 |     int debugvar = 0;
+rorray.c:355:9: warning: unused variable 'debugvar' [-Wunused-variable]
+  355 |     int debugvar = 0;
       |         ^~~~~~~~
-rorray.c:331:14: warning: unused variable 'screenOffsetY' [-Wunused-variable]
-  331 |     uint16_t screenOffsetY = (windowedScreenHeight - DOWN * screenDowns) / 2;
+rorray.c:337:14: warning: unused variable 'screenOffsetY' [-Wunused-variable]
+  337 |     uint16_t screenOffsetY = (windowedScreenHeight - DOWN * screenDowns) / 2;
       |              ^~~~~~~~~~~~~
-rorray.c:330:14: warning: unused variable 'screenOffsetX' [-Wunused-variable]
-  330 |     uint16_t screenOffsetX = (windowedScreenWidth - RIGHT * screenRights) / 2;
+rorray.c:336:14: warning: unused variable 'screenOffsetX' [-Wunused-variable]
+  336 |     uint16_t screenOffsetX = (windowedScreenWidth - RIGHT * screenRights) / 2;
       |              ^~~~~~~~~~~~~
-rorray.c:323:13: warning: unused variable 'cursor' [-Wunused-variable]
-  323 |     Vector2 cursor;
+rorray.c:329:13: warning: unused variable 'cursor' [-Wunused-variable]
+  329 |     Vector2 cursor;
       |             ^~~~~~
-rorray.c:1142:70: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
- 1142 |                                 r_button.y = mouse.y - selectedvector.y;
+rorray.c:1170:70: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+ 1170 |                                 r_button.y = mouse.y - selectedvector.y;
       |                                                        ~~~~~~~~~~~~~~^~
-rorray.c:993:33: note: 'selectedvector.y' was declared here
-  993 |                         Vector2 selectedvector;
+rorray.c:1013:33: note: 'selectedvector.y' was declared here
+ 1013 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:1141:70: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
- 1141 |                                 r_button.x = mouse.x - selectedvector.x;
+rorray.c:1169:70: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+ 1169 |                                 r_button.x = mouse.x - selectedvector.x;
       |                                                        ~~~~~~~~~~~~~~^~
-rorray.c:993:33: note: 'selectedvector.x' was declared here
-  993 |                         Vector2 selectedvector;
+rorray.c:1013:33: note: 'selectedvector.x' was declared here
+ 1013 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:920:71: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
-  920 |                                 r_senator.y = mouse.y - selectedvector.y;
+rorray.c:927:71: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+  927 |                                 r_senator.y = mouse.y - selectedvector.y;
       |                                                         ~~~~~~~~~~~~~~^~
-rorray.c:612:33: note: 'selectedvector.y' was declared here
-  612 |                         Vector2 selectedvector;
+rorray.c:618:33: note: 'selectedvector.y' was declared here
+  618 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:919:71: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
-  919 |                                 r_senator.x = mouse.x - selectedvector.x;
+rorray.c:926:71: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+  926 |                                 r_senator.x = mouse.x - selectedvector.x;
       |                                                         ~~~~~~~~~~~~~~^~
-rorray.c:612:33: note: 'selectedvector.x' was declared here
-  612 |                         Vector2 selectedvector;
+rorray.c:618:33: note: 'selectedvector.x' was declared here
+  618 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~

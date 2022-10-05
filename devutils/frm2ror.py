@@ -102,7 +102,7 @@ if __name__ == "__main__":
     attrlist = []
     groupdict = {}
     grouplist = []
-    
+
 
     _L0 = (li.partition(";")[0].strip() for li in frmstr.split("\n"))
     _L = [li for li in _L0 if li]
@@ -148,8 +148,8 @@ if __name__ == "__main__":
                 _s = ""
             while True:
                 if (
-                    len(_L) <= _i+1 
-                    or _L[_i+1].startswith(":A") 
+                    len(_L) <= _i+1
+                    or _L[_i+1].startswith(":A")
                     or _L[_i+1].startswith(":G")
                 ):
                     break
@@ -342,11 +342,10 @@ struct _Attr {            \\
         "",
         "#define PHSE_PREP 0",
         "",
-        "#define SPHS_PREP_TAKEFACTIONS 201200",
+        "#define SPHS_PREP_TAKEFACTIONS 301200",
+        "#define SPHS_PREP_SETUPRULES 301250",
         "#define SPHS_PREP_DEALSENATORS 301420",
-        "#define SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ 301421",
         "#define SPHS_PREP_TEMPORARYROMECONSUL 301600",
-        "#define SPHS_PREP_TEMPORARYROMECONSUL_RANDOM_ENTROPYREQ 301601",
         "#define SPHS_PREP_SELECTFACTIONLEADERS 301700",
     ])
 

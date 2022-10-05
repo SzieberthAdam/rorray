@@ -113,8 +113,8 @@ struct _Attr {            \
 #define A_SENA_CNNR_t uint16_t
 #define A_SENA_OFFI 15
 #define A_SENA_OFFI_t uint8_t
-#define A_SENA_CEXP 16
-#define A_SENA_CEXP_t uint8_t
+#define A_SENA_PRIC 16
+#define A_SENA_PRIC_t uint8_t
 #define A_SENA_HRAO 17
 #define A_SENA_HRAO_t uint8_t
 #define A_SENA_PRMA 18

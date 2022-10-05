@@ -108,7 +108,7 @@
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-:A CEXP uint8 ; Consular Experience (Prior Consul)
+:A PRIC uint8 ; Consular Experience (Prior Consul)
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
