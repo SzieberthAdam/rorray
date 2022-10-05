@@ -46,7 +46,7 @@ struct _Attr {            \
 #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
 #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
 
-#define SIZE 2449
+#define SIZE 2545
 
 #define G_NULL 0
 #define G_RULE 1
@@ -113,8 +113,12 @@ struct _Attr {            \
 #define A_SENA_CNNR_t uint16_t
 #define A_SENA_OFFI 15
 #define A_SENA_OFFI_t uint8_t
-#define A_SENA_PRCO 16
-#define A_SENA_PRCO_t uint8_t
+#define A_SENA_CEXP 16
+#define A_SENA_CEXP_t uint8_t
+#define A_SENA_HRAO 17
+#define A_SENA_HRAO_t uint8_t
+#define A_SENA_PRMA 18
+#define A_SENA_PRMA_t uint8_t
 #define G_OFFI 9
 #define A_OFFI_NAME 0
 #define A_OFFI_NAME_t char[24]

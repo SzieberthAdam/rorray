@@ -45,11 +45,11 @@
 
 :G SENA ; "Family Card / Senator"
 :A IDNR uint8 ; family ID number (#X)
-         1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 
-	11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
+         1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
+	11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 	21, 22, 23, 24, 25, 26, 27, 28, 29, 30
 :A NAME string(16) ; family name
-        "Cornelius" , "Fabius"    , "Valerius"  , "Julius"    , "Claudius"  , 
+        "Cornelius" , "Fabius"    , "Valerius"  , "Julius"    , "Claudius"  ,
 	"Manlius"   , "Fulvius"   , "Furius"    , "Aurelius"  , "Junius"    ,
 	"Papirius"  , "Acilius"   , "Flaminius" , "Aelius"    , "Sulpicius" ,
 	"Calpurnius", "Plautius"  , "Quinctius" , "Aemilius"  , "Terentius" ,
@@ -108,15 +108,23 @@
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-:A PRCO uint8 ; Prior Consul
+:A CEXP uint8 ; Consular Experience (Prior Consul)
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+:A HRAO uint8 ; HRAO
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+:A PRMA uint8 ; presiding magistrate
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 
 :G OFFI; "Office"
-:A NAME string(24) 
-	"none", "Consul for Life", "Dictator", "Rome Consul", "Field Consul", 
+:A NAME string(24)
+	"none", "Consul for Life", "Dictator", "Rome Consul", "Field Consul",
 	"Censor", "Master of Horse", "Dominant Player", "Pontifex Maximus",
 	"Proconsul"
 :A SNAM string(4) ; short name
