@@ -675,7 +675,7 @@ int main(void)
                                 DrawRectangleRec(r_senator, COLOR_BLACKCARDBACKGROUND);
                             }
                             sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
-                            DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){2, -8}));
+                            DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
                             DrawFont2((char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
                             sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, senaidx));
                             DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
@@ -749,7 +749,7 @@ int main(void)
                                     DrawRectangleRec(r_senator, COLOR_BLACKCARDBACKGROUND);
                                 }
                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
-                                DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){2, -8}));
+                                DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
                                 DrawFont2((char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, senaidx));
                                 DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
@@ -927,7 +927,7 @@ int main(void)
                                 r_senator.y = mouse.y - selectedvector.y;
                                 DrawRectangleRec(r_senator, COLOR_MOUSEDRAG);
                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
-                                DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){2, -8}));
+                                DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
                                 DrawFont2((char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, senaidx));
                                 DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
@@ -979,13 +979,14 @@ int main(void)
                                         A_SENA_OFFI_t* p_senatorOffice = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
                                         *p_senatorOffice = (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL);
                                         *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) += *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
-                                        *(A_SENA_PRIC_t*)valabsaddr(rordata, G_SENA, A_SENA_PRIC, senaidx) =  (A_SENA_PRIC_t)(1);
+                                        *(A_SENA_PRIC_t*)valabsaddr(rordata, G_SENA, A_SENA_PRIC, senaidx) = (A_SENA_PRIC_t)(1);
                                         *p_temporaryRomeConsulFlags = *p_temporaryRomeConsulFlags | 0x80;
+                                        *(A_HRAO_CNGR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNGR) = (A_HRAO_CNGR_t)(G_SENA);
+                                        *(A_HRAO_CNNR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNNR) = (A_HRAO_CNNR_t)(senaidx);
                                     }
                                 }
                             }
                         }
-                        // PREP
                         int temporaryRomeConsulIdx = -1;
                         for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
                         {
@@ -994,6 +995,7 @@ int main(void)
                         }
                         int hraoIdx = -1;
                         if (0 <= temporaryRomeConsulIdx) hraoIdx = temporaryRomeConsulIdx;
+                        else if (*(A_HRAO_CNGR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNGR) == (A_HRAO_CNGR_t)(G_SENA)) hraoIdx = *(A_HRAO_CNNR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNNR);
                         else
                         {
                             uint32_t maxWeight = 0;
@@ -1001,9 +1003,11 @@ int main(void)
                             {
                                 if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(-1) ) continue;  // must be aligned
                                 // must be in rome
-                                uint32_t weight = 1000000 * (*valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx)) + 100000 * (*valabsaddr(rordata, G_SENA, A_SENA_ORA1, senaidx)) + 1000 - (*valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+                                uint32_t weight = 100000 * (*valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx)) + 1000 * (*valabsaddr(rordata, G_SENA, A_SENA_ORA1, senaidx)) + 500 - (*valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
                                 if (maxWeight < weight) {hraoIdx = senaidx; maxWeight = weight;}
                             }
+                            *(A_HRAO_CNGR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNGR) = (A_HRAO_CNGR_t)(G_SENA);
+                            *(A_HRAO_CNNR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNNR) = (A_HRAO_CNNR_t)(hraoIdx);
                         }
                         // TITLE
                         Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
@@ -1047,14 +1051,26 @@ int main(void)
                                             *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, temporaryRomeConsulIdx) -= *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
                                             *(A_SENA_PRIC_t*)valabsaddr(rordata, G_SENA, A_SENA_PRIC, temporaryRomeConsulIdx) =  (A_SENA_PRIC_t)(0);
                                             *p_temporaryRomeConsulFlags = *p_temporaryRomeConsulFlags & 0x7F;
+                                            uint32_t maxWeight = 0;
+                                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                                            {
+                                                if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(-1) ) continue;  // must be aligned
+                                                // must be in rome
+                                                uint32_t weight = 100000 * (*valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx)) + 1000 * (*valabsaddr(rordata, G_SENA, A_SENA_ORA1, senaidx)) + 500 - (*valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+                                                if (maxWeight < weight) {hraoIdx = senaidx; maxWeight = weight;}
+                                            }
+                                            *(A_HRAO_CNGR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNGR) = (A_HRAO_CNGR_t)(G_SENA);
+                                            *(A_HRAO_CNNR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNNR) = (A_HRAO_CNNR_t)(hraoIdx);
                                         }
                                         if (assign)
                                         {
                                             *p_senatorOffice = (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL);
                                             *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) += *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
-                                            *(A_SENA_PRIC_t*)valabsaddr(rordata, G_SENA, A_SENA_PRIC, senaidx) =  (A_SENA_PRIC_t)(1);
+                                            *(A_SENA_PRIC_t*)valabsaddr(rordata, G_SENA, A_SENA_PRIC, senaidx) = (A_SENA_PRIC_t)(1);
                                             temporaryRomeConsulIdx = senaidx;
                                             *p_temporaryRomeConsulFlags = *p_temporaryRomeConsulFlags | 0x80;
+                                            *(A_HRAO_CNGR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNGR) = (A_HRAO_CNGR_t)(G_SENA);
+                                            *(A_HRAO_CNNR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNNR) = (A_HRAO_CNNR_t)(senaidx);
                                         }
                                         DrawRectangleRec(r_senator, COLOR_CLICKED);
                                     }
@@ -1074,7 +1090,7 @@ int main(void)
                                     DrawFont2("H", r_hrao, COLOR_OFFICETEXT, TextCenter, ((Vector2){1, 0}));
                                 }
                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
-                                DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){2, -8}));
+                                DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
                                 DrawFont2((char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, senaidx));
                                 if (*p_senatorOffice == (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL))
@@ -1104,14 +1120,13 @@ int main(void)
                             {
                                 DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
                                 uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
-                                // TODO!
-                                if (temporaryromeconsulflags == 0xFF || (temporaryromeconsulflags & 0x01)==0x01)
+                                if (temporaryromeconsulflags != 0xFF && (temporaryromeconsulflags & 0x01)==0x01)
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_INITIALFACTIONPHASE;
                                 }
                                 else
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
                                 }
                                 selected = -1;
                                 framesCounter = 0;
@@ -1210,7 +1225,7 @@ int main(void)
                                                         A_SENA_OFFI_t* p_senatorOffice = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
                                                         *p_senatorOffice = (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL);
                                                         *(A_SENA_INF1_t*)valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx) += *(A_OFFI_INFL_t*)valabsaddr(rordata, G_OFFI, A_OFFI_INFL, OFFICE_ROME_CONSUL);
-                                                        *(A_SENA_PRIC_t*)valabsaddr(rordata, G_SENA, A_SENA_PRIC, senaidx) =  (A_SENA_PRIC_t)(1);
+                                                        *(A_SENA_PRIC_t*)valabsaddr(rordata, G_SENA, A_SENA_PRIC, senaidx) = (A_SENA_PRIC_t)(1);
                                                         temporaryRomeConsulIdx = senaidx;
                                                         *p_temporaryRomeConsulFlags = *p_temporaryRomeConsulFlags | 0x80;
                                                         break;
@@ -1247,7 +1262,175 @@ int main(void)
                         {
                             selected = -1;
                         }
-                    }
+                    } break;
+
+                    case SPHS_PREP_SELECTFACTIONLEADERS:
+                    {
+                        // PREP
+                        uint8_t* p_temporaryRomeConsulFlags = (A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                        uint16_t numFactions = *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC) - 1;  // first "faction" (unaligned) is excluded
+                        uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
+                        for (int factidx = 1; factidx < numFactions + 1; factidx++)
+                        {
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(factidx) ) factionSenatorCounts[factidx] += 1;
+                            }
+                        }
+                        uint8_t factionLeaderCounts[FACT_ELEMCOUNT] = {0};
+                        for (int factidx = 1; factidx < numFactions + 1; factidx++)
+                        {
+                            A_FACT_LEGR_t leadergroup = *valabsaddr(rordata, G_FACT, A_FACT_LEGR, factidx);
+                            A_FACT_LENR_t leaderidx = *valabsaddr(rordata, G_FACT, A_FACT_LENR, factidx);
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                if ((leadergroup == G_SENA && leaderidx == senaidx)) factionLeaderCounts[factidx] += 1;
+                            }
+                        }
+                        uint8_t resolved = 0;
+                        for (int factidx = 1; factidx < numFactions + 1; factidx++)
+                        {
+                            if (factionLeaderCounts[factidx] == 1 || factionSenatorCounts[factidx] == 0) resolved += 1;
+                        }
+                        int temporaryRomeConsulIdx = -1;
+                        for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                        {
+                            A_SENA_OFFI_t* p_senatorOffice = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
+                            if (*p_senatorOffice == (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL)) {temporaryRomeConsulIdx = senaidx; break;}
+                        }
+                        int hraoIdx = -1;
+                        if (0 <= temporaryRomeConsulIdx) hraoIdx = temporaryRomeConsulIdx;
+                        else if (*(A_HRAO_CNGR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNGR) == (A_HRAO_CNGR_t)(G_SENA)) hraoIdx = *(A_HRAO_CNNR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNNR);
+                        else
+                        {
+                            uint32_t maxWeight = 0;
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) == (A_SENA_ALIG_t)(-1) ) continue;  // must be aligned
+                                // must be in rome
+                                uint32_t weight = 100000 * (*valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx)) + 1000 * (*valabsaddr(rordata, G_SENA, A_SENA_ORA1, senaidx)) + 500 - (*valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+                                if (maxWeight < weight) {hraoIdx = senaidx; maxWeight = weight;}
+                            }
+                            *(A_HRAO_CNGR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNGR) = (A_HRAO_CNGR_t)(G_SENA);
+                            *(A_HRAO_CNNR_t*)val0absaddr(rordata, G_HRAO, A_HRAO_CNNR) = (A_HRAO_CNNR_t)(hraoIdx);
+                        }
+                        // TITLE
+                        Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                        DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                        DrawTitle("NOMINATE LEADERS FOR EACH FACTION", r_title, COLOR_TITLETEXT, TextLeft);
+                        // FACTIONS PREP
+                        Vector2 selectedvector;
+                        Rectangle r_header = {0, 0, RECT_SEN_WIDTH2, Font2RectH};
+                        Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
+                        r_header.x = UNITCLAMP((screenWidth - r_header.width) / 2);
+                        r_header.y = (r_title.height + PAD) + 3 * UNIT;
+                        DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
+                        DrawFont2("SENATE", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                        DrawFont2("M", ((Rectangle){r_header.x + RECT_SEN_M_X, r_header.y, RECT_SEN_M_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("O", ((Rectangle){r_header.x + RECT_SEN_O_X, r_header.y, RECT_SEN_O_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("L", ((Rectangle){r_header.x + RECT_SEN_L_X, r_header.y, RECT_SEN_L_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("I", ((Rectangle){r_header.x + RECT_SEN_I_X, r_header.y, RECT_SEN_I_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("P", ((Rectangle){r_header.x + RECT_SEN_P_X, r_header.y, RECT_SEN_P_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("PC", ((Rectangle){r_header.x + RECT_SEN_PRIC_X, r_header.y, RECT_SEN_PRIC_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        r_senator.x = r_header.x;
+                        r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
+                        for (int factidx = 1; factidx < numFactions + 1; factidx++)
+                        {
+                            A_FACT_LEGR_t leadergroup = *valabsaddr(rordata, G_FACT, A_FACT_LEGR, factidx);
+                            A_FACT_LENR_t leaderidx = *valabsaddr(rordata, G_FACT, A_FACT_LENR, factidx);
+                            Rectangle r_faction = {r_senator.x, r_senator.y, r_senator.width, r_senator.height + (Font2RectH + PAD) * factionSenatorCounts[factidx]};
+                            DrawRectangleRec(r_faction, COLOR_BACKGROUNDAREA);
+                            DrawRectangleRec(r_senator, COLOR_FACTION);
+                            DrawFont2(TextToUpper((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx))), r_senator, COLOR_FACTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                            for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+                            {
+                                if ( *((A_SENA_ALIG_t*)(val0absaddr(rordata, G_SENA, A_SENA_ALIG))+senaidx) != (A_SENA_ALIG_t)(factidx) ) continue;  // typecast is a must!; not in this faction
+                                A_SENA_OFFI_t* p_senatorOffice = (A_SENA_OFFI_t*)valabsaddr(rordata, G_SENA, A_SENA_OFFI, senaidx);
+                                r_senator.y += (Font2RectH + PAD);
+                                if ((leadergroup != G_SENA || leaderidx != senaidx) && (CheckCollisionPointRec(mouse, r_senator)))
+                                {
+                                    if (currentGesture != lastGesture && currentGesture == GESTURE_TAP)
+                                    {
+                                        leadergroup = G_SENA;
+                                        leaderidx = senaidx;
+                                        *(A_FACT_LEGR_t*)valabsaddr(rordata, G_FACT, A_FACT_LEGR, factidx) = (A_FACT_LEGR_t)(leadergroup);
+                                        *(A_FACT_LENR_t*)valabsaddr(rordata, G_FACT, A_FACT_LENR, factidx) = (A_FACT_LENR_t)(leaderidx);
+                                        DrawRectangleRec(r_senator, COLOR_CLICKED);
+                                    }
+                                    else
+                                    {
+                                        DrawRectangleRec(r_senator, COLOR_MOUSEHOVER_CLICKABLE);
+                                    }
+                                }
+                                else
+                                {
+                                    DrawRectangleRec(r_senator, COLOR_BLACKCARDBACKGROUND);
+                                }
+                                if (senaidx == hraoIdx)
+                                {
+                                    Rectangle r_hrao = {r_senator.x + RECT_SEN_HRAO_X, r_senator.y, RECT_SEN_HRAO_WIDTH, r_senator.height};
+                                    DrawRectangleRec(r_hrao, COLOR_HRAO);
+                                    DrawFont2("H", r_hrao, COLOR_OFFICETEXT, TextCenter, ((Vector2){1, 0}));
+                                }
+                                if ((leadergroup == G_SENA && leaderidx == senaidx))
+                                {
+                                    DrawRectangleRec(((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH + 2, r_senator.height}), COLOR_FACTION);
+                                    DrawRectangleRec(((Rectangle){r_senator.x + RECT_SEN_ID_X + 1, r_senator.y + r_senator.height - 4, RECT_SEN_ID_WIDTH, 3}), COLOR_BLACKCARDTEXT);
+                                }
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+                                DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
+                                DrawFont2((char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_MIL1, senaidx));
+                                if (*p_senatorOffice == (A_SENA_OFFI_t)(OFFICE_ROME_CONSUL))
+                                {
+                                    Rectangle r_office = {r_senator.x + RECT_SEN_OFF_X, r_senator.y, RECT_SEN_OFF_WIDTH, r_senator.height};
+                                    DrawRectangleRec(r_office, COLOR_OFFICE);
+                                    DrawFont2((char*)(valabsaddr(rordata, G_OFFI, A_OFFI_SNAM, OFFICE_ROME_CONSUL)), r_office, COLOR_OFFICETEXT, TextCenter, ((Vector2){0, 0}));
+                                }
+                                DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_ORA1, senaidx));
+                                DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_LOY1, senaidx));
+                                DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_INF1, senaidx));
+                                DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                A_SENA_POP1_t pop = *valabsaddr(rordata, G_SENA, A_SENA_POP1, senaidx);
+                                if (pop != 0) {sprintf(str, "%i", pop); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
+                                if (0 < *valabsaddr(rordata, G_SENA, A_SENA_PRIC, senaidx)) DrawFont2("PC", ((Rectangle){r_senator.x + RECT_SEN_PRIC_X, r_senator.y, RECT_SEN_PRIC_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                            }
+                            r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
+                        }
+                        // NEXT BUTTON
+                        if (resolved == numFactions)
+                        {
+                            Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+                            if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
+                            {
+                                if (currentGesture == GESTURE_TAP)
+                                {
+                                    DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
+                                    uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                                    if (temporaryromeconsulflags != 0xFF && (temporaryromeconsulflags & 0x01)==0x01)
+                                    {
+                                        *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
+                                    }
+                                    else
+                                    {
+                                        *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_INITIALFACTIONPHASE;
+                                    }
+                                    selected = -1;
+                                    framesCounter = 0;
+                                }
+                                else
+                                {
+                                    DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                                }
+                            }
+                            else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                            DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                            DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                        }
+                    } break;
                 }
             } break;
         }

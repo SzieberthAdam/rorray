@@ -38,6 +38,8 @@
 :A CNNR elem 0, * ; connection (player) number X if taken by player X, otherwise 0
 :A NAME string(16) ; faction name
         "unaligned", "Aquila", "Luna Crescens", "Parma", "Corona", "Manus", "Porta"
+:A LEGR group NULL, * ; Faction Leader group (SENA /SMAN)
+:A LENR elem 0, * ; Faction Leader elem
 
 
 :G DECK ; "Deck"
@@ -112,15 +114,6 @@
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-:A HRAO uint8 ; HRAO
-	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-:A PRMA uint8 ; presiding magistrate
-	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-
 
 :G OFFI; "Office"
 :A NAME string(24)
@@ -135,3 +128,13 @@
 	0, 1, 0, 0, 0, 0, 0, 0, 1, 0
 :A INFL int8 ; influence gain for taking
 	0, 0, 7, 5, 5, 5, 3, 3, 5, 0
+
+:G HRAO; "HRAO"
+:GELEMS 1
+:A CNGR group NULL
+:A CNNR elem 0
+
+:G PRMA; "Presiding Magistrate"
+:GELEMS 1
+:A CNGR group NULL
+:A CNNR elem 0

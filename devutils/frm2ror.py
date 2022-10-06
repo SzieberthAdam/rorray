@@ -347,6 +347,7 @@ struct _Attr {            \\
         "#define SPHS_PREP_DEALSENATORS 301420",
         "#define SPHS_PREP_TEMPORARYROMECONSUL 301600",
         "#define SPHS_PREP_SELECTFACTIONLEADERS 301700",
+        "#define SPHS_PREP_INITIALFACTIONPHASE 301900",
     ])
 
     rorhstr = TEMPLATE.replace("{{rorh}}", rorh_prefix + "\n" +"\n".join(rorh_lines))

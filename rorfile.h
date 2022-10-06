@@ -46,7 +46,7 @@ struct _Attr {            \
 #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
 #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
 
-#define SIZE 2545
+#define SIZE 2641
 
 #define G_NULL 0
 #define G_RULE 1
@@ -79,6 +79,10 @@ struct _Attr {            \
 #define A_FACT_CNNR_t uint16_t
 #define A_FACT_NAME 2
 #define A_FACT_NAME_t char[16]
+#define A_FACT_LEGR 3
+#define A_FACT_LEGR_t uint16_t
+#define A_FACT_LENR 4
+#define A_FACT_LENR_t uint16_t
 #define G_DECK 7
 #define G_SENA 8
 #define A_SENA_IDNR 0
@@ -115,10 +119,6 @@ struct _Attr {            \
 #define A_SENA_OFFI_t uint8_t
 #define A_SENA_PRIC 16
 #define A_SENA_PRIC_t uint8_t
-#define A_SENA_HRAO 17
-#define A_SENA_HRAO_t uint8_t
-#define A_SENA_PRMA 18
-#define A_SENA_PRMA_t uint8_t
 #define G_OFFI 9
 #define A_OFFI_NAME 0
 #define A_OFFI_NAME_t char[24]
@@ -130,6 +130,16 @@ struct _Attr {            \
 #define A_OFFI_FORL_t uint8_t
 #define A_OFFI_INFL 4
 #define A_OFFI_INFL_t int8_t
+#define G_HRAO 10
+#define A_HRAO_CNGR 0
+#define A_HRAO_CNGR_t uint16_t
+#define A_HRAO_CNNR 1
+#define A_HRAO_CNNR_t uint16_t
+#define G_PRMA 11
+#define A_PRMA_CNGR 0
+#define A_PRMA_CNGR_t uint16_t
+#define A_PRMA_CNNR 1
+#define A_PRMA_CNNR_t uint16_t
 
 #define T_ATTR 0x0A02
 #define T_BOOL 0x0F11
@@ -147,12 +157,12 @@ struct _Attr {            \
 
 #define PHSE_PREP 0
 
-#define SPHS_PREP_TAKEFACTIONS 201200
+#define SPHS_PREP_TAKEFACTIONS 301200
+#define SPHS_PREP_SETUPRULES 301250
 #define SPHS_PREP_DEALSENATORS 301420
-#define SPHS_PREP_DEALSENATORS_RANDOM_ENTROPYREQ 301421
 #define SPHS_PREP_TEMPORARYROMECONSUL 301600
-#define SPHS_PREP_TEMPORARYROMECONSUL_RANDOM_ENTROPYREQ 301601
 #define SPHS_PREP_SELECTFACTIONLEADERS 301700
+#define SPHS_PREP_INITIALFACTIONPHASE 301900
 
 #endif  /* #ifndef __DEFINE_RORHFILE__ */
 ;
