@@ -9,9 +9,9 @@
 # include <x86intrin.h>
 #endif
 
-
 #include "raylib.h"
 
+#include "bitbit.h"
 #include "rorfile.h"
 
 #define NUM_FACTIONS    6
@@ -41,6 +41,23 @@ __INITRORAPI__ // initializes the API structs
 
 #define SENATORNAMEWIDTH  8
 
+#define COLOR_AfricanViolet   ((Color){0xAA, 0x88, 0xBB, 0xFF}) // Allegiance Marker
+#define COLOR_BrightGray      ((Color){0xEE, 0xEE, 0xEE, 0xFF}) // Board Text
+#define COLOR_CarrotOrange    ((Color){0xEE, 0x88, 0x22, 0xFF}) // Exile Marker
+#define COLOR_ChineseBlack    ((Color){0x11, 0x11, 0x11, 0xFF}) // Board Black
+#define COLOR_Cinnabar        ((Color){0xEE, 0x44, 0x33, 0xFF}) // Priest Marker; Rebel Marker
+#define COLOR_ColumbiaBlue    ((Color){0xCC, 0xDD, 0xEE, 0xFF}) // Map See
+#define COLOR_CookiesAndCream ((Color){0xEE, 0xDD, 0xAA, 0xFF}) // Map Land
+#define COLOR_CrayolaSkyBlue  ((Color){0x66, 0xCC, 0xEE, 0xFF}) // Unrest Level Marker; Captive Marker
+#define COLOR_CrayolaTan      ((Color){0xDD, 0x99, 0x77, 0xFF}) // Board Blocks
+#define COLOR_Goldenrod       ((Color){0xDD, 0x99, 0x22, 0xFF}) // Talent
+#define COLOR_ImperialRed     ((Color){0xEE, 0x22, 0x33, 0xFF}) // Legion and Fleet Markers; Office Marker; Manpower Shortage Marker; etc.
+#define COLOR_LightTaupe      ((Color){0xBB, 0x88, 0x66, 0xFF}) // Board Blocks Dark
+#define COLOR_RaisinBlack     ((Color){0x22, 0x22, 0x22, 0xFF}) // Marker Black Light
+#define COLOR_TitaniumYellow  ((Color){0xEE, 0xDD, 0x00, 0xFF}) // Faction Leader Markers
+#define COLOR_VivdLimeGreen   ((Color){0xAA, 0xCC, 0x00, 0xFF}) // Prior Consul Marker; Faction Dominance Marker
+
+
 
 #define COLOR_BrownYellow     ((Color){0xCC, 0x99, 0x66, 0xFF})
 #define COLOR_Yellow          ((Color){0xFF, 0xFF, 0x00, 0xFF})
@@ -57,6 +74,7 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_MediumVioletRed ((Color){0xCC, 0x00, 0x99, 0xFF})
 #define COLOR_FrenchLilac     ((Color){0x99, 0x66, 0x99, 0xFF})
 #define COLOR_SheenGreen      ((Color){0x99, 0xCC, 0x00, 0xFF})
+
 
 
 #define COLOR_BIRREN_SCARLET ((Color){209, 33, 33, 255})
@@ -82,34 +100,39 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_ANTIQUE_RUBY ((Color){127, 33, 34, 255})
 #define COLOR_OLD_LACE ((Color){229, 219, 183, 255})
 
-#define COLOR_BACKGROUND COLOR_DarkCharcoal
-#define COLOR_BACKGROUNDAREA COLOR_Black
-#define COLOR_BLACKCARDBACKGROUND COLOR_White
-#define COLOR_BLACKCARDTEXT COLOR_Black
-#define COLOR_BUTTONBACKGROUND COLOR_White
+#define COLOR_BACKGOUNDSECTIONTEXT COLOR_BrightGray
+#define COLOR_BACKGOUNDTEXT COLOR_BrightGray
+#define COLOR_BACKGROUND COLOR_ChineseBlack
+#define COLOR_BACKGROUNDAREA COLOR_RaisinBlack
+#define COLOR_BLACKCARDBACKGROUND COLOR_BrightGray
+#define COLOR_BLACKCARDTEXT COLOR_ChineseBlack
+#define COLOR_BUTTONBACKGROUND COLOR_BrightGray
+#define COLOR_BUTTONOUTLINE COLOR_ChineseBlack
+#define COLOR_BUTTONTEXT COLOR_ChineseBlack
 #define COLOR_CLICKED COLOR_PeachOrange
-#define COLOR_BUTTONOUTLINE COLOR_Black
-#define COLOR_BUTTONTEXT COLOR_Black
-#define COLOR_FACTION COLOR_Yellow
-#define COLOR_FACTIONHEADER COLOR_SpanishGray
-#define COLOR_FACTIONHEADERTEXT COLOR_Black
-#define COLOR_FACTIONTEXT COLOR_Black
+#define COLOR_FACTION COLOR_TitaniumYellow
+#define COLOR_FACTIONHEADER COLOR_LightTaupe
+#define COLOR_FACTIONHEADERTEXT COLOR_ChineseBlack
+#define COLOR_FACTIONTEXT COLOR_ChineseBlack
+#define COLOR_HRAO COLOR_LightTaupe
 #define COLOR_MOUSEDRAG  COLOR_BIRREN_LIGHT_ROMAN_BLUE
-#define COLOR_MOUSEDRAGTEXT  COLOR_Black
+#define COLOR_MOUSEDRAGTEXT  COLOR_ChineseBlack
 #define COLOR_MOUSEHOVER_CLICKABLE COLOR_SheenGreen
 #define COLOR_MOUSEHOVER_DRAGABLE  COLOR_FrenchLilac
 #define COLOR_MOUSEHOVER_DROPTARGET  COLOR_MediumVioletRed
 #define COLOR_MOUSEHOVER_EDITABLE  COLOR_CopperRose
 #define COLOR_MOUSEHOVER_GAMEMASTER  MAGENTA
 #define COLOR_MOUSEHOVER_SELECTABLE  COLOR_DarkVanilla
-#define COLOR_OFFICE COLOR_DeepCarminePink
-#define COLOR_HRAO COLOR_FrenchLilac
-#define COLOR_OFFICETEXT COLOR_Black
-#define COLOR_TITLEBACKGROUND COLOR_BrownYellow
-#define COLOR_TITLETEXT COLOR_Black
+#define COLOR_OFFICE COLOR_ImperialRed
+#define COLOR_OFFICETEXT COLOR_ChineseBlack
+#define COLOR_TITLEBACKGROUND COLOR_Goldenrod
+#define COLOR_TITLETEXT COLOR_ChineseBlack
 #define COLOR_TOOLTIPBACKGROUND COLOR_PeachOrange
-#define COLOR_TOOLTIPOUTLINE COLOR_Black
-#define COLOR_TOOLTIPTEXT COLOR_Black
+#define COLOR_TOOLTIPOUTLINE COLOR_ChineseBlack
+#define COLOR_TOOLTIPTEXT COLOR_ChineseBlack
+#define COLOR_TOGGLESET COLOR_Goldenrod
+#define COLOR_TOGGLEUNSET COLOR_RaisinBlack
+#define COLOR_TOGGLEOUTLINE COLOR_BrightGray
 
 #define COLOR_DEBUGTEXT WHITE
 
@@ -501,7 +524,140 @@ int main(void)
                             selected = -1;
                             framesCounter = 0;
                         }
-                        // BUTTON
+                        // NEXT BUTTON
+                        Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+                        if (CheckCollisionPointRec(mouse, r_button))
+                        {
+                            if (currentGesture == GESTURE_TAP)
+                            {
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
+                                *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SETUPRULES;
+                                int nfac = 1; // first "faction" (unaligned) is counted as well
+                                for (int factidx = 1; factidx < group(rordata, G_FACT).elems; factidx++)
+                                {
+                                    int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+                                    if (letterCount == 0)
+                                    {
+                                        *(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, factidx) = (A_FACT_CNGR_t)(G_NULL);
+                                    }
+                                    else
+                                    {
+                                        if (factidx != nfac) // eliminate seat gaps
+                                        {
+                                            for (uint16_t a = 0; a < group(rordata, G_FACT).attrs; a++)
+                                            {
+                                                Attr attr_ = attr(rordata, G_FACT, a);
+                                                void *addr0 = valabsaddr(rordata, G_FACT, a, factidx);
+                                                void *addr1 = valabsaddr(rordata, G_FACT, a, nfac);
+                                                uint16_t size = valsize(rordata, G_FACT, a);
+                                                memcpy(addr1, addr0, size);  // copy
+                                                memset(addr0, 0, size);  // zero
+                                            }
+                                        }
+                                        nfac += 1;
+                                    }
+                                }
+                                *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC) = (A_GAME_NFAC_t)(nfac);
+                                selected = -1;
+                                framesCounter = 0;
+                                randVal = 0;
+                                randBitReq = -1;
+                            }
+                            else
+                            {
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                            }
+                        }
+                        else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                        DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                        DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                    } break;
+
+                    case SPHS_PREP_SETUPRULES:
+                    {
+                        // TITLE
+                        Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                        DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                        DrawTitle("RULES", r_title, COLOR_TITLETEXT, TextLeft);
+                        // RULES
+                        Rectangle r_section = {2 * UNIT, (r_title.height + PAD) + 3 * UNIT, UNITCLAMP(screenWidth/2 - 2 * UNIT), Font3RectH};
+                        DrawFont3("TEMPORARY ROME CONSUL", r_section, COLOR_BACKGOUNDSECTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                        A_RULE_TERC_t* p = (A_RULE_TERC_t*)val0absaddr(rordata, G_RULE, A_RULE_TERC);
+                        Rectangle r_item = r_section;
+                        Rectangle r_toggle = r_section;
+                        r_toggle.x += 7;
+                        r_item.x = r_toggle.x + Font2RectH;
+                        r_item.width -= Font2RectH - 7;
+                        r_item.height = Font2RectH;
+                        r_item.y += r_section.height + PAD + 2 * UNIT;
+                        r_toggle.y = r_item.y + 1 * UNIT;
+                        r_toggle.height = Font2RectH - 2 * UNIT - PAD;
+                        r_toggle.width = r_toggle.height;
+                        sprintf(str, "*p: %x", *p);
+                        TraceLog(LOG_DEBUG, str);
+
+                        if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,0);
+                        if ((*p & 0x01) == 0x01) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                        else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                        DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        DrawFont2("NO TEMPORARY ROME CONSUL [opt.]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x01){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,1);
+                            if ((*p & 0x03) == 0x00) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("RANDOM DRAW [VG]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x01){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,1);
+                            if ((*p & 0x03) == 0x02) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("LOWEST ID [AH]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x01){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,2);
+                            if ((*p & 0x05) == 0x00) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("BEFORE FACTION LEADERS [VG]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x01){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,2);
+                            if ((*p & 0x05) == 0x04) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("AFTER FACTION LEADERS [AH]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x01){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,3);
+                            if ((*p & 0x09) == 0x08) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("REPEAT IF DIES IN FIRST MORTALITY PHASE [AH-LRB]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        // NEXT BUTTON
                         Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
                         if (CheckCollisionPointRec(mouse, r_button))
                         {
@@ -772,13 +928,13 @@ int main(void)
                             {
                                 DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
                                 uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
-                                if (temporaryromeconsulflags == 0xFF || (temporaryromeconsulflags & 0x01)==0x01)
+                                if ((temporaryromeconsulflags & 0x05) == 0x00)
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
                                 }
                                 else
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
                                 }
                                 selected = -1;
                                 framesCounter = 0;
@@ -1031,6 +1187,8 @@ int main(void)
                         r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
                         for (int factidx = 1; factidx < numFactions + 1; factidx++)
                         {
+                            A_FACT_LEGR_t leadergroup = *valabsaddr(rordata, G_FACT, A_FACT_LEGR, factidx);
+                            A_FACT_LENR_t leaderidx = *valabsaddr(rordata, G_FACT, A_FACT_LENR, factidx);
                             Rectangle r_faction = {r_senator.x, r_senator.y, r_senator.width, r_senator.height + (Font2RectH + PAD) * factionSenatorCounts[factidx]};
                             DrawRectangleRec(r_faction, COLOR_BACKGROUNDAREA);
                             DrawRectangleRec(r_senator, COLOR_FACTION);
@@ -1089,6 +1247,11 @@ int main(void)
                                     DrawRectangleRec(r_hrao, COLOR_HRAO);
                                     DrawFont2("H", r_hrao, COLOR_OFFICETEXT, TextCenter, ((Vector2){1, 0}));
                                 }
+                                if ((leadergroup == G_SENA && leaderidx == senaidx))
+                                {
+                                    DrawRectangleRec(((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH + 2, r_senator.height}), COLOR_FACTION);
+                                    DrawRectangleRec(((Rectangle){r_senator.x + RECT_SEN_ID_X + 1, r_senator.y + r_senator.height - 4, RECT_SEN_ID_WIDTH, 3}), COLOR_BLACKCARDTEXT);
+                                }
                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
                                 DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
                                 DrawFont2((char*)(valabsaddr(rordata, G_SENA, A_SENA_NAME, senaidx)), ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
@@ -1120,13 +1283,13 @@ int main(void)
                             {
                                 DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
                                 uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
-                                if (temporaryromeconsulflags != 0xFF && (temporaryromeconsulflags & 0x01)==0x01)
+                                if ((temporaryromeconsulflags & 0x05) == 0x00)
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_INITIALFACTIONPHASE;
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
                                 }
                                 else
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_INITIALFACTIONPHASE;
                                 }
                                 selected = -1;
                                 framesCounter = 0;
@@ -1410,7 +1573,7 @@ int main(void)
                                 {
                                     DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
                                     uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
-                                    if (temporaryromeconsulflags != 0xFF && (temporaryromeconsulflags & 0x01)==0x01)
+                                    if ((temporaryromeconsulflags & 0x05) == 0x04)
                                     {
                                         *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
                                     }
