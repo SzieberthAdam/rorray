@@ -88,10 +88,10 @@ rorray.c:1506:33: warning: incompatible implicit declaration of built-in functio
  1506 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
       |                                 ^~~~~~~
 rorray.c:1506:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1558:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1558 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_IDNR, smanidx));
+rorray.c:1564:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1564 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_IDNR, smanidx));
       |                                 ^~~~~~~
-rorray.c:1558:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1564:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
 rorfile.h:46:97: warning: pointer targets in passing argument 2 of 'DrawTextEx2' differ in signedness [-Wpointer-sign]
    46 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
       |                                                                                                 ^
@@ -103,8 +103,8 @@ rorray.c:121:71: note: in definition of macro 'DrawFont1'
 rorfile.h:47:48: note: in expansion of macro 'valreladdr'
    47 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
       |                                                ^~~~~~~~~~
-rorray.c:1560:43: note: in expansion of macro 'valabsaddr'
- 1560 |                                 DrawFont1(valabsaddr(rordata, G_SMAN, A_SMAN_IDCH, smanidx), ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextRight, ((Vector2){1, -4}));
+rorray.c:1566:43: note: in expansion of macro 'valabsaddr'
+ 1566 |                                 DrawFont1(valabsaddr(rordata, G_SMAN, A_SMAN_IDCH, smanidx), ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextRight, ((Vector2){1, -4}));
       |                                           ^~~~~~~~~~
 rorray.c:277:41: note: expected 'const char *' but argument is of type 'unsigned char *'
   277 | void DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize, float spacing, Vector2 padding, Color tint, TextAlignment align, Vector2 offset)
@@ -120,8 +120,8 @@ rorray.c:122:71: note: in definition of macro 'DrawFont2'
 rorfile.h:47:48: note: in expansion of macro 'valreladdr'
    47 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
       |                                                ^~~~~~~~~~
-rorray.c:1568:47: note: in expansion of macro 'valabsaddr'
- 1568 |                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_NAME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y, r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+rorray.c:1574:47: note: in expansion of macro 'valabsaddr'
+ 1574 |                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_NAME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y, r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
       |                                               ^~~~~~~~~~
 rorray.c:277:41: note: expected 'const char *' but argument is of type 'unsigned char *'
   277 | void DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize, float spacing, Vector2 padding, Color tint, TextAlignment align, Vector2 offset)
@@ -137,8 +137,8 @@ rorray.c:122:71: note: in definition of macro 'DrawFont2'
 rorfile.h:47:48: note: in expansion of macro 'valreladdr'
    47 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
       |                                                ^~~~~~~~~~
-rorray.c:1569:47: note: in expansion of macro 'valabsaddr'
- 1569 |                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_TIME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y + 1 * (Font2RectH + PAD), r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+rorray.c:1575:47: note: in expansion of macro 'valabsaddr'
+ 1575 |                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_TIME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y + 1 * (Font2RectH + PAD), r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
       |                                               ^~~~~~~~~~
 rorray.c:277:41: note: expected 'const char *' but argument is of type 'unsigned char *'
   277 | void DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize, float spacing, Vector2 padding, Color tint, TextAlignment align, Vector2 offset)
@@ -152,16 +152,16 @@ rorfile.h:46:97: warning: pointer targets in passing argument 2 of 'DrawTextBoxe
 rorfile.h:47:48: note: in expansion of macro 'valreladdr'
    47 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
       |                                                ^~~~~~~~~~
-rorray.c:1570:58: note: in expansion of macro 'valabsaddr'
- 1570 |                                     DrawTextBoxed(font2, valabsaddr(rordata, G_SMAN, A_SMAN_SPEC, smanidx), ((Rectangle){r_tooltip.x + Font2PaddingX, r_tooltip.y + 2 * (Font2RectH + PAD) - PAD, r_tooltip.width - Font2PaddingX, 3 * (Font2RectH + PAD) - PAD}), Font2H, Font2Spacing, true, COLOR_TOOLTIPTEXT, Font2H - 2);
+rorray.c:1576:58: note: in expansion of macro 'valabsaddr'
+ 1576 |                                     DrawTextBoxed(font2, valabsaddr(rordata, G_SMAN, A_SMAN_SPEC, smanidx), ((Rectangle){r_tooltip.x + Font2PaddingX, r_tooltip.y + 2 * (Font2RectH + PAD) - PAD, r_tooltip.width - Font2PaddingX, 3 * (Font2RectH + PAD) - PAD}), Font2H, Font2Spacing, true, COLOR_TOOLTIPTEXT, Font2H - 2);
       |                                                          ^~~~~~~~~~
 rorray.c:13:50: note: expected 'const char *' but argument is of type 'unsigned char *'
    13 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight);   // Draw text using font inside rectangle limits; taken from raylib example text_rectangle_bounds.c
       |                                      ~~~~~~~~~~~~^~~~
-rorray.c:1576:42: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1576 |                                     else strcpy(str, "d6");
+rorray.c:1583:42: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1583 |                                     else strcpy(str, "d6");
       |                                          ^~~~~~
-rorray.c:1576:42: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1583:42: note: include '<string.h>' or provide a declaration of 'strcpy'
 rorray.c:1397:34: warning: unused variable 'p_temporaryRomeConsulFlags' [-Wunused-variable]
  1397 |                         uint8_t* p_temporaryRomeConsulFlags = (A_RSET_TERC_t*)(val0absaddr(rordata, G_RSET, A_RSET_TERC));
       |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1448,7 +1448,7 @@ int main(void)
                         // FACTIONS
                         Rectangle r_header = {0, 0, RECT_SEN_WIDTH2, Font2RectH};
                         Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
-                        r_header.x = UNITCLAMP((screenWidth - (RECT_SEN_HRAO_WIDTH + RECT_SEN_WIDTH2 + PAD + 4 * UNIT + RECT_SEN_WIDTH + PAD)) / 2 + RECT_SEN_HRAO_WIDTH);
+                        r_header.x = UNITCLAMP((screenWidth - (RECT_SEN_HRAO_WIDTH + RECT_SEN_WIDTH2 + PAD + 4 * UNIT + RECT_SEN_WIDTH + PAD - (RECT_SEN_OFF_WIDTH + PAD))) / 2 + RECT_SEN_HRAO_WIDTH);
                         r_header.y = (r_title.height + PAD) + 3 * UNIT;
                         DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
                         DrawFont2("SENATE", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
@@ -1527,32 +1527,38 @@ int main(void)
                             r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
                         }
                         // STATESMEN
+                        Rectangle r_tooltip = r_header;
                         r_header.x += r_header.width + PAD + 4 * UNIT;
-                        r_header.y = 0;
-                        r_header.width = RECT_SEN_WIDTH;
+                        r_header.y = (r_title.height + PAD) + 3 * UNIT;
+                        r_header.width = RECT_SEN_WIDTH - (RECT_SEN_OFF_WIDTH + PAD);
                         r_header.height = Font2RectH;
-                        r_senator.x = 0;
-                        r_senator.y = 0;
+                        r_senator.x = r_header.x;
+                        r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
                         r_senator.width = r_header.width;
                         r_senator.height = Font2RectH;
-                        r_header.y = (r_title.height + PAD) + 3 * UNIT;
+                        r_tooltip.width += 4 * UNIT + r_header.width + PAD;
+                        r_tooltip.height = 4 * (Font2RectH + PAD) - PAD;
+                        r_tooltip.x -= RECT_SEN_HRAO_WIDTH;
+                        r_tooltip.width += RECT_SEN_HRAO_WIDTH;
                         DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
                         DrawFont2("STATESMEN", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                        r_header.x -= (RECT_SEN_OFF_WIDTH + PAD);  // statesmen list does not have office column, so I applied this dirty shift trick
                         DrawFont2("M", ((Rectangle){r_header.x + RECT_SEN_M_X, r_header.y, RECT_SEN_M_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
                         DrawFont2("O", ((Rectangle){r_header.x + RECT_SEN_O_X, r_header.y, RECT_SEN_O_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
                         DrawFont2("L", ((Rectangle){r_header.x + RECT_SEN_L_X, r_header.y, RECT_SEN_L_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
                         DrawFont2("I", ((Rectangle){r_header.x + RECT_SEN_I_X, r_header.y, RECT_SEN_I_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
                         DrawFont2("P", ((Rectangle){r_header.x + RECT_SEN_P_X, r_header.y, RECT_SEN_P_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
-                        r_senator.x = r_header.x;
-                        r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
+                        r_header.x = r_senator.x;
                         for (int era = 0; era < group(rordata, G_RERA).elems; era++)
                         {
+                            r_senator.x = r_header.x;
                             DrawRectangleRec(r_senator, COLOR_ERAHEADER);
                             DrawFont2(TextToUpper((char*)(valabsaddr(rordata, G_RERA, A_RERA_NAME, era))), r_senator, COLOR_ERAHEADERTEXT, TextLeft, ((Vector2){0, 0}));
                             for (int smanidx = 0; smanidx < group(rordata, G_SMAN).elems; smanidx++)
                             {
                                 if ( *((A_SMAN_RERA_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_RERA, smanidx))) != (A_SMAN_RERA_t)(era) ) continue;  // typecast is a must!; not for this era
                                 bool loy0 = ( (0 <= *((A_SMAN_L0W1_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W1, smanidx)))) || (0 <= *((A_SMAN_L0W2_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W2, smanidx)))) || (0 <= *((A_SMAN_L0W3_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W3, smanidx)))) || (0 <= *((A_SMAN_L0N1_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0N1, smanidx)))) );
+                                r_senator.x = r_header.x;
                                 r_senator.y += (Font2RectH + PAD);
                                 DrawRectangleRec(r_senator, COLOR_STATESMANBACKGROUND);
                                 sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_IDNR, smanidx));
@@ -1562,13 +1568,14 @@ int main(void)
                                 DrawFont2((char*)(valabsaddr(rordata, G_SMAN, A_SMAN_SNAM, smanidx)), r_name, COLOR_STATESMANTEXT, TextLeft, ((Vector2){0, 0}));
                                 if (CheckCollisionPointRec(mouse, r_name))
                                 {
-                                    Rectangle r_tooltip = {r_senator.x - 24 * Font2HUnit, r_senator.y - 4 * (Font2RectH + PAD), r_senator.width + 24 * Font2HUnit, 4 * (Font2RectH + PAD) - PAD};
+                                    r_tooltip.y = r_senator.y - 4 * (Font2RectH + PAD);
                                     DrawRectangleRec(r_tooltip, COLOR_TOOLTIPBACKGROUND);
                                     DrawRectangleLinesEx(((Rectangle){r_tooltip.x - 1, r_tooltip.y - 1, r_tooltip.width + 2, r_tooltip.height + 2}), 1.0f, COLOR_TOOLTIPOUTLINE);
                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_NAME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y, r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_TIME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y + 1 * (Font2RectH + PAD), r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
                                     DrawTextBoxed(font2, valabsaddr(rordata, G_SMAN, A_SMAN_SPEC, smanidx), ((Rectangle){r_tooltip.x + Font2PaddingX, r_tooltip.y + 2 * (Font2RectH + PAD) - PAD, r_tooltip.width - Font2PaddingX, 3 * (Font2RectH + PAD) - PAD}), Font2H, Font2Spacing, true, COLOR_TOOLTIPTEXT, Font2H - 2);
                                 }
+                                r_senator.x -= (RECT_SEN_OFF_WIDTH + PAD);  // statesmen list does not have office column, so I applied this dirty shift trick
                                 A_SMAN_MIL0_t mil = *valabsaddr(rordata, G_SMAN, A_SMAN_MIL0, smanidx);
                                 if (0x10 <= mil)
                                 {
