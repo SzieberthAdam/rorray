@@ -5,15 +5,7 @@
 :G NULL ###
 
 
-:G RULE ### "Rules"
-:GELEMS 1
-:A TERC uint8 0 ### Temporary Rome Consul (0xFF: no Temporary Rome Consul### bit0: resolve before(0)/after(1) faction leaders### bit1: lowest ID family card(hard)-AH(1)/random draw-VG(0)### bit7: resolved)
-	### uncovered AHLRB: If, during the first mortality phase, the number is drawn of the Temporary Rome Consul and the senator is killed (faction leader or not) this process is immediately repeated.
-:A NSEN uint8 3 ### initial number of senators per faction (4.4)
-:ANOPAD
-
-
-:G GAME ### "Game"
+:G GAME ### Game
 :A NFAC int8 -1 ### number of factions + 1 (faction#0 is unaligned) (value -1: unset)
 :A TURN int16 0 ### turn
 :ANOPAD
@@ -23,21 +15,20 @@
 :ANOPAD
 
 
-:G FORU ### "Forum"
+:G RSET ### Rules of Setup Phase / Global Rules
+:GELEMS 1
+:A TERC uint8 0 ### Temporary Rome Consul (0xFF: no Temporary Rome Consul### bit0: resolve before(0)/after(1) faction leaders### bit1: lowest ID family card(hard)-AH(1)/random draw-VG(0)### bit7: resolved)
+	### uncovered AHLRB: If, during the first mortality phase, the number is drawn of the Temporary Rome Consul and the senator is killed (faction leader or not) this process is immediately repeated.
+:A NSEN uint8 3 ### initial number of senators per faction (4.4)
+:ANOPAD
 
 
-:G REPR ### "Curia / Repopulating Rome"
+:G RERA ### Rules of the historical periods (Eras)
+:A NAME string(16) "Early Republic", "Middle Republic", "Late Republic"
 
 
-:G PLYR ### "Player"
-:GELEMS 7
-:A GAME group GAME, * ### belongs to GAME (in play) or NULL (not in play)
-:A NAME string(16) "Jupiter", "Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6" ### player name, Jupiter (id=0) does the automated stuff
-:A PERM uint8 0xFF, 0x03, * ### permissions bit1: can see public stuff, bit2: can see/have own stuff (off for possible spectators)### bit3: can see other player's stuff### bit4: can see decks
-
-
-:G FACT ### "Faction"
-:A CNGR group GAME, PLYR, * ### connection, PLYR (in play) or NULL (not in play)### note that factions represent clockwise order
+:G FACT ### Faction (in clockwise seat order)
+:A CNGR group GAME, * ### connection, GAME (in play) or NULL (not in play)
 :A CNNR elem 0, * ### connection (player) number X if taken by player X, otherwise 0
 :A NAME string(16) ### faction name
 	"unaligned", "Manus", "Aquila", "Luna Crescens", "Corona", "Porta", "Parma"
@@ -45,19 +36,42 @@
 :A LENR elem 0, * ### Faction Leader elem
 
 
-:G REPU ### Era
-:A NAME string(16) "none", "Early Republic", "Middle Republic", "Late Republic"
-
-
-:G DECK ### "Deck"
+:G DECK ### Deck
 :GELEMS 1
 
 
-:G SENA ### "Family Card / Senator"
-:A REPU uint8 ### Era
-	1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	2,  2,  2,  2,  2,  3,  3,  3,  3,  3
+:G OFFI ### Office
+:A NAME string(24)
+	"none", "Consul for Life", "Dictator", "Rome Consul", "Field Consul",
+	"Censor", "Master of Horse", "Dominant Player", "Pontifex Maximus",
+	"Proconsul"
+:A SNAM string(4) ### short name
+	"", "CfL", "DI", "RC", "FC", "CE", "MoH", "DP", "PM", "PC"
+:A ORDR string(1) ### order of precedence mark
+	"", "*", "1", "2", "3", "4", "5", "5", "6", "X"
+:A FORL uint8 ### applies for life
+	0, 1, 0, 0, 0, 0, 0, 0, 1, 0
+:A INFL int8 ### influence gain for taking
+	0, 0, 7, 5, 5, 5, 3, 3, 5, 0
+
+
+:G HRAO ### HRAO
+:GELEMS 1
+:A CNGR group NULL
+:A CNNR elem 0
+
+
+:G PRMA ### Presiding Magistrate
+:GELEMS 1
+:A CNGR group NULL
+:A CNNR elem 0
+
+
+:G SENA ### Family Card / Senator
+:A RERA uint8 ### Era
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	1,  1,  1,  1,  1,  2,  2,  2,  2,  2
 :A IDNR uint8 ### family ID number (#x)
          1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
 	11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
@@ -127,39 +141,11 @@
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
-
-:G OFFI ### "Office"
-:A NAME string(24)
-	"none", "Consul for Life", "Dictator", "Rome Consul", "Field Consul",
-	"Censor", "Master of Horse", "Dominant Player", "Pontifex Maximus",
-	"Proconsul"
-:A SNAM string(4) ### short name
-	"", "CfL", "DI", "RC", "FC", "CE", "MoH", "DP", "PM", "PC"
-:A ORDR string(1) ### order of precedence mark
-	"", "*", "1", "2", "3", "4", "5", "5", "6", "X"
-:A FORL uint8 ### applies for life
-	0, 1, 0, 0, 0, 0, 0, 0, 1, 0
-:A INFL int8 ### influence gain for taking
-	0, 0, 7, 5, 5, 5, 3, 3, 5, 0
-
-
-:G HRAO ### "HRAO"
-:GELEMS 1
-:A CNGR group NULL
-:A CNNR elem 0
-
-
-:G PRMA ### "Presiding Magistrate"
-:GELEMS 1
-:A CNGR group NULL
-:A CNNR elem 0
-
-
-:G SMAN ### "Statesman"
-:A REPU uint8 ### Era
-	1, 1, 1, 1, 1,
-	2, 2, 2, 2, 2, 2, 2, 2,
-	3, 3, 3, 3, 3, 3
+:G SMAN ### Statesman
+:A RERA uint8 ### Era
+	0, 0, 0, 0, 0,
+	1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 2, 2, 2, 2
 :A IDNR uint8 ### ID number (#x_)
 	 1,  2, 18, 19, 22,
 	 1,  1,  7, 21, 23, 25, 25, 27,
@@ -336,3 +322,8 @@
 	-1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, 11, 10, -1,
 	-1, -1, -1, -1, -1, -1
+
+
+:G FORU ### Forum
+
+:G REPR ### Curia / Repopulating Rome

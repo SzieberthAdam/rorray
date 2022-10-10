@@ -163,7 +163,7 @@ rorray.c:1576:42: warning: incompatible implicit declaration of built-in functio
       |                                          ^~~~~~
 rorray.c:1576:42: note: include '<string.h>' or provide a declaration of 'strcpy'
 rorray.c:1397:34: warning: unused variable 'p_temporaryRomeConsulFlags' [-Wunused-variable]
- 1397 |                         uint8_t* p_temporaryRomeConsulFlags = (A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+ 1397 |                         uint8_t* p_temporaryRomeConsulFlags = (A_RSET_TERC_t*)(val0absaddr(rordata, G_RSET, A_RSET_TERC));
       |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~
 rorray.c:416:9: warning: label 'LABEL_GAME_TREE' defined but not used [-Wunused-label]
   416 |         LABEL_GAME_TREE:

@@ -544,11 +544,11 @@ int main(void)
                         // TITLE
                         Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                         DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
-                        DrawTitle("RULES", r_title, COLOR_TITLETEXT, TextLeft);
-                        // RULES
+                        DrawTitle("RSETS", r_title, COLOR_TITLETEXT, TextLeft);
+                        // RSETS
                         Rectangle r_section = {2 * UNIT, (r_title.height + PAD) + 3 * UNIT, UNITCLAMP(screenWidth/2 - 2 * UNIT), Font3RectH};
                         DrawFont3("TEMPORARY ROME CONSUL", r_section, COLOR_BACKGOUNDSECTIONTEXT, TextLeft, ((Vector2){0, 0}));
-                        A_RULE_TERC_t* p = (A_RULE_TERC_t*)val0absaddr(rordata, G_RULE, A_RULE_TERC);
+                        A_RSET_TERC_t* p = (A_RSET_TERC_t*)val0absaddr(rordata, G_RSET, A_RSET_TERC);
                         Rectangle r_item = r_section;
                         Rectangle r_toggle = r_section;
                         r_toggle.x += 7;
@@ -683,7 +683,7 @@ int main(void)
                                 (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) == (A_SENA_CNNR_t)(0))
                             ) deckSize += 1;
                         }
-                        uint8_t targetSenatorCount = (uint8_t)(*val0absaddr(rordata, G_RULE, A_RULE_NSEN));
+                        uint8_t targetSenatorCount = (uint8_t)(*val0absaddr(rordata, G_RSET, A_RSET_NSEN));
                         uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
                         uint8_t minFactionSenatorCount = 255;
                         uint8_t dealTargetFactionIdx = 255;
@@ -891,7 +891,7 @@ int main(void)
                             if (currentGesture == GESTURE_TAP)
                             {
                                 DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
-                                uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                                uint8_t temporaryromeconsulflags = *(A_RSET_TERC_t*)(val0absaddr(rordata, G_RSET, A_RSET_TERC));
                                 if ((temporaryromeconsulflags & 0x05) == 0x00)
                                 {
                                     *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
@@ -1066,7 +1066,7 @@ int main(void)
                     case SPHS_PREP_TEMPORARYROMECONSUL:
                     {
                         // PREP
-                        uint8_t* p_temporaryRomeConsulFlags = (A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                        uint8_t* p_temporaryRomeConsulFlags = (A_RSET_TERC_t*)(val0absaddr(rordata, G_RSET, A_RSET_TERC));
                         uint16_t numFactions = *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC) - 1;  // first "faction" (unaligned) is excluded
                         uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
                         for (int factidx = 1; factidx < numFactions + 1; factidx++)
@@ -1246,7 +1246,7 @@ int main(void)
                             if (currentGesture == GESTURE_TAP)
                             {
                                 DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
-                                uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                                uint8_t temporaryromeconsulflags = *(A_RSET_TERC_t*)(val0absaddr(rordata, G_RSET, A_RSET_TERC));
                                 if ((temporaryromeconsulflags & 0x05) == 0x00)
                                 {
                                     *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
@@ -1394,7 +1394,7 @@ int main(void)
                     case SPHS_PREP_SELECTFACTIONLEADERS:
                     {
                         // PREP
-                        uint8_t* p_temporaryRomeConsulFlags = (A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                        uint8_t* p_temporaryRomeConsulFlags = (A_RSET_TERC_t*)(val0absaddr(rordata, G_RSET, A_RSET_TERC));
                         uint16_t numFactions = *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC) - 1;  // first "faction" (unaligned) is excluded
                         uint8_t factionSenatorCounts[FACT_ELEMCOUNT] = {0};
                         for (int factidx = 1; factidx < numFactions + 1; factidx++)
@@ -1545,13 +1545,13 @@ int main(void)
                         DrawFont2("P", ((Rectangle){r_header.x + RECT_SEN_P_X, r_header.y, RECT_SEN_P_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
                         r_senator.x = r_header.x;
                         r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
-                        for (int era = 1; era < group(rordata, G_REPU).elems; era++)
+                        for (int era = 0; era < group(rordata, G_RERA).elems; era++)
                         {
                             DrawRectangleRec(r_senator, COLOR_ERAHEADER);
-                            DrawFont2(TextToUpper((char*)(valabsaddr(rordata, G_REPU, A_REPU_NAME, era))), r_senator, COLOR_ERAHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                            DrawFont2(TextToUpper((char*)(valabsaddr(rordata, G_RERA, A_RERA_NAME, era))), r_senator, COLOR_ERAHEADERTEXT, TextLeft, ((Vector2){0, 0}));
                             for (int smanidx = 0; smanidx < group(rordata, G_SMAN).elems; smanidx++)
                             {
-                                if ( *((A_SMAN_REPU_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_REPU, smanidx))) != (A_SMAN_REPU_t)(era) ) continue;  // typecast is a must!; not for this era
+                                if ( *((A_SMAN_RERA_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_RERA, smanidx))) != (A_SMAN_RERA_t)(era) ) continue;  // typecast is a must!; not for this era
                                 bool loy0 = ( (0 <= *((A_SMAN_L0W1_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W1, smanidx)))) || (0 <= *((A_SMAN_L0W2_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W2, smanidx)))) || (0 <= *((A_SMAN_L0W3_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W3, smanidx)))) || (0 <= *((A_SMAN_L0N1_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0N1, smanidx)))) );
                                 r_senator.y += (Font2RectH + PAD);
                                 DrawRectangleRec(r_senator, COLOR_STATESMANBACKGROUND);
@@ -1603,7 +1603,7 @@ int main(void)
                                 if (currentGesture == GESTURE_TAP)
                                 {
                                     DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
-                                    uint8_t temporaryromeconsulflags = *(A_RULE_TERC_t*)(val0absaddr(rordata, G_RULE, A_RULE_TERC));
+                                    uint8_t temporaryromeconsulflags = *(A_RSET_TERC_t*)(val0absaddr(rordata, G_RSET, A_RSET_TERC));
                                     if ((temporaryromeconsulflags & 0x05) == 0x04)
                                     {
                                         *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;

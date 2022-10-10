@@ -218,6 +218,7 @@ if __name__ == "__main__":
         ba_grouptoc.extend(_b)
 
     for _da in attrlist:
+        print(f'_da: {_da}')
         if _da["type"] == "group":
             assert all(_group in groupdict for _group in _da["values"])
         _elems = groupdict[_da["group"]]["elems"]
