@@ -10,6 +10,8 @@
 #endif
 
 #include "raylib.h"
+static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight);   // Draw text using font inside rectangle limits; taken from raylib example text_rectangle_bounds.c
+
 
 #include "bitbit.h"
 #include "rorfile.h"
@@ -45,6 +47,7 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_BrightGray      ((Color){0xEE, 0xEE, 0xEE, 0xFF}) // Board Text
 #define COLOR_CarrotOrange    ((Color){0xEE, 0x88, 0x22, 0xFF}) // Exile Marker
 #define COLOR_ChineseBlack    ((Color){0x11, 0x11, 0x11, 0xFF}) // Board Black
+#define COLOR_ChineseSilver   ((Color){0xCC, 0xCC, 0xCC, 0xFF}) // Middle Republic card
 #define COLOR_Cinnabar        ((Color){0xEE, 0x44, 0x33, 0xFF}) // Priest Marker; Rebel Marker
 #define COLOR_ColumbiaBlue    ((Color){0xCC, 0xDD, 0xEE, 0xFF}) // Map See
 #define COLOR_CookiesAndCream ((Color){0xEE, 0xDD, 0xAA, 0xFF}) // Map Land
@@ -53,52 +56,11 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_Goldenrod       ((Color){0xDD, 0x99, 0x22, 0xFF}) // Talent
 #define COLOR_ImperialRed     ((Color){0xEE, 0x22, 0x33, 0xFF}) // Legion and Fleet Markers; Office Marker; Manpower Shortage Marker; etc.
 #define COLOR_LightTaupe      ((Color){0xBB, 0x88, 0x66, 0xFF}) // Board Blocks Dark
+#define COLOR_Melon           ((Color){0xFF, 0xAA, 0xAA, 0xFF}) // Late Republic card
 #define COLOR_RaisinBlack     ((Color){0x22, 0x22, 0x22, 0xFF}) // Marker Black Light
+#define COLOR_Red             ((Color){0xFF, 0x22, 0x22, 0xFF}) // Card red
 #define COLOR_TitaniumYellow  ((Color){0xEE, 0xDD, 0x00, 0xFF}) // Faction Leader Markers
 #define COLOR_VivdLimeGreen   ((Color){0xAA, 0xCC, 0x00, 0xFF}) // Prior Consul Marker; Faction Dominance Marker
-
-
-
-#define COLOR_BrownYellow     ((Color){0xCC, 0x99, 0x66, 0xFF})
-#define COLOR_Yellow          ((Color){0xFF, 0xFF, 0x00, 0xFF})
-#define COLOR_DarkCharcoal    ((Color){0x33, 0x33, 0x33, 0xFF})
-#define COLOR_CopperRose      ((Color){0x99, 0x66, 0x66, 0xFF})
-#define COLOR_Black           ((Color){0x00, 0x00, 0x00, 0xFF})
-#define COLOR_ChineseSilver   ((Color){0xCC, 0xCC, 0xCC, 0xFF})
-#define COLOR_DarkVanilla     ((Color){0xCC, 0xCC, 0x99, 0xFF})
-#define COLOR_PeachOrange     ((Color){0xFF, 0xCC, 0x99, 0xFF})
-#define COLOR_GraniteGray     ((Color){0x66, 0x66, 0x66, 0xFF})
-#define COLOR_White           ((Color){0xFF, 0xFF, 0xFF, 0xFF})
-#define COLOR_SpanishGray     ((Color){0x99, 0x99, 0x99, 0xFF})
-#define COLOR_DeepCarminePink ((Color){0xFF, 0x33, 0x33, 0xFF})
-#define COLOR_MediumVioletRed ((Color){0xCC, 0x00, 0x99, 0xFF})
-#define COLOR_FrenchLilac     ((Color){0x99, 0x66, 0x99, 0xFF})
-#define COLOR_SheenGreen      ((Color){0x99, 0xCC, 0x00, 0xFF})
-
-
-
-#define COLOR_BIRREN_SCARLET ((Color){209, 33, 33, 255})
-#define COLOR_BIRREN_IVORY_WHITE ((Color){234, 229, 224, 255})
-#define COLOR_BIRREN_POMPEII_ROSE ((Color){192, 95, 79, 255})
-#define COLOR_BIRREN_RICH_GOLD ((Color){210, 146, 48, 255})
-#define COLOR_BIRREN_RICH_CORAL ((Color){231, 142, 112, 255})
-#define COLOR_BIRREN_BRIGHT_COPPER ((Color){154, 48, 32, 255})
-#define COLOR_BIRREN_NUBIAN_BROWN ((Color){100, 43, 36, 255})
-#define COLOR_BIRREN_LIGHT_ROMAN_BLUE ((Color){136, 208, 232, 255})
-#define COLOR_BIRREN_MEDIUM_ROMAN_BLUE ((Color){78, 148, 197, 255})
-#define COLOR_BIRREN_DEEP_COBALT ((Color){26, 88, 163, 255})
-#define COLOR_BIRREN_LIGHT_POMPEII_GREEN ((Color){164, 218, 194, 255})
-#define COLOR_BIRREN_MEDIUM_POMPEII_GREEN ((Color){90, 161, 129, 255})
-#define COLOR_BIRREN_DEEP_POMPEII_GREEN ((Color){40, 108, 67, 255})
-#define COLOR_BIRREN_BONE_BLACK ((Color){32, 32, 32, 255})
-
-
-#define COLOR_SCARLET ((Color){255, 39, 0, 255})
-#define COLOR_IVORY_WHITE ((Color){242, 239, 222, 255})
-#define COLOR_RICH_GOLD ((Color){236, 190, 7, 255})
-
-#define COLOR_ANTIQUE_RUBY ((Color){127, 33, 34, 255})
-#define COLOR_OLD_LACE ((Color){229, 219, 183, 255})
 
 #define COLOR_BACKGOUNDSECTIONTEXT COLOR_BrightGray
 #define COLOR_BACKGOUNDTEXT COLOR_BrightGray
@@ -109,30 +71,34 @@ __INITRORAPI__ // initializes the API structs
 #define COLOR_BUTTONBACKGROUND COLOR_BrightGray
 #define COLOR_BUTTONOUTLINE COLOR_ChineseBlack
 #define COLOR_BUTTONTEXT COLOR_ChineseBlack
-#define COLOR_CLICKED COLOR_PeachOrange
+#define COLOR_CLICKED COLOR_CookiesAndCream
+#define COLOR_ERAHEADER COLOR_CrayolaTan
+#define COLOR_ERAHEADERTEXT COLOR_ChineseBlack
 #define COLOR_FACTION COLOR_TitaniumYellow
 #define COLOR_FACTIONHEADER COLOR_LightTaupe
 #define COLOR_FACTIONHEADERTEXT COLOR_ChineseBlack
 #define COLOR_FACTIONTEXT COLOR_ChineseBlack
 #define COLOR_HRAO COLOR_LightTaupe
-#define COLOR_MOUSEDRAG  COLOR_BIRREN_LIGHT_ROMAN_BLUE
+#define COLOR_MOUSEDRAG  COLOR_CookiesAndCream
 #define COLOR_MOUSEDRAGTEXT  COLOR_ChineseBlack
-#define COLOR_MOUSEHOVER_CLICKABLE COLOR_SheenGreen
-#define COLOR_MOUSEHOVER_DRAGABLE  COLOR_FrenchLilac
-#define COLOR_MOUSEHOVER_DROPTARGET  COLOR_MediumVioletRed
-#define COLOR_MOUSEHOVER_EDITABLE  COLOR_CopperRose
+#define COLOR_MOUSEHOVER_CLICKABLE COLOR_CookiesAndCream
+#define COLOR_MOUSEHOVER_DRAGABLE  COLOR_CookiesAndCream
+#define COLOR_MOUSEHOVER_DROPTARGET  COLOR_CookiesAndCream
+#define COLOR_MOUSEHOVER_EDITABLE  COLOR_CookiesAndCream
 #define COLOR_MOUSEHOVER_GAMEMASTER  MAGENTA
-#define COLOR_MOUSEHOVER_SELECTABLE  COLOR_DarkVanilla
+#define COLOR_MOUSEHOVER_SELECTABLE  COLOR_CookiesAndCream
 #define COLOR_OFFICE COLOR_ImperialRed
 #define COLOR_OFFICETEXT COLOR_ChineseBlack
+#define COLOR_STATESMANBACKGROUND COLOR_BrightGray
+#define COLOR_STATESMANTEXT COLOR_Red
 #define COLOR_TITLEBACKGROUND COLOR_Goldenrod
 #define COLOR_TITLETEXT COLOR_ChineseBlack
-#define COLOR_TOOLTIPBACKGROUND COLOR_PeachOrange
-#define COLOR_TOOLTIPOUTLINE COLOR_ChineseBlack
-#define COLOR_TOOLTIPTEXT COLOR_ChineseBlack
+#define COLOR_TOGGLEOUTLINE COLOR_BrightGray
 #define COLOR_TOGGLESET COLOR_Goldenrod
 #define COLOR_TOGGLEUNSET COLOR_RaisinBlack
-#define COLOR_TOGGLEOUTLINE COLOR_BrightGray
+#define COLOR_TOOLTIPBACKGROUND COLOR_CookiesAndCream
+#define COLOR_TOOLTIPOUTLINE COLOR_ChineseBlack
+#define COLOR_TOOLTIPTEXT COLOR_ChineseBlack
 
 #define COLOR_DEBUGTEXT WHITE
 
@@ -593,8 +559,6 @@ int main(void)
                         r_toggle.y = r_item.y + 1 * UNIT;
                         r_toggle.height = Font2RectH - 2 * UNIT - PAD;
                         r_toggle.width = r_toggle.height;
-                        sprintf(str, "*p: %x", *p);
-                        TraceLog(LOG_DEBUG, str);
 
                         if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,0);
                         if ((*p & 0x01) == 0x01) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
@@ -1481,11 +1445,10 @@ int main(void)
                         Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                         DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                         DrawTitle("NOMINATE LEADERS FOR EACH FACTION", r_title, COLOR_TITLETEXT, TextLeft);
-                        // FACTIONS PREP
-                        Vector2 selectedvector;
+                        // FACTIONS
                         Rectangle r_header = {0, 0, RECT_SEN_WIDTH2, Font2RectH};
                         Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
-                        r_header.x = UNITCLAMP((screenWidth - r_header.width) / 2);
+                        r_header.x = UNITCLAMP((screenWidth - (RECT_SEN_HRAO_WIDTH + RECT_SEN_WIDTH2 + PAD + 4 * UNIT + RECT_SEN_WIDTH + PAD)) / 2 + RECT_SEN_HRAO_WIDTH);
                         r_header.y = (r_title.height + PAD) + 3 * UNIT;
                         DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
                         DrawFont2("SENATE", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
@@ -1563,6 +1526,74 @@ int main(void)
                             }
                             r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
                         }
+                        // STATESMEN
+                        r_header.x += r_header.width + PAD + 4 * UNIT;
+                        r_header.y = 0;
+                        r_header.width = RECT_SEN_WIDTH;
+                        r_header.height = Font2RectH;
+                        r_senator.x = 0;
+                        r_senator.y = 0;
+                        r_senator.width = r_header.width;
+                        r_senator.height = Font2RectH;
+                        r_header.y = (r_title.height + PAD) + 3 * UNIT;
+                        DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
+                        DrawFont2("STATESMEN", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                        DrawFont2("M", ((Rectangle){r_header.x + RECT_SEN_M_X, r_header.y, RECT_SEN_M_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("O", ((Rectangle){r_header.x + RECT_SEN_O_X, r_header.y, RECT_SEN_O_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("L", ((Rectangle){r_header.x + RECT_SEN_L_X, r_header.y, RECT_SEN_L_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("I", ((Rectangle){r_header.x + RECT_SEN_I_X, r_header.y, RECT_SEN_I_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        DrawFont2("P", ((Rectangle){r_header.x + RECT_SEN_P_X, r_header.y, RECT_SEN_P_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                        r_senator.x = r_header.x;
+                        r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
+                        for (int era = 1; era < group(rordata, G_REPU).elems; era++)
+                        {
+                            DrawRectangleRec(r_senator, COLOR_ERAHEADER);
+                            DrawFont2(TextToUpper((char*)(valabsaddr(rordata, G_REPU, A_REPU_NAME, era))), r_senator, COLOR_ERAHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                            for (int smanidx = 0; smanidx < group(rordata, G_SMAN).elems; smanidx++)
+                            {
+                                if ( *((A_SMAN_REPU_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_REPU, smanidx))) != (A_SMAN_REPU_t)(era) ) continue;  // typecast is a must!; not for this era
+                                bool loy0 = ( (0 <= *((A_SMAN_L0W1_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W1, smanidx)))) || (0 <= *((A_SMAN_L0W2_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W2, smanidx)))) || (0 <= *((A_SMAN_L0W3_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0W3, smanidx)))) || (0 <= *((A_SMAN_L0N1_t*)(valabsaddr(rordata, G_SMAN, A_SMAN_L0N1, smanidx)))) );
+                                r_senator.y += (Font2RectH + PAD);
+                                DrawRectangleRec(r_senator, COLOR_STATESMANBACKGROUND);
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_IDNR, smanidx));
+                                DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextRight, ((Vector2){1, -8}));
+                                DrawFont1(valabsaddr(rordata, G_SMAN, A_SMAN_IDCH, smanidx), ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextRight, ((Vector2){1, -4}));
+                                Rectangle r_name = {r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH};
+                                DrawFont2((char*)(valabsaddr(rordata, G_SMAN, A_SMAN_SNAM, smanidx)), r_name, COLOR_STATESMANTEXT, TextLeft, ((Vector2){0, 0}));
+                                if (CheckCollisionPointRec(mouse, r_name))
+                                {
+                                    Rectangle r_tooltip = {r_senator.x - 24 * Font2HUnit, r_senator.y - 4 * (Font2RectH + PAD), r_senator.width + 24 * Font2HUnit, 4 * (Font2RectH + PAD) - PAD};
+                                    DrawRectangleRec(r_tooltip, COLOR_TOOLTIPBACKGROUND);
+                                    DrawRectangleLinesEx(((Rectangle){r_tooltip.x - 1, r_tooltip.y - 1, r_tooltip.width + 2, r_tooltip.height + 2}), 1.0f, COLOR_TOOLTIPOUTLINE);
+                                    DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_NAME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y, r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                    DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_TIME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y + 1 * (Font2RectH + PAD), r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                    DrawTextBoxed(font2, valabsaddr(rordata, G_SMAN, A_SMAN_SPEC, smanidx), ((Rectangle){r_tooltip.x + Font2PaddingX, r_tooltip.y + 2 * (Font2RectH + PAD) - PAD, r_tooltip.width - Font2PaddingX, 3 * (Font2RectH + PAD) - PAD}), Font2H, Font2Spacing, true, COLOR_TOOLTIPTEXT, Font2H - 2);
+                                }
+                                A_SMAN_MIL0_t mil = *valabsaddr(rordata, G_SMAN, A_SMAN_MIL0, smanidx);
+                                if (0x10 <= mil)
+                                {
+                                    if (1 < (mil >> 4)) sprintf(str, "%dd6", (mil >> 4));
+                                    else strcpy(str, "d6");
+                                    DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextCenter, ((Vector2){0, -4}));
+                                    sprintf(str, "+%d", (mil & 0x0F));
+                                    DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextCenter, ((Vector2){0, 4}));
+                                }
+                                else
+                                {
+                                    sprintf(str, "%d", mil);
+                                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                }
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_ORA0, smanidx));
+                                DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_LOY0, smanidx));
+                                DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), (loy0) ? COLOR_STATESMANTEXT : COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_INF0, smanidx));
+                                DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                                A_SMAN_POP1_t pop = *valabsaddr(rordata, G_SMAN, A_SMAN_POP0, smanidx);
+                                if (pop != 0) {sprintf(str, "%i", pop); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
+                            }
+                            r_senator.y += 1 * (Font2RectH + PAD) + 2 * UNIT;
+                        }
                         // NEXT BUTTON
                         if (resolved == numFactions)
                         {
@@ -1609,4 +1640,129 @@ int main(void)
     //--------------------------------------------------------------------------------------
 
     return 0;
+}
+
+
+
+// Draw text using font inside rectangle limits
+static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
+{
+    int length = TextLength(text);  // Total length in bytes of the text, scanned by codepoints in loop
+
+    float textOffsetY = 0;          // Offset between lines (on line break '\n')
+    float textOffsetX = 0.0f;       // Offset X to next character to draw
+
+    float scaleFactor = fontSize/(float)font.baseSize;     // Character rectangle scaling factor
+
+    // Word/character wrapping mechanism variables
+    enum { MEASURE_STATE = 0, DRAW_STATE = 1 };
+    int state = wordWrap? MEASURE_STATE : DRAW_STATE;
+
+    int startLine = -1;         // Index where to begin drawing (where a line begins)
+    int endLine = -1;           // Index where to stop drawing (where a line ends)
+    int lastk = -1;             // Holds last value of the character position
+
+    if (lineHeight == 0) lineHeight = (font.baseSize + font.baseSize/2)*scaleFactor;  // Apply default if 0 lineHeight
+
+    for (int i = 0, k = 0; i < length; i++, k++)
+    {
+        // Get next codepoint from byte string and glyph index in font
+        int codepointByteCount = 0;
+        int codepoint = GetCodepoint(&text[i], &codepointByteCount);
+        int index = GetGlyphIndex(font, codepoint);
+
+        // NOTE: Normally we exit the decoding sequence as soon as a bad byte is found (and return 0x3f)
+        // but we need to draw all of the bad bytes using the '?' symbol moving one byte
+        if (codepoint == 0x3f) codepointByteCount = 1;
+        i += (codepointByteCount - 1);
+
+        float glyphWidth = 0;
+        if (codepoint != '\n')
+        {
+            glyphWidth = (font.glyphs[index].advanceX == 0) ? font.recs[index].width*scaleFactor : font.glyphs[index].advanceX*scaleFactor;
+
+            if (i + 1 < length) glyphWidth = glyphWidth + spacing;
+        }
+
+        // NOTE: When wordWrap is ON we first measure how much of the text we can draw before going outside of the rec container
+        // We store this info in startLine and endLine, then we change states, draw the text between those two variables
+        // and change states again and again recursively until the end of the text (or until we get outside of the container).
+        // When wordWrap is OFF we don't need the measure state so we go to the drawing state immediately
+        // and begin drawing on the next line before we can get outside the container.
+        if (state == MEASURE_STATE)
+        {
+            // TODO: There are multiple types of spaces in UNICODE, maybe it's a good idea to add support for more
+            // Ref: http://jkorpela.fi/chars/spaces.html
+            if ((codepoint == ' ') || (codepoint == '\t') || (codepoint == '\n')) endLine = i;
+
+            if ((textOffsetX + glyphWidth) > rec.width)
+            {
+                endLine = (endLine < 1)? i : endLine;
+                if (i == endLine) endLine -= codepointByteCount;
+                if ((startLine + codepointByteCount) == endLine) endLine = (i - codepointByteCount);
+
+                state = !state;
+            }
+            else if ((i + 1) == length)
+            {
+                endLine = i;
+                state = !state;
+            }
+            else if (codepoint == '\n') state = !state;
+
+            if (state == DRAW_STATE)
+            {
+                textOffsetX = 0;
+                i = startLine;
+                glyphWidth = 0;
+
+                // Save character position when we switch states
+                int tmp = lastk;
+                lastk = k - 1;
+                k = tmp;
+            }
+        }
+        else
+        {
+            if (codepoint == '\n')
+            {
+                if (!wordWrap)
+                {
+                    textOffsetY += lineHeight;
+                    textOffsetX = 0;
+                }
+            }
+            else
+            {
+                if (!wordWrap && ((textOffsetX + glyphWidth) > rec.width))
+                {
+                    textOffsetY += lineHeight;
+                    textOffsetX = 0;
+                }
+
+                // When text overflows rectangle height limit, just stop drawing
+                // if ((textOffsetY + font.baseSize*scaleFactor) > rec.height) break;
+
+                // Draw current character glyph
+                if ((codepoint != ' ') && (codepoint != '\t'))
+                {
+                    DrawTextCodepoint(font, codepoint, (Vector2){ rec.x + textOffsetX, rec.y + textOffsetY}, fontSize, tint);
+                }
+            }
+
+            if (wordWrap && (i == endLine))
+            {
+                textOffsetY += lineHeight;
+                textOffsetX = 0;
+                startLine = endLine;
+                endLine = -1;
+                glyphWidth = 0;
+                k = lastk;
+
+                state = !state;
+            }
+        }
+
+        if ((textOffsetX != 0) || (codepoint != ' ')) textOffsetX += glyphWidth; // avoid leading spaces
+    }
 }

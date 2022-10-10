@@ -104,7 +104,7 @@ if __name__ == "__main__":
     grouplist = []
 
 
-    _L0 = (li.partition(";")[0].strip() for li in frmstr.split("\n"))
+    _L0 = (li.partition("###")[0].strip() for li in frmstr.split("\n"))
     _L = [li for li in _L0 if li]
 
     for i, li in enumerate(li for li in _L if li.startswith("|")):
