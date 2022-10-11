@@ -46,17 +46,21 @@ struct _Attr {            \
 #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
 #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
 
-#define SIZE 8105
+#define SIZE 8185
 
 #define G_NULL 0
 #define G_GAME 1
-#define A_GAME_NFAC 0
+#define A_GAME_DESC 0
+#define A_GAME_DESC_t char[32]
+#define A_GAME_NAME 1
+#define A_GAME_NAME_t char[16]
+#define A_GAME_NFAC 2
 #define A_GAME_NFAC_t int8_t
-#define A_GAME_TURN 1
+#define A_GAME_TURN 3
 #define A_GAME_TURN_t int16_t
-#define A_GAME_PHSE 2
+#define A_GAME_PHSE 4
 #define A_GAME_PHSE_t int16_t
-#define A_GAME_SPHS 3
+#define A_GAME_SPHS 5
 #define A_GAME_SPHS_t uint32_t
 #define G_RSET 2
 #define A_RSET_TERC 0
@@ -209,7 +213,6 @@ struct _Attr {            \
 #define PHSE_PREP 0
 
 #define SPHS_PREP_TAKEFACTIONS 301200
-#define SPHS_PREP_SETUPRULES 301250
 #define SPHS_PREP_DEALSENATORS 301420
 #define SPHS_PREP_TEMPORARYROMECONSUL 301600
 #define SPHS_PREP_SELECTFACTIONLEADERS 301700

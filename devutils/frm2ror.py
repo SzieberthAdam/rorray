@@ -344,7 +344,6 @@ struct _Attr {            \\
         "#define PHSE_PREP 0",
         "",
         "#define SPHS_PREP_TAKEFACTIONS 301200",
-        "#define SPHS_PREP_SETUPRULES 301250",
         "#define SPHS_PREP_DEALSENATORS 301420",
         "#define SPHS_PREP_TEMPORARYROMECONSUL 301600",
         "#define SPHS_PREP_SELECTFACTIONLEADERS 301700",

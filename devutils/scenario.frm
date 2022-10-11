@@ -6,6 +6,8 @@
 
 
 :G GAME ### Game
+:A DESC string(32) "Example Scenario"
+:A NAME string(16) ""
 :A NFAC int8 -1 ### number of factions + 1 (faction#0 is unaligned) (value -1: unset)
 :A TURN int16 0 ### turn
 :ANOPAD

@@ -329,8 +329,12 @@ int main(void)
 
     Font font1, font2, font3;
 
-    unsigned int rordataLength = SIZE;
-    unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
+    //unsigned int rordataLength = SIZE;
+    //unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
+    uint8_t scene = 0;
+    bool rordataLoaded = false;
+    unsigned char *rordata;
+
 
     Vector2 mouse;
     Vector2 mousedelta;
@@ -413,7 +417,42 @@ int main(void)
 
         // DrawFPS(windowedScreenWidth-100, 10); // for debug
 
-        LABEL_GAME_TREE:
+        switch (scene)
+        {
+            case 0:
+            {
+                // PREP
+                FilePathList files = LoadDirectoryFiles(".");
+                // TITLE
+                Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                DrawTitle("SCENARIO", r_title, COLOR_TITLETEXT, TextLeft);
+                // LIST
+                int j = 0;
+                for(int i=0; i<files.count; i++ ){
+                    if (IsPathFile(files.paths[i]) == false) continue;
+                    if (!TextIsEqual(GetFileExtension(files.paths[i]), ".ror")) continue;
+                    Rectangle r = {4 * UNIT, (r_title.height + PAD) + 3 * UNIT + (Font2RectH + PAD) * j, 20 * Font2HUnit, Font2RectH};
+                    if (CheckCollisionPointRec(mouse, r))
+                    {
+                        if (currentGesture == GESTURE_TAP)
+                        {
+                            unsigned int rordataLength = GetFileLength(files.paths[i]);
+                            rordata = LoadFileData(files.paths[i], &rordataLength);
+                            *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TAKEFACTIONS;
+                            rordataLoaded = true;
+                            scene = 1;
+                        }
+                    }
+                    DrawRectangleRec(r, COLOR_FACTIONHEADER);
+                    sprintf(str, "file %d = %s", i, files.paths[i]);
+                    DrawFont2(str, r, WHITE, TextLeft, ((Vector2){0, 0}));
+                    j += 1;
+                }
+                goto LABEL_AFTER_RORDATA_SCREEN;
+            } break;
+        }
+        LABEL_RORDATA_SCREEN:
         switch (*(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)))
         {
             // *(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)) = (A_GAME_PHSE_t)1;
@@ -490,137 +529,6 @@ int main(void)
                             selected = -1;
                             framesCounter = 0;
                         }
-                        // NEXT BUTTON
-                        Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
-                        if (CheckCollisionPointRec(mouse, r_button))
-                        {
-                            if (currentGesture == GESTURE_TAP)
-                            {
-                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
-                                *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SETUPRULES;
-                                int nfac = 1; // first "faction" (unaligned) is counted as well
-                                for (int factidx = 1; factidx < group(rordata, G_FACT).elems; factidx++)
-                                {
-                                    int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
-                                    if (letterCount == 0)
-                                    {
-                                        *(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, factidx) = (A_FACT_CNGR_t)(G_NULL);
-                                    }
-                                    else
-                                    {
-                                        if (factidx != nfac) // eliminate seat gaps
-                                        {
-                                            for (uint16_t a = 0; a < group(rordata, G_FACT).attrs; a++)
-                                            {
-                                                Attr attr_ = attr(rordata, G_FACT, a);
-                                                void *addr0 = valabsaddr(rordata, G_FACT, a, factidx);
-                                                void *addr1 = valabsaddr(rordata, G_FACT, a, nfac);
-                                                uint16_t size = valsize(rordata, G_FACT, a);
-                                                memcpy(addr1, addr0, size);  // copy
-                                                memset(addr0, 0, size);  // zero
-                                            }
-                                        }
-                                        nfac += 1;
-                                    }
-                                }
-                                *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC) = (A_GAME_NFAC_t)(nfac);
-                                selected = -1;
-                                framesCounter = 0;
-                                randVal = 0;
-                                randBitReq = -1;
-                            }
-                            else
-                            {
-                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
-                            }
-                        }
-                        else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
-                        DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-                        DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
-                    } break;
-
-                    case SPHS_PREP_SETUPRULES:
-                    {
-                        // TITLE
-                        Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
-                        DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
-                        DrawTitle("RSETS", r_title, COLOR_TITLETEXT, TextLeft);
-                        // RSETS
-                        Rectangle r_section = {2 * UNIT, (r_title.height + PAD) + 3 * UNIT, UNITCLAMP(screenWidth/2 - 2 * UNIT), Font3RectH};
-                        DrawFont3("TEMPORARY ROME CONSUL", r_section, COLOR_BACKGOUNDSECTIONTEXT, TextLeft, ((Vector2){0, 0}));
-                        A_RSET_TERC_t* p = (A_RSET_TERC_t*)val0absaddr(rordata, G_RSET, A_RSET_TERC);
-                        Rectangle r_item = r_section;
-                        Rectangle r_toggle = r_section;
-                        r_toggle.x += 7;
-                        r_item.x = r_toggle.x + Font2RectH;
-                        r_item.width -= Font2RectH - 7;
-                        r_item.height = Font2RectH;
-                        r_item.y += r_section.height + PAD + 2 * UNIT;
-                        r_toggle.y = r_item.y + 1 * UNIT;
-                        r_toggle.height = Font2RectH - 2 * UNIT - PAD;
-                        r_toggle.width = r_toggle.height;
-
-                        if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,0);
-                        if ((*p & 0x01) == 0x01) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
-                        else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
-                        DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
-                        DrawFont2("NO TEMPORARY ROME CONSUL [opt.]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
-
-                        r_item.y += Font2RectH + PAD;
-                        r_toggle.y += Font2RectH + PAD;
-
-                        if ((*p & 0x01) != 0x01){
-                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,1);
-                            if ((*p & 0x03) == 0x00) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
-                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
-                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
-                        }
-                        DrawFont2("RANDOM DRAW [VG]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
-
-                        r_item.y += Font2RectH + PAD;
-                        r_toggle.y += Font2RectH + PAD;
-
-                        if ((*p & 0x01) != 0x01){
-                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,1);
-                            if ((*p & 0x03) == 0x02) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
-                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
-                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
-                        }
-                        DrawFont2("LOWEST ID [AH]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
-
-                        r_item.y += Font2RectH + PAD;
-                        r_toggle.y += Font2RectH + PAD;
-
-                        if ((*p & 0x01) != 0x01){
-                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,2);
-                            if ((*p & 0x05) == 0x00) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
-                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
-                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
-                        }
-                        DrawFont2("BEFORE FACTION LEADERS [VG]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
-
-                        r_item.y += Font2RectH + PAD;
-                        r_toggle.y += Font2RectH + PAD;
-
-                        if ((*p & 0x01) != 0x01){
-                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,2);
-                            if ((*p & 0x05) == 0x04) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
-                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
-                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
-                        }
-                        DrawFont2("AFTER FACTION LEADERS [AH]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
-
-                        r_item.y += Font2RectH + PAD;
-                        r_toggle.y += Font2RectH + PAD;
-
-                        if ((*p & 0x01) != 0x01){
-                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,3);
-                            if ((*p & 0x09) == 0x08) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
-                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
-                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
-                        }
-                        DrawFont2("REPEAT IF DIES IN FIRST MORTALITY PHASE [AH-LRB]", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
-
                         // NEXT BUTTON
                         Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
                         if (CheckCollisionPointRec(mouse, r_button))
@@ -1635,6 +1543,7 @@ int main(void)
                 }
             } break;
         }
+        LABEL_AFTER_RORDATA_SCREEN:
 
         EndDrawing();
         //----------------------------------------------------------------------------------
