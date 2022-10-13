@@ -1,32 +1,32 @@
-|SIG "RoR"
-|VER 1
+|SIG string(3) "RoR"
+|VER uint8 1
+|DSC string(44) "2nd Ed. (VG) Advanced Game"
+|NAM string(15) ""
+|LNG uint8 0 ### language (0: english)
 
 
 :G NULL ###
 
 
 :G GAME ### Game
-:A DESC string(32) "Example Scenario"
-:A NAME string(16) ""
 :A NFAC int8 -1 ### number of factions + 1 (faction#0 is unaligned) (value -1: unset)
+:ANOPAD
+:A ERAI uint8 0 ### Era index (Era: historical period, see below)
+:ANOPAD
 :A TURN int16 0 ### turn
 :ANOPAD
-:A PHSE int16 0 ### phase
+:A PHSE int16 -1 ### phase
 :ANOPAD
 :A SPHS uint32 0 ### subphase (technical)
 :ANOPAD
-
-
-:G RSET ### Rules of Setup Phase / Global Rules
-:GELEMS 1
-:A TERC uint8 0 ### Temporary Rome Consul (0xFF: no Temporary Rome Consul### bit0: resolve before(0)/after(1) faction leaders### bit1: lowest ID family card(hard)-AH(1)/random draw-VG(0)### bit7: resolved)
-	### uncovered AHLRB: If, during the first mortality phase, the number is drawn of the Temporary Rome Consul and the senator is killed (faction leader or not) this process is immediately repeated.
-:A NSEN uint8 3 ### initial number of senators per faction (4.4)
+:A TEMP raw(6) \x00\x00\x00\x00\x00\x00 ### memory
 :ANOPAD
 
 
-:G RERA ### Rules of the historical periods (Eras)
+:G ERAR ### Rules of the historical periods (Era Rules)
 :A NAME string(16) "Early Republic", "Middle Republic", "Late Republic"
+:A NSEN uint8 3, 0, * ### number of senators per faction (4.4)
+:A TERC uint8 1, 0, * ### Temporary Rome Consul (bit0: no TERC (0) / TERC (1); bit1: random draw (0) / lowest senator ID (1); bit2: before(0) / after(1) faction leaders; bit3: repeat if dies in first mortality phase (1); bit7: not resolved (0) / resolved (1))
 
 
 :G FACT ### Faction (in clockwise seat order)
@@ -70,7 +70,7 @@
 
 
 :G SENA ### Family Card / Senator
-:A RERA uint8 ### Era
+:A ERAI uint8 ### Era
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	1,  1,  1,  1,  1,  2,  2,  2,  2,  2
@@ -144,7 +144,7 @@
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 :G SMAN ### Statesman
-:A RERA uint8 ### Era
+:A ERAI uint8 ### Era
 	0, 0, 0, 0, 0,
 	1, 1, 1, 1, 1, 1, 1, 1,
 	2, 2, 2, 2, 2, 2

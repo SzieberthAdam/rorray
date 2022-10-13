@@ -7,177 +7,189 @@ rorray.c:280:25: warning: dereferencing type-punned pointer will break strict-al
   280 |     Vector2 position = *(Vector2 *)(&box);
       |                         ^~~~~~~~~~~~~~~~~
 rorray.c: In function 'main':
-rorray.c:446:21: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
-  446 |                     sprintf(str, "file %d = %s", i, files.paths[i]);
+rorray.c:443:34: warning: assignment to 'Game *' {aka 'struct _Game *'} from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
+  443 |                             game = val0absaddr(rordata, G_GAME, 0);
+      |                                  ^
+In file included from rorray.c:17:
+rorfile.h:225:32: warning: overflow in conversion from 'int' to 'int16_t' {aka 'short int'} changes value from '301200' to '-26480' [-Woverflow]
+  225 | #define SPHS_PREP_TAKEFACTIONS 301200
+      |                                ^~~~~~
+rorray.c:444:42: note: in expansion of macro 'SPHS_PREP_TAKEFACTIONS'
+  444 |                             game->phse = SPHS_PREP_TAKEFACTIONS;
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+rorray.c:450:21: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
+  450 |                     sprintf(str, "file %d = %s", i, files.paths[i]);
       |                     ^~~~~~~
 rorray.c:18:1: note: include '<stdio.h>' or provide a declaration of 'sprintf'
    17 | #include "rorfile.h"
   +++ |+#include <stdio.h>
    18 | 
-rorray.c:446:21: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  446 |                     sprintf(str, "file %d = %s", i, files.paths[i]);
+rorray.c:450:21: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  450 |                     sprintf(str, "file %d = %s", i, files.paths[i]);
       |                     ^~~~~~~
-rorray.c:446:21: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:478:29: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
-  478 |                             strcpy(str, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+rorray.c:450:21: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:481:29: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
+  481 |                             strcpy(str, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
       |                             ^~~~~~
 rorray.c:18:1: note: include '<string.h>' or provide a declaration of 'strcpy'
    17 | #include "rorfile.h"
   +++ |+#include <string.h>
    18 | 
-rorray.c:478:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  478 |                             strcpy(str, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+rorray.c:481:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  481 |                             strcpy(str, (char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
       |                             ^~~~~~
-rorray.c:478:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:487:51: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
-  487 |                                 int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+rorray.c:481:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:490:51: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
+  490 |                                 int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
       |                                                   ^~~~~~
-rorray.c:487:51: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:487:51: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-rorray.c:487:51: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:541:55: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-  541 |                                     int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+rorray.c:490:51: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:490:51: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+rorray.c:490:51: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:544:55: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+  544 |                                     int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
       |                                                       ^~~~~~
-rorray.c:541:55: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:556:49: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
-  556 |                                                 memcpy(addr1, addr0, size);  // copy
+rorray.c:544:55: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:559:49: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
+  559 |                                                 memcpy(addr1, addr0, size);  // copy
       |                                                 ^~~~~~
-rorray.c:556:49: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:556:49: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
-rorray.c:556:49: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:557:49: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
-  557 |                                                 memset(addr0, 0, size);  // zero
+rorray.c:559:49: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:559:49: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:559:49: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:560:49: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+  560 |                                                 memset(addr0, 0, size);  // zero
       |                                                 ^~~~~~
-rorray.c:557:49: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:557:49: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
-rorray.c:557:49: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:552:54: warning: unused variable 'attr_' [-Wunused-variable]
-  552 |                                                 Attr attr_ = attr(rordata, G_FACT, a);
+rorray.c:560:49: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:560:49: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+rorray.c:560:49: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:555:54: warning: unused variable 'attr_' [-Wunused-variable]
+  555 |                                                 Attr attr_ = attr(rordata, G_FACT, a);
       |                                                      ^~~~~
-rorray.c:627:31: warning: suggest parentheses around comparison in operand of '&' [-Wparentheses]
-  627 |                         if (0 < dealStatus & 0x03)
+rorray.c:630:31: warning: suggest parentheses around comparison in operand of '&' [-Wparentheses]
+  630 |                         if (0 < dealStatus & 0x03)
       |                             ~~^~~~~~~~~~~~
-rorray.c:641:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  641 |                         sprintf(str, "DEAL %i SENATORS TO EACH FACTION", targetSenatorCount);
+rorray.c:644:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  644 |                         sprintf(str, "DEAL %i SENATORS TO EACH FACTION", targetSenatorCount);
       |                         ^~~~~~~
-rorray.c:641:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:850:37: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  850 |                                     strcpy(str, "drag and shake it");
+rorray.c:644:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:853:37: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  853 |                                     strcpy(str, "drag and shake it");
       |                                     ^~~~~~
-rorray.c:850:37: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1125:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1125 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+rorray.c:853:37: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1128:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1128 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
       |                                 ^~~~~~~
-rorray.c:1125:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1205:37: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1205 |                                     strcpy(str, "drag and shake it");
+rorray.c:1128:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1208:37: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1208 |                                     strcpy(str, "drag and shake it");
       |                                     ^~~~~~
-rorray.c:1205:37: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1412:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1412 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
+rorray.c:1208:37: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1415:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1415 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SENA, A_SENA_IDNR, senaidx));
       |                                 ^~~~~~~
-rorray.c:1412:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1470:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1470 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_IDNR, smanidx));
+rorray.c:1415:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1473:33: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1473 |                                 sprintf(str, "%d", *valabsaddr(rordata, G_SMAN, A_SMAN_IDNR, smanidx));
       |                                 ^~~~~~~
-rorray.c:1470:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorfile.h:46:97: warning: pointer targets in passing argument 2 of 'DrawTextEx2' differ in signedness [-Wpointer-sign]
-   46 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
+rorray.c:1473:33: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorfile.h:58:97: warning: pointer targets in passing argument 2 of 'DrawTextEx2' differ in signedness [-Wpointer-sign]
+   58 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
       |                                                                                                 ^
       |                                                                                                 |
       |                                                                                                 unsigned char *
 rorray.c:121:71: note: in definition of macro 'DrawFont1'
   121 | #define DrawFont1(text, box, tint, align, offset) (DrawTextEx2(font1, text, box, Font1H, Font1Spacing, ((Vector2){Font1PaddingX, 0}), tint, align, offset))
       |                                                                       ^~~~
-rorfile.h:47:48: note: in expansion of macro 'valreladdr'
-   47 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
+rorfile.h:59:48: note: in expansion of macro 'valreladdr'
+   59 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
       |                                                ^~~~~~~~~~
-rorray.c:1472:43: note: in expansion of macro 'valabsaddr'
- 1472 |                                 DrawFont1(valabsaddr(rordata, G_SMAN, A_SMAN_IDCH, smanidx), ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextRight, ((Vector2){1, -4}));
+rorray.c:1475:43: note: in expansion of macro 'valabsaddr'
+ 1475 |                                 DrawFont1(valabsaddr(rordata, G_SMAN, A_SMAN_IDCH, smanidx), ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextRight, ((Vector2){1, -4}));
       |                                           ^~~~~~~~~~
 rorray.c:277:41: note: expected 'const char *' but argument is of type 'unsigned char *'
   277 | void DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize, float spacing, Vector2 padding, Color tint, TextAlignment align, Vector2 offset)
       |                             ~~~~~~~~~~~~^~~~
-rorfile.h:46:97: warning: pointer targets in passing argument 2 of 'DrawTextEx2' differ in signedness [-Wpointer-sign]
-   46 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
+rorfile.h:58:97: warning: pointer targets in passing argument 2 of 'DrawTextEx2' differ in signedness [-Wpointer-sign]
+   58 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
       |                                                                                                 ^
       |                                                                                                 |
       |                                                                                                 unsigned char *
 rorray.c:122:71: note: in definition of macro 'DrawFont2'
   122 | #define DrawFont2(text, box, tint, align, offset) (DrawTextEx2(font2, text, box, Font2H, Font2Spacing, ((Vector2){Font2PaddingX, 0}), tint, align, offset))
       |                                                                       ^~~~
-rorfile.h:47:48: note: in expansion of macro 'valreladdr'
-   47 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
+rorfile.h:59:48: note: in expansion of macro 'valreladdr'
+   59 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
       |                                                ^~~~~~~~~~
-rorray.c:1480:47: note: in expansion of macro 'valabsaddr'
- 1480 |                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_NAME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y, r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+rorray.c:1483:47: note: in expansion of macro 'valabsaddr'
+ 1483 |                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_NAME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y, r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
       |                                               ^~~~~~~~~~
 rorray.c:277:41: note: expected 'const char *' but argument is of type 'unsigned char *'
   277 | void DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize, float spacing, Vector2 padding, Color tint, TextAlignment align, Vector2 offset)
       |                             ~~~~~~~~~~~~^~~~
-rorfile.h:46:97: warning: pointer targets in passing argument 2 of 'DrawTextEx2' differ in signedness [-Wpointer-sign]
-   46 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
+rorfile.h:58:97: warning: pointer targets in passing argument 2 of 'DrawTextEx2' differ in signedness [-Wpointer-sign]
+   58 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
       |                                                                                                 ^
       |                                                                                                 |
       |                                                                                                 unsigned char *
 rorray.c:122:71: note: in definition of macro 'DrawFont2'
   122 | #define DrawFont2(text, box, tint, align, offset) (DrawTextEx2(font2, text, box, Font2H, Font2Spacing, ((Vector2){Font2PaddingX, 0}), tint, align, offset))
       |                                                                       ^~~~
-rorfile.h:47:48: note: in expansion of macro 'valreladdr'
-   47 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
+rorfile.h:59:48: note: in expansion of macro 'valreladdr'
+   59 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
       |                                                ^~~~~~~~~~
-rorray.c:1481:47: note: in expansion of macro 'valabsaddr'
- 1481 |                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_TIME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y + 1 * (Font2RectH + PAD), r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+rorray.c:1484:47: note: in expansion of macro 'valabsaddr'
+ 1484 |                                     DrawFont2(valabsaddr(rordata, G_SMAN, A_SMAN_TIME, smanidx), ((Rectangle){r_tooltip.x, r_tooltip.y + 1 * (Font2RectH + PAD), r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
       |                                               ^~~~~~~~~~
 rorray.c:277:41: note: expected 'const char *' but argument is of type 'unsigned char *'
   277 | void DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize, float spacing, Vector2 padding, Color tint, TextAlignment align, Vector2 offset)
       |                             ~~~~~~~~~~~~^~~~
-In file included from rorray.c:17:
-rorfile.h:46:97: warning: pointer targets in passing argument 2 of 'DrawTextBoxed' differ in signedness [-Wpointer-sign]
-   46 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
+rorfile.h:58:97: warning: pointer targets in passing argument 2 of 'DrawTextBoxed' differ in signedness [-Wpointer-sign]
+   58 | #define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
       |                                                                                                 ^
       |                                                                                                 |
       |                                                                                                 unsigned char *
-rorfile.h:47:48: note: in expansion of macro 'valreladdr'
-   47 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
+rorfile.h:59:48: note: in expansion of macro 'valreladdr'
+   59 | #define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
       |                                                ^~~~~~~~~~
-rorray.c:1482:58: note: in expansion of macro 'valabsaddr'
- 1482 |                                     DrawTextBoxed(font2, valabsaddr(rordata, G_SMAN, A_SMAN_SPEC, smanidx), ((Rectangle){r_tooltip.x + Font2PaddingX, r_tooltip.y + 2 * (Font2RectH + PAD) - PAD, r_tooltip.width - Font2PaddingX, 3 * (Font2RectH + PAD) - PAD}), Font2H, Font2Spacing, true, COLOR_TOOLTIPTEXT, Font2H - 2);
+rorray.c:1485:58: note: in expansion of macro 'valabsaddr'
+ 1485 |                                     DrawTextBoxed(font2, valabsaddr(rordata, G_SMAN, A_SMAN_SPEC, smanidx), ((Rectangle){r_tooltip.x + Font2PaddingX, r_tooltip.y + 2 * (Font2RectH + PAD) - PAD, r_tooltip.width - Font2PaddingX, 3 * (Font2RectH + PAD) - PAD}), Font2H, Font2Spacing, true, COLOR_TOOLTIPTEXT, Font2H - 2);
       |                                                          ^~~~~~~~~~
 rorray.c:13:50: note: expected 'const char *' but argument is of type 'unsigned char *'
    13 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight);   // Draw text using font inside rectangle limits; taken from raylib example text_rectangle_bounds.c
       |                                      ~~~~~~~~~~~~^~~~
-rorray.c:1489:42: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1489 |                                     else strcpy(str, "d6");
+rorray.c:1492:42: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1492 |                                     else strcpy(str, "d6");
       |                                          ^~~~~~
-rorray.c:1489:42: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1303:34: warning: unused variable 'p_temporaryRomeConsulFlags' [-Wunused-variable]
- 1303 |                         uint8_t* p_temporaryRomeConsulFlags = (A_RSET_TERC_t*)(val0absaddr(rordata, G_RSET, A_RSET_TERC));
+rorray.c:1492:42: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1306:34: warning: unused variable 'p_temporaryRomeConsulFlags' [-Wunused-variable]
+ 1306 |                         uint8_t* p_temporaryRomeConsulFlags = (A_ERAR_TERC_t*)(valabsaddr(rordata, G_ERAR, A_ERAR_TERC, game->erai));
       |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~
-rorray.c:453:9: warning: label 'LABEL_RORDATA_SCREEN' defined but not used [-Wunused-label]
-  453 |         LABEL_RORDATA_SCREEN:
+rorray.c:457:9: warning: label 'LABEL_RORDATA_SCREEN' defined but not used [-Wunused-label]
+  457 |         LABEL_RORDATA_SCREEN:
       |         ^~~~~~~~~~~~~~~~~~~~
-rorray.c:364:13: warning: unused variable 'font3Ex' [-Wunused-variable]
-  364 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
+rorray.c:366:13: warning: unused variable 'font3Ex' [-Wunused-variable]
+  366 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
       |             ^~~~~~~
-rorray.c:363:13: warning: unused variable 'font3Em' [-Wunused-variable]
-  363 |     Vector2 font3Em = MeasureTextEx(font1, "M", font3.baseSize, 0);
+rorray.c:365:13: warning: unused variable 'font3Em' [-Wunused-variable]
+  365 |     Vector2 font3Em = MeasureTextEx(font1, "M", font3.baseSize, 0);
       |             ^~~~~~~
-rorray.c:361:13: warning: unused variable 'font2Ex' [-Wunused-variable]
-  361 |     Vector2 font2Ex = MeasureTextEx(font1, "x", font2.baseSize, 0);
+rorray.c:363:13: warning: unused variable 'font2Ex' [-Wunused-variable]
+  363 |     Vector2 font2Ex = MeasureTextEx(font1, "x", font2.baseSize, 0);
       |             ^~~~~~~
-rorray.c:358:13: warning: unused variable 'font1Ex' [-Wunused-variable]
-  358 |     Vector2 font1Ex = MeasureTextEx(font1, "x", font1.baseSize, 0);
+rorray.c:360:13: warning: unused variable 'font1Ex' [-Wunused-variable]
+  360 |     Vector2 font1Ex = MeasureTextEx(font1, "x", font1.baseSize, 0);
       |             ^~~~~~~
-rorray.c:357:13: warning: unused variable 'font1Em' [-Wunused-variable]
-  357 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
+rorray.c:359:13: warning: unused variable 'font1Em' [-Wunused-variable]
+  359 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
       |             ^~~~~~~
-rorray.c:348:10: warning: unused variable 'debugstr' [-Wunused-variable]
-  348 |     char debugstr[256][256] = {0};
+rorray.c:350:10: warning: unused variable 'debugstr' [-Wunused-variable]
+  350 |     char debugstr[256][256] = {0};
       |          ^~~~~~~~
-rorray.c:347:9: warning: unused variable 'debugvar' [-Wunused-variable]
-  347 |     int debugvar = 0;
+rorray.c:349:9: warning: unused variable 'debugvar' [-Wunused-variable]
+  349 |     int debugvar = 0;
       |         ^~~~~~~~
+rorray.c:335:10: warning: variable 'rordataLoaded' set but not used [-Wunused-but-set-variable]
+  335 |     bool rordataLoaded = false;
+      |          ^~~~~~~~~~~~~
 rorray.c:326:14: warning: unused variable 'screenOffsetY' [-Wunused-variable]
   326 |     uint16_t screenOffsetY = (windowedScreenHeight - DOWN * screenDowns) / 2;
       |              ^~~~~~~~~~~~~
@@ -187,33 +199,39 @@ rorray.c:325:14: warning: unused variable 'screenOffsetX' [-Wunused-variable]
 rorray.c:318:13: warning: unused variable 'cursor' [-Wunused-variable]
   318 |     Vector2 cursor;
       |             ^~~~~~
-rorray.c:1218:70: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
- 1218 |                                 r_button.y = mouse.y - selectedvector.y;
+rorray.c:1221:70: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+ 1221 |                                 r_button.y = mouse.y - selectedvector.y;
       |                                                        ~~~~~~~~~~~~~~^~
-rorray.c:1043:33: note: 'selectedvector.y' was declared here
- 1043 |                         Vector2 selectedvector;
+rorray.c:1046:33: note: 'selectedvector.y' was declared here
+ 1046 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:1217:70: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
- 1217 |                                 r_button.x = mouse.x - selectedvector.x;
+rorray.c:1220:70: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+ 1220 |                                 r_button.x = mouse.x - selectedvector.x;
       |                                                        ~~~~~~~~~~~~~~^~
-rorray.c:1043:33: note: 'selectedvector.x' was declared here
- 1043 |                         Vector2 selectedvector;
+rorray.c:1046:33: note: 'selectedvector.x' was declared here
+ 1046 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:953:71: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
-  953 |                                 r_senator.y = mouse.y - selectedvector.y;
+rorray.c:956:71: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+  956 |                                 r_senator.y = mouse.y - selectedvector.y;
       |                                                         ~~~~~~~~~~~~~~^~
-rorray.c:644:33: note: 'selectedvector.y' was declared here
-  644 |                         Vector2 selectedvector;
+rorray.c:647:33: note: 'selectedvector.y' was declared here
+  647 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:952:71: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
-  952 |                                 r_senator.x = mouse.x - selectedvector.x;
+rorray.c:955:71: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+  955 |                                 r_senator.x = mouse.x - selectedvector.x;
       |                                                         ~~~~~~~~~~~~~~^~
-rorray.c:644:33: note: 'selectedvector.x' was declared here
-  644 |                         Vector2 selectedvector;
+rorray.c:647:33: note: 'selectedvector.x' was declared here
+  647 |                         Vector2 selectedvector;
       |                                 ^~~~~~~~~~~~~~
-rorray.c:1552:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
- 1552 |     UnloadFileData(rordata);      // Free memory from loaded file
+rorray.c:1158:131: warning: 'game' may be used uninitialized [-Wmaybe-uninitialized]
+ 1158 |                                 uint8_t temporaryromeconsulflags = *(A_ERAR_TERC_t*)(valabsaddr(rordata, G_ERAR, A_ERAR_TERC, game->erai));
+      |                                                                                                                                   ^~
+rorray.c:338:11: note: 'game' was declared here
+  338 |     Game *game;
+      |           ^~~~
+rorray.c:1555:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
+ 1555 |     UnloadFileData(rordata);      // Free memory from loaded file
       |     ^~~~~~~~~~~~~~~~~~~~~~~
-rorray.c:335:20: note: 'rordata' was declared here
-  335 |     unsigned char *rordata;
+rorray.c:336:20: note: 'rordata' was declared here
+  336 |     unsigned char *rordata;
       |                    ^~~~~~~

@@ -74,8 +74,6 @@ def str2int(s, type_=None):
 
 
 
-
-
 if __name__ == "__main__":
 
     usage = """Usage: python frm2ror.py [scenario.frm]"""
@@ -98,6 +96,7 @@ if __name__ == "__main__":
     ba_attrtoc = bytearray()   # - group attribute definitions (8 bytes each; block paddded to 16 bytes)
     ba_attrvals = bytearray()  # - area of attribute values (area padded to 16 bytes)
 
+    headerdict = {}
     attrdict = {}
     attrlist = []
     groupdict = {}
@@ -108,17 +107,25 @@ if __name__ == "__main__":
     _L = [li for li in _L0 if li]
 
     for i, li in enumerate(li for li in _L if li.startswith("|")):
-        key, _, _s = li.partition(" ")
+        key, _attrtype, _s = li.split(" ", 2)
+        _attrtypeinfo = ATTRTYPE[_attrtype]
+        _v = str2val(_s, _attrtype)
         if i == 0:
             assert key == "|SIG"
-            _s = str(json.loads(li.split(" ")[1]))
-            _b = _s.encode("ascii")
-            assert len(_b) == 3
-            ba_header.extend(_b)
         elif i == 1:
             assert key == "|VER"
-            _v = str2val(li.split(" ")[1], "uint8")
-            ba_header.append(_v)
+        elif i == 2:
+            assert key == "|DSC"
+        elif i == 3:
+            assert key == "|NAM"
+        elif i == 4:
+            assert key == "|LNG"
+        headerdict[key[1:]] = [_attrtype, _v, len(ba_header)]
+        if isinstance(_v, str):
+            _v = _v.encode("utf8")
+        _b = struct.pack(_attrtypeinfo["struct"], _v)
+        ba_header.extend(_b)
+
 
     _i = 0
     while _i < len(_L):
@@ -127,7 +134,7 @@ if __name__ == "__main__":
         # TODO: global string :S with TOC
         # TODO: global raw bytes :B with TOC
         if li.startswith(":G "):
-            _, _group = [s.strip() for s in li.split(" ")]
+            __, _group = [s.strip() for s in li.split(" ")]
             _group = _group.encode("ascii")
             _groupidx = len(grouplist)
             _dg = {"groupidx": _groupidx, "group": _group, "elems": -1, "attrs": []}
@@ -139,7 +146,7 @@ if __name__ == "__main__":
         elif li.startswith(":A "):
             assert _group is not None
             _t = li.split(" ")
-            _, _attr, _attrtype = [s.strip() for s in _t[:3]]
+            __, _attr, _attrtype = [s.strip() for s in _t[:3]]
             _attr = _attr.encode("ascii")
             _attrtypeinfo = ATTRTYPE[_attrtype]
             if _t[3:]:
@@ -194,6 +201,8 @@ if __name__ == "__main__":
             _da["groupattridx"] = i
 
         _vcnts0 = [len(_da["values"]) for _da in _dg["attrs"] if not _da["values_star"]]
+        print(_dg)
+        print(_vcnts0)
         assert not _vcnts0 or len(set(_vcnts0)) == 1
         _vcnts1 = [len(_da["values"]) for _da in _dg["attrs"] if _da["values_star"]]
         _vstar = [_da["values_star"] for _da in _dg["attrs"]]
@@ -273,43 +282,59 @@ if __name__ == "__main__":
     with _file.open("wb") as _f:
         print(f'{_file}: {_f.write(ba)} bytes')
 
-    rorh_prefix = """
-typedef struct _Header Header;
-typedef struct _Group Group;
-typedef struct _Attr Attr;
+    rorh_lines = []
 
-#define __INITRORAPI__    \\
-                          \\
-struct _Header {          \\
-   char     sig[3];       \\
-   uint8_t  ver;          \\
-   uint32_t elems;        \\
-   uint32_t attrs;        \\
-   uint32_t grouptocaddr; \\
-   uint32_t attrtocaddr;  \\
-   uint32_t attrvalsaddr; \\
-};                        \\
-                          \\
-                          \\
-struct _Group {           \\
-   char     group[4];     \\
-   uint16_t elems;        \\
-   uint16_t attrs;        \\
-   uint32_t elem0idx;     \\
-   uint32_t attr0idx;     \\
-};                        \\
-                          \\
-                          \\
-struct _Attr {            \\
-   char     group[4];     \\
-   char     attr[4];      \\
-   uint16_t groupidx;     \\
-   uint16_t type;         \\
-   uint32_t addr;         \\
-};
-"""
+    rorh_lines.extend([
+        "typedef struct _Header Header;",
+        "typedef struct _Group Group;",
+        "typedef struct _Attr Attr;",
+        "typedef struct _Game Game;",
+        "",
+        "#define __INITRORAPI__ \\",
+        " \\",
+        "struct _Header { \\",
+        f'   char     sig[{ATTRTYPE[headerdict["SIG"][0]]["length"]}]; \\',
+        f'   {ATTRTYPE[headerdict["VER"][0]]["ctype"]:<8} ver; \\',
+        f'   char     dsc[{ATTRTYPE[headerdict["DSC"][0]]["length"]}]; \\',
+        f'   char     nam[{ATTRTYPE[headerdict["NAM"][0]]["length"]}]; \\',
+        f'   {ATTRTYPE[headerdict["VER"][0]]["ctype"]:<8} lng; \\',
+        "   uint32_t elems; \\",
+        "   uint32_t attrs; \\",
+        "   uint32_t grouptocaddr; \\",
+        "   uint32_t attrtocaddr; \\",
+        "   uint32_t attrvalsaddr; \\",
+        "}; \\",
+        " \\",
+        " \\",
+        "struct _Group { \\",
+        "   char     group[4]; \\",
+        "   uint16_t elems; \\",
+        "   uint16_t attrs; \\",
+        "   uint32_t elem0idx; \\",
+        "   uint32_t attr0idx; \\",
+        "}; \\",
+        " \\",
+        " \\",
+        "struct _Attr { \\",
+        "   char     group[4]; \\",
+        "   char     attr[4]; \\",
+        "   uint16_t groupidx; \\",
+        "   uint16_t type; \\",
+        "   uint32_t addr; \\",
+        "}; \\",
+        " \\",
+        " \\",
+        "struct _Game { \\",
+    ])
 
-    rorh_lines = [
+    for _d in groupdict[b"GAME"]["attrs"]:
+        name = _d["attr"].decode("ascii").lower()
+        ctypeparts = ATTRTYPE[_d["type"]]["ctype"].partition("[")
+        ctype1, ctype2 = ctypeparts[0], ctypeparts[1] + ctypeparts[2]
+        rorh_lines.append(f'   {ctype1:<8} {name}{ctype2}; \\')
+    rorh_lines.append("};")
+
+    rorh_lines.extend([
         "",
         "#define header(rordata)  (*(Header*)(rordata))",
         "#define group(rordata, G)  (*((Group*)(rordata+header(rordata).grouptocaddr) + G))",
@@ -320,9 +345,7 @@ struct _Attr {            \\
         "#define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))",
         "#define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))",
         "",
-        f'#define SIZE {len(ba)}',
-        "",
-    ]
+    ])
 
     for _dg in grouplist:
         rorh_lines.append(f'#define G_{_dg["group"].decode("ascii")} {_dg["groupidx"]}',)
@@ -341,7 +364,8 @@ struct _Attr {            \\
         "#define FACT_ELEMCOUNT 7",
         "#define OFFICE_ROME_CONSUL 3",
         "",
-        "#define PHSE_PREP 0",
+        "#define PHSE_PREP -1",
+        "#define PHSE_ERASTART 0",
         "",
         "#define SPHS_PREP_TAKEFACTIONS 301200",
         "#define SPHS_PREP_DEALSENATORS 301420",
@@ -350,7 +374,7 @@ struct _Attr {            \\
         "#define SPHS_PREP_INITIALFACTIONPHASE 301900",
     ])
 
-    rorhstr = TEMPLATE.replace("{{rorh}}", rorh_prefix + "\n" +"\n".join(rorh_lines))
+    rorhstr = TEMPLATE.replace("{{rorh}}", "\n".join(rorh_lines))
 
     _file = frm_path.parent / "rorfile.h"
     with _file.open("w", encoding="utf-8") as _f:
