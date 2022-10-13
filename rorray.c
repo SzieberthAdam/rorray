@@ -423,41 +423,57 @@ int main(void)
             case 0:
             {
                 // PREP
-                FilePathList files = LoadDirectoryFiles(".");
+                static bool searched = false;
+                static int count = 0;
+                static FilePathList files;
+                static char **descriptions;
+                static unsigned int readLength = sizeof(Header);
+                if (!searched)
+                {
+                    TraceLog(LOG_DEBUG, "Hello");
+                    files = LoadDirectoryFiles(".");
+                    descriptions = (char**)MemAlloc(files.count * sizeof(char *));
+                    for(int i=0; i<files.count; i++ ){
+                        if (IsPathFile(files.paths[i]) == false) continue;
+                        if (!TextIsEqual(GetFileExtension(files.paths[i]), ".ror")) continue;
+                        unsigned char *data = LoadFileData(files.paths[i], &readLength);
+                        descriptions[count] = (char*)MemAlloc(44);
+                        strcpy(descriptions[count], ((Header*)(data))->dsc);
+                        if (i != count) strcpy(files.paths[count], files.paths[i]);
+                        //TraceLog(LOG_DEBUG, descriptions[count]);
+                        UnloadFileData(data);
+                        count++;
+                    }
+                    searched = true;
+                }
                 // TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("SCENARIO", r_title, COLOR_TITLETEXT, TextLeft);
                 // LIST
-                int j = 0;
-                for(int i=0; i<files.count; i++ ){
-                    if (IsPathFile(files.paths[i]) == false) continue;
-                    if (!TextIsEqual(GetFileExtension(files.paths[i]), ".ror")) continue;
-                    Rectangle r = {4 * UNIT, (r_title.height + PAD) + 3 * UNIT + (Font2RectH + PAD) * j, 20 * Font2HUnit, Font2RectH};
+                for (int i=0; i<count; i++ ){
+                    Rectangle r = {4 * UNIT, (r_title.height + PAD) + 3 * UNIT + (Font2RectH + PAD) * i, 60 * Font2HUnit, Font2RectH};
                     if (CheckCollisionPointRec(mouse, r))
                     {
                         if (currentGesture == GESTURE_TAP)
                         {
                             unsigned int rordataLength = GetFileLength(files.paths[i]);
                             rordata = LoadFileData(files.paths[i], &rordataLength);
-                            TraceLog(LOG_DEBUG, rordata);
                             game = val0absaddr(rordata, G_GAME, 0);
-                            sprintf(str, "phse: %i; sphs: %i", game->phse, game->sphs);
-                            TraceLog(LOG_DEBUG, str);
                             game->phse = PHSE_PREP;
                             game->sphs = SPHS_PREP_TAKEFACTIONS;
-                            sprintf(str, "phse: %i; sphs: %i; sphs: %x", game->phse, game->sphs, game->sphs);
-                            TraceLog(LOG_DEBUG, str);
-                            sprintf(str, "phse: %i; sphs: %i; sphs: %x", *(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)), *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)), *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)));
-                            TraceLog(LOG_DEBUG, str);
                             rordataLoaded = true;
                             scene = 1;
+                            UnloadDirectoryFiles(files);
+                            for (int j=0; j<count; j++ ) MemFree(descriptions[count]);
+                            MemFree(descriptions);
+                            searched = false;
+                            break;
                         }
                     }
                     DrawRectangleRec(r, COLOR_FACTIONHEADER);
-                    sprintf(str, "file %d = %s", i, files.paths[i]);
+                    sprintf(str, "[%s] %s", files.paths[i], descriptions[i]);
                     DrawFont2(str, r, WHITE, TextLeft, ((Vector2){0, 0}));
-                    j += 1;
                 }
             } break;
 
@@ -472,7 +488,6 @@ int main(void)
                     case 0:
                     case SPHS_PREP_TAKEFACTIONS: /* 3.01.2 [4.1] GAMEBOARD (Take Seets) */
                     {
-                        TraceLog(LOG_DEBUG, "Hello");
                         // TITLE
                         Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                         DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
