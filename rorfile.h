@@ -19,7 +19,7 @@ struct _Header { \
    uint32_t grouptocaddr; \
    uint32_t attrtocaddr; \
    uint32_t attrvalsaddr; \
-}; \
+} __attribute__((packed)); \
  \
  \
 struct _Group { \
@@ -28,7 +28,7 @@ struct _Group { \
    uint16_t attrs; \
    uint32_t elem0idx; \
    uint32_t attr0idx; \
-}; \
+} __attribute__((packed)); \
  \
  \
 struct _Attr { \
@@ -37,7 +37,7 @@ struct _Attr { \
    uint16_t groupidx; \
    uint16_t type; \
    uint32_t addr; \
-}; \
+} __attribute__((packed)); \
  \
  \
 struct _Game { \
@@ -47,7 +47,7 @@ struct _Game { \
    int16_t  phse; \
    uint32_t sphs; \
    unsigned char temp[6]; \
-};
+} __attribute__((packed));
 
 #define header(rordata)  (*(Header*)(rordata))
 #define group(rordata, G)  (*((Group*)(rordata+header(rordata).grouptocaddr) + G))

@@ -440,8 +440,16 @@ int main(void)
                         {
                             unsigned int rordataLength = GetFileLength(files.paths[i]);
                             rordata = LoadFileData(files.paths[i], &rordataLength);
+                            TraceLog(LOG_DEBUG, rordata);
                             game = val0absaddr(rordata, G_GAME, 0);
-                            game->phse = SPHS_PREP_TAKEFACTIONS;
+                            sprintf(str, "phse: %i; sphs: %i", game->phse, game->sphs);
+                            TraceLog(LOG_DEBUG, str);
+                            game->phse = PHSE_PREP;
+                            game->sphs = SPHS_PREP_TAKEFACTIONS;
+                            sprintf(str, "phse: %i; sphs: %i; sphs: %x", game->phse, game->sphs, game->sphs);
+                            TraceLog(LOG_DEBUG, str);
+                            sprintf(str, "phse: %i; sphs: %i; sphs: %x", *(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)), *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)), *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)));
+                            TraceLog(LOG_DEBUG, str);
                             rordataLoaded = true;
                             scene = 1;
                         }
@@ -451,10 +459,10 @@ int main(void)
                     DrawFont2(str, r, WHITE, TextLeft, ((Vector2){0, 0}));
                     j += 1;
                 }
-                goto LABEL_AFTER_RORDATA_SCREEN;
             } break;
-        }
-        LABEL_RORDATA_SCREEN:
+
+            default:
+        {
         switch (*(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)))
         {
             case PHSE_PREP: /* PREPARE TO PLAY */
@@ -464,6 +472,7 @@ int main(void)
                     case 0:
                     case SPHS_PREP_TAKEFACTIONS: /* 3.01.2 [4.1] GAMEBOARD (Take Seets) */
                     {
+                        TraceLog(LOG_DEBUG, "Hello");
                         // TITLE
                         Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                         DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
@@ -1544,7 +1553,8 @@ int main(void)
                 }
             } break;
         }
-        LABEL_AFTER_RORDATA_SCREEN:
+        }
+        }
 
         EndDrawing();
         //----------------------------------------------------------------------------------

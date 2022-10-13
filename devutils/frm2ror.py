@@ -303,7 +303,7 @@ if __name__ == "__main__":
         "   uint32_t grouptocaddr; \\",
         "   uint32_t attrtocaddr; \\",
         "   uint32_t attrvalsaddr; \\",
-        "}; \\",
+        "} __attribute__((packed)); \\",
         " \\",
         " \\",
         "struct _Group { \\",
@@ -312,7 +312,7 @@ if __name__ == "__main__":
         "   uint16_t attrs; \\",
         "   uint32_t elem0idx; \\",
         "   uint32_t attr0idx; \\",
-        "}; \\",
+        "} __attribute__((packed)); \\",
         " \\",
         " \\",
         "struct _Attr { \\",
@@ -321,7 +321,7 @@ if __name__ == "__main__":
         "   uint16_t groupidx; \\",
         "   uint16_t type; \\",
         "   uint32_t addr; \\",
-        "}; \\",
+        "} __attribute__((packed)); \\",
         " \\",
         " \\",
         "struct _Game { \\",
@@ -332,7 +332,7 @@ if __name__ == "__main__":
         ctypeparts = ATTRTYPE[_d["type"]]["ctype"].partition("[")
         ctype1, ctype2 = ctypeparts[0], ctypeparts[1] + ctypeparts[2]
         rorh_lines.append(f'   {ctype1:<8} {name}{ctype2}; \\')
-    rorh_lines.append("};")
+    rorh_lines.append("} __attribute__((packed));")
 
     rorh_lines.extend([
         "",
