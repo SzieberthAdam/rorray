@@ -1,9 +1,8 @@
 |SIG string(3) "RoR"
 |VER uint8 1
-|DSC string(44) "2nd Ed. (VG) Advanced Game"
+|DSC string(76) "VG, Advanced Game, Complete Extended Scenario"
 |NAM string(15) ""
 |LNG uint8 0 ### language (0: english)
-
 
 :G NULL ###
 

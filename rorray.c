@@ -38,6 +38,9 @@ static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float font
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
+// https://stackoverflow.com/a/3553321/2334951
+#define MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
+
 __INITRORAPI__ // initializes the API structs
 
 
@@ -315,6 +318,10 @@ void DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize, flo
 
 int main(void)
 {
+    SetTraceLogLevel(LOG_DEBUG); // TODO: DEBUG
+    int debugvar = 0;
+    char debugstr[256][256] = {0};
+
     Vector2 cursor;
     char str[256];
 
@@ -329,13 +336,13 @@ int main(void)
 
     Font font1, font2, font3;
 
-    //unsigned int rordataLength = SIZE;
-    //unsigned char *rordata = LoadFileData("scenario.ror", &rordataLength);
-    uint8_t scene = 0;
     bool rordataLoaded = false;
     unsigned char *rordata;
 
     Game *game;
+    game = MemAlloc(sizeof(Game));
+    game->phse = -128;
+    game->sphs = 0;
 
     Vector2 mouse;
     Vector2 mousedelta;
@@ -344,10 +351,6 @@ int main(void)
 
     unsigned char randVal = 0;
     int8_t randBitReq = -1;
-
-    SetTraceLogLevel(LOG_DEBUG); // TODO: DEBUG
-    int debugvar = 0;
-    char debugstr[256][256] = {0};
 
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
     InitWindow(windowedScreenWidth, windowedScreenHeight, "RoRRAY");
@@ -418,9 +421,9 @@ int main(void)
 
         // DrawFPS(windowedScreenWidth-100, 10); // for debug
 
-        switch (scene)
+        switch (game->phse)
         {
-            case 0:
+            case -128:
             {
                 // PREP
                 static bool searched = false;
@@ -433,11 +436,12 @@ int main(void)
                     TraceLog(LOG_DEBUG, "Hello");
                     files = LoadDirectoryFiles(".");
                     descriptions = (char**)MemAlloc(files.count * sizeof(char *));
-                    for(int i=0; i<files.count; i++ ){
+                    for(int i=0; i<files.count; i++)
+                    {
                         if (IsPathFile(files.paths[i]) == false) continue;
                         if (!TextIsEqual(GetFileExtension(files.paths[i]), ".ror")) continue;
                         unsigned char *data = LoadFileData(files.paths[i], &readLength);
-                        descriptions[count] = (char*)MemAlloc(44);
+                        descriptions[count] = (char*)MemAlloc(MEMBER_SIZE(Header, dsc));
                         strcpy(descriptions[count], ((Header*)(data))->dsc);
                         if (i != count) strcpy(files.paths[count], files.paths[i]);
                         //TraceLog(LOG_DEBUG, descriptions[count]);
@@ -451,7 +455,8 @@ int main(void)
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("SCENARIO", r_title, COLOR_TITLETEXT, TextLeft);
                 // LIST
-                for (int i=0; i<count; i++ ){
+                for (int i=0; i<count; i++ )
+                {
                     Rectangle r = {4 * UNIT, (r_title.height + PAD) + 3 * UNIT + (Font2RectH + PAD) * i, 60 * Font2HUnit, Font2RectH};
                     if (CheckCollisionPointRec(mouse, r))
                     {
@@ -459,11 +464,11 @@ int main(void)
                         {
                             unsigned int rordataLength = GetFileLength(files.paths[i]);
                             rordata = LoadFileData(files.paths[i], &rordataLength);
+                            MemFree(game);
                             game = val0absaddr(rordata, G_GAME, 0);
                             game->phse = PHSE_PREP;
                             game->sphs = SPHS_PREP_TAKEFACTIONS;
                             rordataLoaded = true;
-                            scene = 1;
                             UnloadDirectoryFiles(files);
                             for (int j=0; j<count; j++ ) MemFree(descriptions[count]);
                             MemFree(descriptions);
@@ -472,18 +477,14 @@ int main(void)
                         }
                     }
                     DrawRectangleRec(r, COLOR_FACTIONHEADER);
-                    sprintf(str, "[%s] %s", files.paths[i], descriptions[i]);
+                    sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
                     DrawFont2(str, r, WHITE, TextLeft, ((Vector2){0, 0}));
                 }
             } break;
 
-            default:
-        {
-        switch (*(A_GAME_PHSE_t*)(val0absaddr(rordata, G_GAME, A_GAME_PHSE)))
-        {
             case PHSE_PREP: /* PREPARE TO PLAY */
             {
-                switch (*(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)))
+                switch (game->sphs)
                 {
                     case 0:
                     case SPHS_PREP_TAKEFACTIONS: /* 3.01.2 [4.1] GAMEBOARD (Take Seets) */
@@ -561,7 +562,138 @@ int main(void)
                             if (currentGesture == GESTURE_TAP)
                             {
                                 DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
-                                *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS;
+                                game->sphs = (A_GAME_SPHS_t)SPHS_PREP_SETUPRULES;
+                                int nfac = 1; // first "faction" (unaligned) is counted as well
+                                for (int factidx = 1; factidx < group(rordata, G_FACT).elems; factidx++)
+                                {
+                                    int letterCount = strlen((char*)(valabsaddr(rordata, G_FACT, A_FACT_NAME, factidx)));
+                                    if (letterCount == 0)
+                                    {
+                                        *(A_FACT_CNGR_t*)valabsaddr(rordata, G_FACT, A_FACT_CNGR, factidx) = (A_FACT_CNGR_t)(G_NULL);
+                                    }
+                                    else
+                                    {
+                                        if (factidx != nfac) // eliminate seat gaps
+                                        {
+                                            for (uint16_t a = 0; a < group(rordata, G_FACT).attrs; a++)
+                                            {
+                                                Attr attr_ = attr(rordata, G_FACT, a);
+                                                void *addr0 = valabsaddr(rordata, G_FACT, a, factidx);
+                                                void *addr1 = valabsaddr(rordata, G_FACT, a, nfac);
+                                                uint16_t size = valsize(rordata, G_FACT, a);
+                                                memcpy(addr1, addr0, size);  // copy
+                                                memset(addr0, 0, size);  // zero
+                                            }
+                                        }
+                                        nfac += 1;
+                                    }
+                                }
+                                *(A_GAME_NFAC_t*)val0absaddr(rordata, G_GAME, A_GAME_NFAC) = (A_GAME_NFAC_t)(nfac);
+                                selected = -1;
+                                framesCounter = 0;
+                                randVal = 0;
+                                randBitReq = -1;
+                            }
+                            else
+                            {
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                            }
+                        }
+                        else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                        DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                        DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                    } break;
+
+                    case SPHS_PREP_SETUPRULES:
+                    {
+                        // TITLE
+                        Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                        DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                        DrawTitle("RULES", r_title, COLOR_TITLETEXT, TextLeft);
+                        // RULES
+                        Rectangle r_section = {2 * UNIT, (r_title.height + PAD) + 3 * UNIT, UNITCLAMP(screenWidth/2 - 2 * UNIT), Font3RectH};
+                        DrawFont3("TEMPORARY ROME CONSUL", r_section, COLOR_BACKGOUNDSECTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                        A_ERAR_TERC_t* p = (A_ERAR_TERC_t*)(valabsaddr(rordata, G_ERAR, A_ERAR_TERC, game->erai));
+                        Rectangle r_item = r_section;
+                        Rectangle r_toggle = r_section;
+                        r_toggle.x += 7;
+                        r_item.x = r_toggle.x + Font2RectH;
+                        r_item.width -= Font2RectH - 7;
+                        r_item.height = Font2RectH;
+                        r_item.y += r_section.height + PAD + 2 * UNIT;
+                        r_toggle.y = r_item.y + 1 * UNIT;
+                        r_toggle.height = Font2RectH - 2 * UNIT - PAD;
+                        r_toggle.width = r_toggle.height;
+
+                        if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,0);
+                        if ((*p & 0x01) == 0x00) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                        else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                        DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        DrawFont2("NO TEMPORARY ROME CONSUL", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x00){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,1);
+                            if ((*p & 0x02) == 0x00) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("RANDOM DRAW (VG)", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x00){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,1);
+                            if ((*p & 0x02) == 0x02) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("LOWEST ID (AH)", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x00){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,2);
+                            if ((*p & 0x04) == 0x00) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("BEFORE FACTION LEADERS (VG)", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x00){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,2);
+                            if ((*p & 0x04) == 0x04) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("AFTER FACTION LEADERS (AH)", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        r_item.y += Font2RectH + PAD;
+                        r_toggle.y += Font2RectH + PAD;
+
+                        if ((*p & 0x01) != 0x00){
+                            if (currentGesture == GESTURE_TAP && CheckCollisionPointRec(mouse, r_toggle)) BIT_FLIP(*p,3);
+                            if ((*p & 0x08) == 0x08) DrawRectangleRec(r_toggle, COLOR_TOGGLESET);
+                            else DrawRectangleRec(r_toggle, COLOR_TOGGLEUNSET);
+                            DrawRectangleLinesEx(r_toggle, 1.0f, COLOR_TOGGLEOUTLINE);
+                        }
+                        DrawFont2("REPEAT IF DIES IN FIRST MORTALITY PHASE (AH-LRB)", r_item, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+
+                        // NEXT BUTTON
+                        Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+                        if (CheckCollisionPointRec(mouse, r_button))
+                        {
+                            if (currentGesture == GESTURE_TAP)
+                            {
+                                DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
+                                game->sphs = (A_GAME_SPHS_t)SPHS_PREP_DEALSENATORS;
                                 int nfac = 1; // first "faction" (unaligned) is counted as well
                                 for (int factidx = 1; factidx < group(rordata, G_FACT).elems; factidx++)
                                 {
@@ -827,11 +959,11 @@ int main(void)
                                 uint8_t temporaryromeconsulflags = *(A_ERAR_TERC_t*)(valabsaddr(rordata, G_ERAR, A_ERAR_TERC, game->erai));
                                 if ((temporaryromeconsulflags & 0x05) == 0x00)
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
+                                    game->sphs = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
                                 }
                                 else
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+                                    game->sphs = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
                                 }
                                 selected = -1;
                                 framesCounter = 0;
@@ -1182,11 +1314,11 @@ int main(void)
                                 uint8_t temporaryromeconsulflags = *(A_ERAR_TERC_t*)(valabsaddr(rordata, G_ERAR, A_ERAR_TERC, game->erai));
                                 if ((temporaryromeconsulflags & 0x05) == 0x00)
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+                                    game->sphs = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
                                 }
                                 else
                                 {
-                                    *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_INITIALFACTIONPHASE;
+                                    game->sphs = (A_GAME_SPHS_t)SPHS_PREP_INITIALFACTIONPHASE;
                                 }
                                 selected = -1;
                                 framesCounter = 0;
@@ -1546,11 +1678,11 @@ int main(void)
                                     uint8_t temporaryromeconsulflags = *(A_ERAR_TERC_t*)(valabsaddr(rordata, G_ERAR, A_ERAR_TERC, game->erai));
                                     if ((temporaryromeconsulflags & 0x05) == 0x04)
                                     {
-                                        *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
+                                        game->sphs = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
                                     }
                                     else
                                     {
-                                        *(A_GAME_SPHS_t*)(val0absaddr(rordata, G_GAME, A_GAME_SPHS)) = (A_GAME_SPHS_t)SPHS_PREP_INITIALFACTIONPHASE;
+                                        game->sphs = (A_GAME_SPHS_t)SPHS_PREP_INITIALFACTIONPHASE;
                                     }
                                     selected = -1;
                                     framesCounter = 0;
@@ -1567,8 +1699,6 @@ int main(void)
                     } break;
                 }
             } break;
-        }
-        }
         }
 
         EndDrawing();

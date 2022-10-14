@@ -11,7 +11,7 @@ typedef struct _Game Game;
 struct _Header { \
    char     sig[3]; \
    uint8_t  ver; \
-   char     dsc[44]; \
+   char     dsc[76]; \
    char     nam[15]; \
    uint8_t  lng; \
    uint32_t elems; \
@@ -223,6 +223,7 @@ struct _Game { \
 #define PHSE_ERASTART 0
 
 #define SPHS_PREP_TAKEFACTIONS 301200
+#define SPHS_PREP_SETUPRULES 301250
 #define SPHS_PREP_DEALSENATORS 301420
 #define SPHS_PREP_TEMPORARYROMECONSUL 301600
 #define SPHS_PREP_SELECTFACTIONLEADERS 301700
