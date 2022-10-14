@@ -364,6 +364,7 @@ if __name__ == "__main__":
         "#define FACT_ELEMCOUNT 7",
         "#define OFFICE_ROME_CONSUL 3",
         "",
+        "#define PHSE_SCENARIO -128",
         "#define PHSE_PREP -1",
         "#define PHSE_ERASTART 0",
         "",

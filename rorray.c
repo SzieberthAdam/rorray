@@ -341,7 +341,7 @@ int main(void)
 
     Game *game;
     game = MemAlloc(sizeof(Game));
-    game->phse = -128;
+    game->phse = PHSE_SCENARIO;
     game->sphs = 0;
 
     Vector2 mouse;
@@ -423,7 +423,7 @@ int main(void)
 
         switch (game->phse)
         {
-            case -128:
+            case PHSE_SCENARIO:
             {
                 // PREP
                 static bool searched = false;
@@ -486,7 +486,6 @@ int main(void)
             {
                 switch (game->sphs)
                 {
-                    case 0:
                     case SPHS_PREP_TAKEFACTIONS: /* 3.01.2 [4.1] GAMEBOARD (Take Seets) */
                     {
                         // TITLE
