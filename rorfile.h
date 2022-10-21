@@ -33,9 +33,10 @@ enum GamePhase {
 
 
 enum Phase {
+    PhSetGamename           = (SetupPhase << 28)        +      1,
+    PhSetupRules            = (SetupPhase << 28)        +      2,
     PhPickScenario          = (SetupPhase << 28)        + 300000,
     PhTakeFactions          = (SetupPhase << 28)        + 301200,
-    PhSetupRules            = (SetupPhase << 28)        + 301201,
     PhDealSenators          = (SetupPhase << 28)        + 301420,
     PhTemporaryRomeConsul   = (SetupPhase << 28)        + 301600,
     PhSelectFactionLeaders  = (SetupPhase << 28)        + 301700,
@@ -70,6 +71,18 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 } RoR_ItemTypeInfo_t;       //  size: 6 bytes each
 
 
+enum ItemType {
+    EraItem = 1,
+    FactionItem,
+    MainLocationItem,
+    DeckItem,
+    OfficeItem,
+    MagistrateItem,
+    SenatorItem,
+    StatesmanItem
+};
+
+
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     char        name[16];
     uint8_t     nsen;       //  number of senators per faction to deal at period start
@@ -82,10 +95,25 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 } RoR_EraItem_t;            //  size: 18 bytes each
 
 
+enum FactionType {
+    FactionUnused = 0,
+    FactionUsed = 1,
+    //FactionHuman,
+    //FactionPopulists,
+    //FactionConservatives,
+    //FactionPlutocrats,
+    //FactionImperials,
+    //FactionAI,
+    FactionUnset = 255
+};
+
+
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     char        name[16];
+    uint8_t     type;
     uint16_t    leit;       //  Faction Leader ItemType (0=Null / Senator=Family Card / Statesman)
     uint16_t    lenr;       //  Faction Leader ElemNr
+    char        pad;
 } RoR_FactionItem_t;        //  size: 20 bytes each
 
 
@@ -231,7 +259,10 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     lo0n[2];    //  Loyalty=0 if NOT in same Faction with StatesmanNr (StatesmanId+1); 0: None
 } RoR_StatesmanItem_t;      //  size: 272 bytes each
 
-#define header(rordata)  (*(Header*)(rordata))
+#define p_HEADER(rordata)  ((RoR_Header_t*)(rordata))
+#define p_TEMP(rordata)  ((void*)(rordata+sizeof(RoR_Header_t)))
+#define p_ITEMTYPEINFO(rordata)  ((RoR_ItemTypeInfo_t*)(rordata+sizeof(RoR_Header_t)+TEMPSIZE))
+#define p_FACTIONITEM(rordata)  ((RoR_FactionItem_t*)(rordata+p_ITEMTYPEINFO(rordata)[FactionItem-1].adr))
 #define group(rordata, G)  (*((Group*)(rordata+header(rordata).grouptocaddr) + G))
 #define attr(rordata, G, A)  (*((Attr*)(rordata+header(rordata).attrtocaddr) + (group(rordata, G).attr0idx) + A))
 #define val0reladdr(rordata, G, A)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr)

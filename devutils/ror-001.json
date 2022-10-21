@@ -27,8 +27,10 @@
     "FactionItem":
     [
         "16s",
+        "B",
         "H",
-        "H"
+        "H",
+        "x"
     ],
     "MainLocationItem":
     [

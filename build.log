@@ -10,12 +10,56 @@ rorray.c: In function 'main':
 rorray.c:314:12: warning: assignment to 'RoR_Header_t *' from pointer type 'void *' with incompatible scalar storage order [-Wscalar-storage-order]
   314 |     header = MemAlloc(sizeof(RoR_Header_t));
       |            ^
-rorray.c:342:9: warning: unused variable 'selected' [-Wunused-variable]
-  342 |     int selected = -1;
-      |         ^~~~~~~~
-rorray.c:341:9: warning: unused variable 'framesCounter' [-Wunused-variable]
-  341 |     int framesCounter = 0;
-      |         ^~~~~~~~~~~~~
+rorray.c:415:25: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
+  415 |                         strcpy(descriptions[count], ((RoR_Header_t*)(data))->desc);
+      |                         ^~~~~~
+rorray.c:18:1: note: include '<string.h>' or provide a declaration of 'strcpy'
+   17 | #include "rorfile.h"
+  +++ |+#include <string.h>
+   18 | 
+rorray.c:415:25: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  415 |                         strcpy(descriptions[count], ((RoR_Header_t*)(data))->desc);
+      |                         ^~~~~~
+rorray.c:415:25: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:439:37: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
+  439 |                             MemFree(header);
+      |                                     ^~~~~~
+rorray.c:451:21: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
+  451 |                     sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
+      |                     ^~~~~~~
+rorray.c:18:1: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+   17 | #include "rorfile.h"
+  +++ |+#include <stdio.h>
+   18 | 
+rorray.c:451:21: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  451 |                     sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
+      |                     ^~~~~~~
+rorray.c:451:21: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:473:21: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  473 |                     strcpy(str, p_FACTIONITEM(rordata)[fact-1].name);  // displayed cursor character will be added to str
+      |                     ^~~~~~
+rorray.c:473:21: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:482:43: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
+  482 |                         int letterCount = strlen(str);
+      |                                           ^~~~~~
+rorray.c:482:43: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:482:43: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+rorray.c:482:43: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:534:33: warning: assignment to 'RoR_FactionItem_t *' from pointer type 'void *' with incompatible scalar storage order [-Wscalar-storage-order]
+  534 |                         faction = MemAlloc(sizeof(RoR_FactionItem_t));
+      |                                 ^
+rorray.c:542:37: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
+  542 |                                     memcpy(faction, &p_FACTIONITEM(rordata)[fact-1], sizeof(RoR_FactionItem_t));
+      |                                     ^~~~~~
+rorray.c:542:37: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:542:37: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:542:37: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:543:37: warning: implicit declaration of function 'memmove' [-Wimplicit-function-declaration]
+  543 |                                     memmove(&p_FACTIONITEM(rordata)[fact-1], &p_FACTIONITEM(rordata)[fact], sizeof(RoR_FactionItem_t) * (numFactions - fact));
+      |                                     ^~~~~~~
+rorray.c:543:37: note: include '<string.h>' or provide a declaration of 'memmove'
+rorray.c:543:37: warning: incompatible implicit declaration of built-in function 'memmove' [-Wbuiltin-declaration-mismatch]
+rorray.c:543:37: note: include '<string.h>' or provide a declaration of 'memmove'
 rorray.c:339:13: warning: unused variable 'font3Ex' [-Wunused-variable]
   339 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
       |             ^~~~~~~
@@ -25,19 +69,16 @@ rorray.c:338:13: warning: unused variable 'font3Em' [-Wunused-variable]
 rorray.c:336:13: warning: unused variable 'font2Ex' [-Wunused-variable]
   336 |     Vector2 font2Ex = MeasureTextEx(font1, "x", font2.baseSize, 0);
       |             ^~~~~~~
-rorray.c:335:13: warning: unused variable 'font2Em' [-Wunused-variable]
-  335 |     Vector2 font2Em = MeasureTextEx(font1, "M", font2.baseSize, 0);
-      |             ^~~~~~~
 rorray.c:333:13: warning: unused variable 'font1Ex' [-Wunused-variable]
   333 |     Vector2 font1Ex = MeasureTextEx(font1, "x", font1.baseSize, 0);
       |             ^~~~~~~
 rorray.c:332:13: warning: unused variable 'font1Em' [-Wunused-variable]
   332 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
       |             ^~~~~~~
-rorray.c:323:12: warning: unused variable 'randBitReq' [-Wunused-variable]
+rorray.c:323:12: warning: variable 'randBitReq' set but not used [-Wunused-but-set-variable]
   323 |     int8_t randBitReq = -1;
       |            ^~~~~~~~~~
-rorray.c:322:19: warning: unused variable 'randVal' [-Wunused-variable]
+rorray.c:322:19: warning: variable 'randVal' set but not used [-Wunused-but-set-variable]
   322 |     unsigned char randVal = 0;
       |                   ^~~~~~~
 rorray.c:320:9: warning: variable 'lastGesture' set but not used [-Wunused-but-set-variable]
@@ -46,10 +87,7 @@ rorray.c:320:9: warning: variable 'lastGesture' set but not used [-Wunused-but-s
 rorray.c:318:13: warning: unused variable 'mousedelta' [-Wunused-variable]
   318 |     Vector2 mousedelta;
       |             ^~~~~~~~~~
-rorray.c:317:13: warning: variable 'mouse' set but not used [-Wunused-but-set-variable]
-  317 |     Vector2 mouse;
-      |             ^~~~~
-rorray.c:310:10: warning: unused variable 'rordataLoaded' [-Wunused-variable]
+rorray.c:310:10: warning: variable 'rordataLoaded' set but not used [-Wunused-but-set-variable]
   310 |     bool rordataLoaded = false;
       |          ^~~~~~~~~~~~~
 rorray.c:304:14: warning: unused variable 'screenOffsetY' [-Wunused-variable]
@@ -58,9 +96,6 @@ rorray.c:304:14: warning: unused variable 'screenOffsetY' [-Wunused-variable]
 rorray.c:303:14: warning: unused variable 'screenOffsetX' [-Wunused-variable]
   303 |     uint16_t screenOffsetX = (windowedScreenWidth - RIGHT * screenRights) / 2;
       |              ^~~~~~~~~~~~~
-rorray.c:297:10: warning: unused variable 'str' [-Wunused-variable]
-  297 |     char str[256];
-      |          ^~~
 rorray.c:296:13: warning: unused variable 'cursor' [-Wunused-variable]
   296 |     Vector2 cursor;
       |             ^~~~~~
@@ -71,12 +106,12 @@ rorray.c:293:9: warning: unused variable 'debugvar' [-Wunused-variable]
   293 |     int debugvar = 0;
       |         ^~~~~~~~
 rorray.c: At top level:
-rorray.c:410:13: warning: 'DrawTextBoxed' defined but not used [-Wunused-function]
-  410 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
+rorray.c:596:13: warning: 'DrawTextBoxed' defined but not used [-Wunused-function]
+  596 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
       |             ^~~~~~~~~~~~~
 rorray.c: In function 'main':
-rorray.c:400:5: warning: 'rordata' is used uninitialized [-Wuninitialized]
-  400 |     UnloadFileData(rordata);      // Free memory from loaded file
+rorray.c:586:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
+  586 |     UnloadFileData(rordata);      // Free memory from loaded file
       |     ^~~~~~~~~~~~~~~~~~~~~~~
 rorray.c:311:20: note: 'rordata' was declared here
   311 |     unsigned char *rordata;

@@ -391,6 +391,192 @@ int main(void)
 
         // DrawFPS(windowedScreenWidth-100, 10); // for debug
 
+        switch (header->phse)
+        {
+            case 0:
+            case PhPickScenario:
+            {
+                // PREP
+                static bool searched = false;
+                static int count = 0;
+                static FilePathList files;
+                static char **descriptions;
+                static unsigned int readLength = sizeof(RoR_Header_t);
+                if (!searched)
+                {
+                    files = LoadDirectoryFiles(".");
+                    descriptions = (char**)MemAlloc(files.count * sizeof(char *));
+                    for(int i=0; i<files.count; i++)
+                    {
+                        if (IsPathFile(files.paths[i]) == false) continue;
+                        if (!TextIsEqual(GetFileExtension(files.paths[i]), ".ror")) continue;
+                        unsigned char *data = LoadFileData(files.paths[i], &readLength);
+                        descriptions[count] = (char*)MemAlloc(MEMBER_SIZE(RoR_Header_t, desc));
+                        strcpy(descriptions[count], ((RoR_Header_t*)(data))->desc);
+                        if (i != count) strcpy(files.paths[count], files.paths[i]);
+                        UnloadFileData(data);
+                        count++;
+                    }
+                    searched = true;
+                }
+                // TITLE
+                Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                DrawTitle("SCENARIO", r_title, COLOR_TITLETEXT, TextLeft);
+                // LIST
+                Rectangle r_centerlistelem = {0, 0, 60 * Font2HUnit, Font2RectH};
+                r_centerlistelem.x = (uint16_t)(UNITCLAMP((screenWidth - r_centerlistelem.width) / 2));
+                r_centerlistelem.y = (uint16_t)(UNITCLAMP((screenHeight - count * r_centerlistelem.height - (count - 1) * PAD) / 2));
+                Rectangle r = r_centerlistelem;
+                for (int i=0; i<count; i++ )
+                {
+                    if (CheckCollisionPointRec(mouse, r))
+                    {
+                        if (currentGesture == GESTURE_TAP)
+                        {
+                            unsigned int rordataLength = GetFileLength(files.paths[i]);
+                            rordata = LoadFileData(files.paths[i], &rordataLength);
+                            MemFree(header);
+                            header = p_HEADER(rordata);
+                            header->phse = PhTakeFactions;
+                            rordataLoaded = true;
+                            UnloadDirectoryFiles(files);
+                            for (int j=0; j<count; j++ ) MemFree(descriptions[count]);
+                            MemFree(descriptions);
+                            searched = false;
+                            break;
+                        }
+                    }
+                    DrawRectangleRec(r, COLOR_FACTIONHEADER);
+                    sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
+                    DrawFont2(str, r, WHITE, TextLeft, ((Vector2){0, 0}));
+                    r.y += Font2RectH + PAD;
+                }
+            } break;
+
+            case PhTakeFactions:
+            {
+                // TITLE
+                Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                DrawTitle("NAME THE PLAYING FACTIONS OR DELETE NAMES FOR EXCLUSION", r_title, COLOR_TITLETEXT, TextLeft);
+                // FACTIONS
+                bool anyselected = false;
+                uint8_t maxLetterCount = MEMBER_SIZE(RoR_FactionItem_t, name) - 1; // -1 because of the trailin null character
+                uint16_t numFactions = p_ITEMTYPEINFO(rordata)[FactionItem-1].cnt;
+                Rectangle r_centerlistelem = {0, 0, UNIT + UNITCLAMP((maxLetterCount + 1) * font2Em.x + ((maxLetterCount + 1) - 1) * Font2Spacing + 2 * Font2PaddingX), Font2RectH}; // "UNIT +" is required for unknown reason; (maxLetterCount + 1) because of the shown input cursor: "_"
+                r_centerlistelem.x = (uint16_t)((screenWidth - r_centerlistelem.width) / 2);
+                r_centerlistelem.y = (uint16_t)((screenHeight - numFactions * r_centerlistelem.height - (numFactions - 1) * PAD) / 2);
+                Rectangle r = r_centerlistelem;
+                for (int fact = 1; fact < numFactions + 1; fact++)
+                {
+                    strcpy(str, p_FACTIONITEM(rordata)[fact-1].name);  // displayed cursor character will be added to str
+                    if (CheckCollisionPointRec(mouse, r))
+                    {
+                        anyselected = true;
+                        if (fact != selected)
+                        {
+                            selected = fact;
+                            framesCounter = 0;
+                        }
+                        int letterCount = strlen(str);
+                        DrawRectangleRec(r, COLOR_MOUSEHOVER_EDITABLE);
+                        SetMouseCursor(MOUSE_CURSOR_IBEAM);
+                        int key = GetCharPressed();
+                        while (key > 0)
+                        {
+                            // if (32 <= key && key <= 255 && letterCount < maxLetterCount)
+                            if (  ( ((key >= 65) && (key <= 90))||((key >= 97) && (key <= 122))||(key == 32) ) && (letterCount < maxLetterCount)  )
+                            {
+                                (p_FACTIONITEM(rordata)[fact-1].name)[letterCount] = (char)key;
+                                (p_FACTIONITEM(rordata)[fact-1].name)[letterCount+1] = '\0'; // Add null terminator at the end of the string.
+                                letterCount++;
+                            }
+                            key = GetCharPressed();  // Check next character in the queue
+                        }
+                        if (IsKeyPressed(KEY_BACKSPACE))
+                        {
+                            letterCount--;
+                            if (letterCount < 0) letterCount = 0;
+                            (p_FACTIONITEM(rordata)[fact-1].name)[letterCount] = '\0';
+                        }
+                        if ((letterCount <= maxLetterCount) && (((framesCounter/10)%2) == 0))
+                        {
+                            uint8_t factionNameLength = strlen(p_FACTIONITEM(rordata)[fact-1].name);
+                            str[factionNameLength] = '_';
+                            str[factionNameLength+1] = '\0';
+                            DrawFont2(str, r, COLOR_FACTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                        }
+                        framesCounter++;
+                    }
+                    else
+                    {
+                        DrawRectangleRec(r, COLOR_FACTIONHEADER);
+                    }
+                    DrawFont2(str, r, COLOR_FACTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                    r.y += r.height + 1;
+                }
+                if (!anyselected)
+                {
+                    SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+                    selected = -1;
+                    framesCounter = 0;
+                }
+                // NEXT BUTTON
+                Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+                if (CheckCollisionPointRec(mouse, r_button))
+                {
+                    if (currentGesture == GESTURE_TAP)
+                    {
+                        DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
+                        int nfac = 1; // first "faction" (unaligned) is counted as well
+                        RoR_FactionItem_t *faction;
+                        faction = MemAlloc(sizeof(RoR_FactionItem_t));
+                        for (int fact = 1; fact < numFactions + 1; fact++)
+                        {
+                            if (p_FACTIONITEM(rordata)[fact-1].name[0] == '\0')
+                            {
+                                p_FACTIONITEM(rordata)[fact-1].type = FactionUnused;
+                                if (fact < numFactions)  // eliminate seat gaps
+                                {
+                                    memcpy(faction, &p_FACTIONITEM(rordata)[fact-1], sizeof(RoR_FactionItem_t));
+                                    memmove(&p_FACTIONITEM(rordata)[fact-1], &p_FACTIONITEM(rordata)[fact], sizeof(RoR_FactionItem_t) * (numFactions - fact));
+                                    memcpy(&p_FACTIONITEM(rordata)[numFactions-1], faction, sizeof(RoR_FactionItem_t));
+                                }
+                            }
+                            else
+                            {
+                                p_FACTIONITEM(rordata)[fact-1].type = FactionUsed;
+                                nfac += 1;
+                            }
+                        }
+                        selected = -1;
+                        framesCounter = 0;
+                        randVal = 0;
+                        randBitReq = -1;
+                        header->nfac = nfac;
+                        header->phse = PhSetGamename;
+                    }
+                    else
+                    {
+                        DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                    }
+                }
+                else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+            } break;
+
+            case PhSetGamename:
+            {
+                // TITLE
+                Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                DrawTitle("GAMENAME", r_title, COLOR_TITLETEXT, TextLeft);
+            } break;
+
+        }
+
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
