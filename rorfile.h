@@ -5,6 +5,9 @@
 #include <stdint.h>
 
 
+#define RORFILESIGN "RoR"
+#define RORFILEVERS ((uint8_t)(1))
+
 #define ITEMTYPECOUNT 8
 #define TEMPSIZE 12
 

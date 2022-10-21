@@ -66,6 +66,8 @@ static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float font
 #define COLOR_BACKGOUNDTEXT COLOR_BrightGray
 #define COLOR_BACKGROUND COLOR_ChineseBlack
 #define COLOR_BACKGROUNDAREA COLOR_RaisinBlack
+#define COLOR_BEINGEDITED  COLOR_CookiesAndCream
+#define COLOR_BEINGEDITEDTEXT  COLOR_ChineseBlack
 #define COLOR_BLACKCARDBACKGROUND COLOR_BrightGray
 #define COLOR_BLACKCARDTEXT COLOR_ChineseBlack
 #define COLOR_BUTTONBACKGROUND COLOR_BrightGray
@@ -74,6 +76,7 @@ static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float font
 #define COLOR_CLICKED COLOR_CookiesAndCream
 #define COLOR_ERAHEADER COLOR_CrayolaTan
 #define COLOR_ERAHEADERTEXT COLOR_ChineseBlack
+#define COLOR_ERROR COLOR_Red
 #define COLOR_FACTION COLOR_TitaniumYellow
 #define COLOR_FACTIONHEADER COLOR_LightTaupe
 #define COLOR_FACTIONHEADERTEXT COLOR_ChineseBlack
@@ -91,6 +94,7 @@ static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float font
 #define COLOR_OFFICETEXT COLOR_ChineseBlack
 #define COLOR_STATESMANBACKGROUND COLOR_BrightGray
 #define COLOR_STATESMANTEXT COLOR_Red
+#define COLOR_SUBTITLETEXT COLOR_ChineseSilver
 #define COLOR_TITLEBACKGROUND COLOR_Goldenrod
 #define COLOR_TITLETEXT COLOR_ChineseBlack
 #define COLOR_TOGGLEOUTLINE COLOR_BrightGray
@@ -287,6 +291,14 @@ void DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize, flo
 }
 
 
+bool save(rordata, length)
+{
+    char fileName[64];
+    sprintf(fileName, "saved/%s %03d-%d-%d.ror", p_HEADER(rordata)->name, p_HEADER(rordata)->turn, (p_HEADER(rordata)->phse >> 28), (p_HEADER(rordata)->phse & 0x0FFFFFFF));
+    return SaveFileData(fileName, rordata, length);
+}
+
+
 int main(void)
 {
     SetTraceLogLevel(LOG_DEBUG); // TODO: DEBUG
@@ -308,6 +320,7 @@ int main(void)
     Font font1, font2, font3;
 
     bool rordataLoaded = false;
+    unsigned int rordataLength = 0;
     unsigned char *rordata;
 
     RoR_Header_t *header;
@@ -402,55 +415,87 @@ int main(void)
                 static FilePathList files;
                 static char **descriptions;
                 static unsigned int readLength = sizeof(RoR_Header_t);
-                if (!searched)
+                if (IsFileDropped())
                 {
-                    files = LoadDirectoryFiles(".");
-                    descriptions = (char**)MemAlloc(files.count * sizeof(char *));
-                    for(int i=0; i<files.count; i++)
+                    FilePathList droppedfiles = LoadDroppedFiles();
+                    if (droppedfiles.count == 1 && TextIsEqual(GetFileExtension(droppedfiles.paths[0]), ".ror"))
                     {
-                        if (IsPathFile(files.paths[i]) == false) continue;
-                        if (!TextIsEqual(GetFileExtension(files.paths[i]), ".ror")) continue;
-                        unsigned char *data = LoadFileData(files.paths[i], &readLength);
-                        descriptions[count] = (char*)MemAlloc(MEMBER_SIZE(RoR_Header_t, desc));
-                        strcpy(descriptions[count], ((RoR_Header_t*)(data))->desc);
-                        if (i != count) strcpy(files.paths[count], files.paths[i]);
-                        UnloadFileData(data);
-                        count++;
-                    }
-                    searched = true;
-                }
-                // TITLE
-                Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
-                DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
-                DrawTitle("SCENARIO", r_title, COLOR_TITLETEXT, TextLeft);
-                // LIST
-                Rectangle r_centerlistelem = {0, 0, 60 * Font2HUnit, Font2RectH};
-                r_centerlistelem.x = (uint16_t)(UNITCLAMP((screenWidth - r_centerlistelem.width) / 2));
-                r_centerlistelem.y = (uint16_t)(UNITCLAMP((screenHeight - count * r_centerlistelem.height - (count - 1) * PAD) / 2));
-                Rectangle r = r_centerlistelem;
-                for (int i=0; i<count; i++ )
-                {
-                    if (CheckCollisionPointRec(mouse, r))
-                    {
-                        if (currentGesture == GESTURE_TAP)
+                        RoR_Header_t *header2 = LoadFileData(droppedfiles.paths[0], &readLength);
+                        strncpy(str, &(header2->sign), 3);
+                        str[3] = '\0';
+                        if ((strcmp(str, RORFILESIGN) == 0) && (header2->vers == RORFILEVERS))
                         {
-                            unsigned int rordataLength = GetFileLength(files.paths[i]);
-                            rordata = LoadFileData(files.paths[i], &rordataLength);
+                            TraceLog(LOG_DEBUG, "Hello");
+                            rordataLength = GetFileLength(droppedfiles.paths[0]);
+                            rordata = LoadFileData(droppedfiles.paths[0], &rordataLength);
                             MemFree(header);
                             header = p_HEADER(rordata);
-                            header->phse = PhTakeFactions;
+                            if (header->phse == 0) header->phse = PhTakeFactions;
                             rordataLoaded = true;
-                            UnloadDirectoryFiles(files);
-                            for (int j=0; j<count; j++ ) MemFree(descriptions[count]);
-                            MemFree(descriptions);
-                            searched = false;
-                            break;
+                            DrawRectangle(0, 0, screenWidth, screenHeight, COLOR_BACKGROUND);
                         }
+                        else DrawRectangle(0, 0, screenWidth, screenHeight, COLOR_ERROR);
+                        UnloadFileData(header2);
                     }
-                    DrawRectangleRec(r, COLOR_FACTIONHEADER);
-                    sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
-                    DrawFont2(str, r, WHITE, TextLeft, ((Vector2){0, 0}));
-                    r.y += Font2RectH + PAD;
+                    else DrawRectangle(0, 0, screenWidth, screenHeight, COLOR_ERROR);
+
+                    UnloadDroppedFiles(droppedfiles);
+                }
+                else
+                {
+                    if (!searched)
+                    {
+                        files = LoadDirectoryFiles(".");
+                        descriptions = (char**)MemAlloc(files.count * sizeof(char *));
+                        for(int i=0; i<files.count; i++)
+                        {
+                            if (IsPathFile(files.paths[i]) == false) continue;
+                            if (!TextIsEqual(GetFileExtension(files.paths[i]), ".ror")) continue;
+                            RoR_Header_t *header2 = LoadFileData(files.paths[i], &readLength);
+                            if (0 < header2->phse) continue;
+                            descriptions[count] = (char*)MemAlloc(MEMBER_SIZE(RoR_Header_t, desc));
+                            strcpy(descriptions[count], header2->desc);
+                            if (i != count) strcpy(files.paths[count], files.paths[i]);
+                            UnloadFileData(header2);
+                            count++;
+                        }
+                        searched = true;
+                    }
+                    // TITLE
+                    Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                    DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                    DrawTitle("SCENARIO", r_title, COLOR_TITLETEXT, TextLeft);
+                    DrawFont2("NOTE: Drag & drop a .ror file onto this window to load", ((Rectangle){r_title.x, r_title.y + r_title.height + PAD + 1 * UNIT, r_title.width, Font2RectH}), COLOR_SUBTITLETEXT, TextLeft, ((Vector2){Font3PaddingX + 1* UNIT, 0}));
+                    // LIST
+                    Rectangle r_centerlistelem = {0, 0, 60 * Font2HUnit, Font2RectH};
+                    r_centerlistelem.x = (uint16_t)(UNITCLAMP((screenWidth - r_centerlistelem.width) / 2));
+                    r_centerlistelem.y = (uint16_t)(UNITCLAMP((screenHeight - count * r_centerlistelem.height - (count - 1) * PAD) / 2));
+                    Rectangle r = r_centerlistelem;
+                    for (int i=0; i<count; i++ )
+                    {
+                        if (CheckCollisionPointRec(mouse, r))
+                        {
+                            if (currentGesture == GESTURE_TAP)
+                            {
+                                rordataLength = GetFileLength(files.paths[i]);
+                                rordata = LoadFileData(files.paths[i], &rordataLength);
+                                MemFree(header);
+                                header = p_HEADER(rordata);
+                                header->phse = PhTakeFactions;
+                                rordataLoaded = true;
+                                UnloadDirectoryFiles(files);
+                                for (int j=0; j<count; j++ ) MemFree(descriptions[count]);
+                                MemFree(descriptions);
+                                searched = false;
+                                DrawRectangleRec(r, COLOR_CLICKED);
+                            }
+                            else DrawRectangleRec(r, COLOR_MOUSEHOVER_CLICKABLE);
+                        }
+                        else DrawRectangleRec(r, COLOR_FACTIONHEADER);
+                        sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
+                        DrawFont2(str, r, WHITE, TextLeft, ((Vector2){0, 0}));
+                        r.y += Font2RectH + PAD;
+                    }
                 }
             } break;
 
@@ -461,7 +506,7 @@ int main(void)
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("NAME THE PLAYING FACTIONS OR DELETE NAMES FOR EXCLUSION", r_title, COLOR_TITLETEXT, TextLeft);
                 // FACTIONS
-                bool anyselected = false;
+                int factclicked = -1;
                 uint8_t maxLetterCount = MEMBER_SIZE(RoR_FactionItem_t, name) - 1; // -1 because of the trailin null character
                 uint16_t numFactions = p_ITEMTYPEINFO(rordata)[FactionItem-1].cnt;
                 Rectangle r_centerlistelem = {0, 0, UNIT + UNITCLAMP((maxLetterCount + 1) * font2Em.x + ((maxLetterCount + 1) - 1) * Font2Spacing + 2 * Font2PaddingX), Font2RectH}; // "UNIT +" is required for unknown reason; (maxLetterCount + 1) because of the shown input cursor: "_"
@@ -471,14 +516,19 @@ int main(void)
                 for (int fact = 1; fact < numFactions + 1; fact++)
                 {
                     strcpy(str, p_FACTIONITEM(rordata)[fact-1].name);  // displayed cursor character will be added to str
-                    if (CheckCollisionPointRec(mouse, r))
+                    if (CheckCollisionPointRec(mouse, r) && fact != selected)
                     {
-                        anyselected = true;
-                        if (fact != selected)
+                        if (currentGesture == GESTURE_TAP)
                         {
+                            factclicked = fact;
                             selected = fact;
                             framesCounter = 0;
+                            DrawRectangleRec(r, COLOR_CLICKED);
                         }
+                        else DrawRectangleRec(r, COLOR_MOUSEHOVER_EDITABLE);
+                    }
+                    else if (fact == selected)
+                    {
                         int letterCount = strlen(str);
                         DrawRectangleRec(r, COLOR_MOUSEHOVER_EDITABLE);
                         SetMouseCursor(MOUSE_CURSOR_IBEAM);
@@ -502,9 +552,9 @@ int main(void)
                         }
                         if ((letterCount <= maxLetterCount) && (((framesCounter/10)%2) == 0))
                         {
-                            uint8_t factionNameLength = strlen(p_FACTIONITEM(rordata)[fact-1].name);
-                            str[factionNameLength] = '_';
-                            str[factionNameLength+1] = '\0';
+                            letterCount = strlen(p_FACTIONITEM(rordata)[fact-1].name);
+                            str[letterCount] = '_';
+                            str[letterCount+1] = '\0';
                             DrawFont2(str, r, COLOR_FACTIONTEXT, TextLeft, ((Vector2){0, 0}));
                         }
                         framesCounter++;
@@ -516,7 +566,7 @@ int main(void)
                     DrawFont2(str, r, COLOR_FACTIONTEXT, TextLeft, ((Vector2){0, 0}));
                     r.y += r.height + 1;
                 }
-                if (!anyselected)
+                if (factclicked == -1 && currentGesture == GESTURE_TAP)
                 {
                     SetMouseCursor(MOUSE_CURSOR_DEFAULT);
                     selected = -1;
@@ -573,8 +623,65 @@ int main(void)
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("GAMENAME", r_title, COLOR_TITLETEXT, TextLeft);
+                // INPUT
+                uint8_t maxLetterCount = MEMBER_SIZE(RoR_Header_t, name) - 1; // -1 because of the trailin null character
+                uint16_t numLines = 1;
+                Rectangle r_centerlistelem = {0, 0, UNIT + UNITCLAMP((maxLetterCount + 1) * font3Em.x + ((maxLetterCount + 1) - 1) * Font3Spacing + 2 * Font3PaddingX + Font3PaddingX), Font3RectH}; // "UNIT +" is required for unknown reason; (maxLetterCount + 1) because of the shown input cursor: "_"
+                r_centerlistelem.x = (uint16_t)((screenWidth - r_centerlistelem.width) / 2);
+                r_centerlistelem.y = (uint16_t)((screenHeight - numLines * r_centerlistelem.height - (numLines - 1) * PAD) / 2);
+                Rectangle r = r_centerlistelem;
+                strcpy(str, header->name);  // displayed cursor character will be added to str
+                int letterCount = strlen(str);
+                DrawRectangleRec(r, COLOR_BEINGEDITED);
+                int key = GetCharPressed();
+                while (key > 0)
+                {
+                    // if (32 <= key && key <= 255 && letterCount < maxLetterCount)
+                    if (  ( ((key >= 65) && (key <= 90))||((key >= 97) && (key <= 122))||(key == 32) ) && (letterCount < maxLetterCount)  )
+                    {
+                        (header->name)[letterCount] = (char)key;
+                        (header->name)[letterCount+1] = '\0'; // Add null terminator at the end of the string.
+                        letterCount++;
+                    }
+                    key = GetCharPressed();  // Check next character in the queue
+                }
+                if (IsKeyPressed(KEY_BACKSPACE))
+                {
+                    letterCount--;
+                    if (letterCount < 0) letterCount = 0;
+                    (header->name)[letterCount] = '\0';
+                }
+                if ((letterCount <= maxLetterCount) && (((framesCounter/10)%2) == 0))
+                {
+                    letterCount = strlen(header->name);
+                    str[letterCount] = '_';
+                    str[letterCount+1] = '\0';
+                }
+                DrawFont3(str, r, COLOR_BEINGEDITEDTEXT, TextLeft, ((Vector2){0, 0}));
+                framesCounter++;
+                // NEXT
+                if ((header->name)[0] != '\0')
+                {
+                    Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+                    if (CheckCollisionPointRec(mouse, r_button))
+                    {
+                        if (currentGesture == GESTURE_TAP)
+                        {
+                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
+                            framesCounter = 0;
+                            header->phse = PhSetupRules;
+                            save(rordata, rordataLength);
+                        }
+                        else
+                        {
+                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                        }
+                    }
+                    else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                    DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                    DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                }
             } break;
-
         }
 
         EndDrawing();
