@@ -35,36 +35,36 @@
     [
         [
             "Manus",
-            0,
+            255,
             0, 0
         ],
         [
             "Aquila",
-            0,
+            255,
             0, 0
         ],
         [
             "Luna Crescens",
-            0,
+            255,
             0, 0
         ],
         [
             "Corona",
-            0,
+            255,
             0, 0
         ],
         [
             "Porta",
-            0,
+            255,
             0, 0
         ],
         [
             "Parma",
-            0,
+            255,
             0, 0
         ]
     ],
-    "MainLocationItem":
+    "LocationItem":
     [
         [
             "Discards",

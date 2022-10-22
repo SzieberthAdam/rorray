@@ -9,7 +9,7 @@ ORDER = [
     "ItemTypeInfo",
     "EraItem",
     "FactionItem",
-    "MainLocationItem",
+    "LocationItem",
     "DeckItem",
     "OfficeItem",
     "MagistrateItem",

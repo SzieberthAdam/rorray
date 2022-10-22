@@ -37,7 +37,7 @@ enum GamePhase {
 
 enum Phase {
     PhSetGamename           = (SetupPhase << 28)        +      1,
-    PhSetupRules            = (SetupPhase << 28)        +      2,
+    PhSetupRules            = (SetupPhase << 28)        +    256,
     PhPickScenario          = (SetupPhase << 28)        + 300000,
     PhTakeFactions          = (SetupPhase << 28)        + 301200,
     PhDealSenators          = (SetupPhase << 28)        + 301420,
@@ -77,7 +77,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 enum ItemType {
     EraItem = 1,
     FactionItem,
-    MainLocationItem,
+    LocationItem,
     DeckItem,
     OfficeItem,
     MagistrateItem,
@@ -120,7 +120,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 } RoR_FactionItem_t;        //  size: 20 bytes each
 
 
-enum MainLocationElemNr {
+enum LocationElemNr {
     Discards = 1,
     Forum = 2,
     EnemyLeaders = 3,
@@ -138,7 +138,7 @@ enum MainLocationElemNr {
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     char        name[32];
     uint16_t    seri;       // serial
-} RoR_MainLocationItem_t;   //  size: 34 bytes each
+} RoR_LocationItem_t;   //  size: 34 bytes each
 
 
 enum DeckType {
@@ -262,17 +262,23 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     lo0n[2];    //  Loyalty=0 if NOT in same Faction with StatesmanNr (StatesmanId+1); 0: None
 } RoR_StatesmanItem_t;      //  size: 272 bytes each
 
+
 #define p_HEADER(rordata)  ((RoR_Header_t*)(rordata))
 #define p_TEMP(rordata)  ((void*)(rordata+sizeof(RoR_Header_t)))
 #define p_ITEMTYPEINFO(rordata)  ((RoR_ItemTypeInfo_t*)(rordata+sizeof(RoR_Header_t)+TEMPSIZE))
-#define p_FACTIONITEM(rordata)  ((RoR_FactionItem_t*)(rordata+p_ITEMTYPEINFO(rordata)[FactionItem-1].adr))
-#define group(rordata, G)  (*((Group*)(rordata+header(rordata).grouptocaddr) + G))
-#define attr(rordata, G, A)  (*((Attr*)(rordata+header(rordata).attrtocaddr) + (group(rordata, G).attr0idx) + A))
-#define val0reladdr(rordata, G, A)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr)
-#define val0absaddr(rordata, G, A)  (rordata+val0reladdr(rordata, G, A))
-#define valsize(rordata, G, A)  (attr(rordata, G, A).type & 0x00FF)
-#define valreladdr(rordata, G, A, i)  (header(rordata).attrvalsaddr + attr(rordata, G, A).addr) + (i*valsize(rordata, G, A))
-#define valabsaddr(rordata, G, A, i)  (rordata+valreladdr(rordata, G, A, i))
+#define p_ITEM(rordata, itemname)  ((RoR_ ## itemname ## Item_t*)(rordata+p_ITEMTYPEINFO(rordata)[itemname ## Item-1].adr))
+#define ITEMCOUNT(rordata, itemname)  (p_ITEMTYPEINFO(rordata)[itemname ## Item-1].cnt)
+
+
+#define ERA(n)  (p_ITEM(rordata, Era)[n-1])
+#define FACTION(n)  (p_ITEM(rordata, Faction)[n-1])
+#define LOCATION(n)  (p_ITEM(rordata, Location)[n-1])
+#define DECK(n)  (p_ITEM(rordata, Deck)[n-1])
+#define OFFICE(n)  (p_ITEM(rordata, Office)[n-1])
+#define MAGISTRATE(n)  (p_ITEM(rordata, Magistrate)[n-1])
+#define SENATOR(n)  (p_ITEM(rordata, Senator)[n-1])
+#define STATESMAN(n)  (p_ITEM(rordata, Statesman)[n-1])
+
 
 #endif  /* #ifndef __DEFINE_RORHFILE__ */
 ;
