@@ -406,7 +406,6 @@ int main(void)
 
         switch (header->phse)
         {
-            case 0:
             case PhPickScenario:
             {
                 // PREP
@@ -430,7 +429,6 @@ int main(void)
                             rordata = LoadFileData(droppedfiles.paths[0], &rordataLength);
                             MemFree(header);
                             header = p_HEADER(rordata);
-                            if (header->phse == 0) header->phse = PhTakeFactions;
                             rordataLoaded = true;
                             DrawRectangle(0, 0, screenWidth, screenHeight, COLOR_BACKGROUND);
                         }
@@ -481,7 +479,6 @@ int main(void)
                                 rordata = LoadFileData(files.paths[i], &rordataLength);
                                 MemFree(header);
                                 header = p_HEADER(rordata);
-                                header->phse = PhTakeFactions;
                                 rordataLoaded = true;
                                 UnloadDirectoryFiles(files);
                                 for (int j=0; j<count; j++ ) MemFree(descriptions[count]);
@@ -499,6 +496,7 @@ int main(void)
                 }
             } break;
 
+            case 0:
             case PhTakeFactions:
             {
                 // TITLE
@@ -535,8 +533,18 @@ int main(void)
                         int key = GetCharPressed();
                         while (key > 0)
                         {
-                            // if (32 <= key && key <= 255 && letterCount < maxLetterCount)
-                            if (  ( ((key >= 65) && (key <= 90))||((key >= 97) && (key <= 122))||(key == 32) ) && (letterCount < maxLetterCount)  )
+                            if
+                            (
+                                (letterCount < maxLetterCount)
+                                &&
+                                (
+                                    (('A' <= key) && (key <= 'Z'))
+                                    ||
+                                    (('a' <= key) && (key <= 'z'))
+                                    ||
+                                    (key == ' ')
+                                )
+                            )
                             {
                                 (p_FACTIONITEM(rordata)[fact-1].name)[letterCount] = (char)key;
                                 (p_FACTIONITEM(rordata)[fact-1].name)[letterCount+1] = '\0'; // Add null terminator at the end of the string.
@@ -637,7 +645,22 @@ int main(void)
                 while (key > 0)
                 {
                     // if (32 <= key && key <= 255 && letterCount < maxLetterCount)
-                    if (  ( ((key >= 65) && (key <= 90))||((key >= 97) && (key <= 122))||(key == 32) ) && (letterCount < maxLetterCount)  )
+                    if
+                    (
+                        (letterCount < maxLetterCount)
+                        &&
+                        (
+                            (('A' <= key) && (key <= 'Z'))
+                            ||
+                            (('a' <= key) && (key <= 'z'))
+                            ||
+                            (('0' <= key) && (key <= '9'))
+                            ||
+                            (key == '-')
+                            ||
+                            (key == '_')
+                        )
+                    )
                     {
                         (header->name)[letterCount] = (char)key;
                         (header->name)[letterCount+1] = '\0'; // Add null terminator at the end of the string.
