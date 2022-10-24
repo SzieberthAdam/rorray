@@ -63,10 +63,8 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint16_t    turn;
     uint32_t    phse;       //  phase ((rulebook phase << 28) + subphase)
                             //  this value is the main logic control
-    uint8_t     nfac;       //  number of factions
     uint8_t     eran;       //  era number
     uint8_t     deck;       //  active draw deck nr
-    char        pad;
 } RoR_Header_t;             //  size: 118 bytes
 
 
@@ -231,12 +229,12 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     loy2;       //  current Loyalty
     uint8_t     inf2;       //  current Influence
     int8_t      pop2;       //  current Popularity
+    uint8_t     fact;       //  Aligned to Faction#
     uint16_t    loit;       //  Location ItemType (0: Null / Deck / Discard / Forum (In Rome) / Repopulation Rome / Province / War)
     uint16_t    lonr;       //  Location ElemNr
     uint16_t    losr;       //  Location SerialNr (Mainly for Repopulating Rome)
     bool        proc;       //  Proconsul
     uint8_t     pric;       //  Prior Consul counter
-    char        pad;
 } RoR_SenatorItem_t;        //  size: 42 bytes each
 
 
@@ -248,7 +246,6 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     char        name[64];   //  Name
     char        time[32];   //  Time
     char        spec[128];  //  Specialty
-    uint8_t     fact;       //  Aligned to Faction#
     uint8_t     mil0;       //  initial Military
     uint8_t     ora0;       //  initial Oratory
     uint8_t     loy0;       //  initial Loyalty
@@ -264,6 +261,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     loy2;       //  current Loyalty
     uint8_t     inf2;       //  current Influence
     int8_t      pop2;       //  current Popularity
+    uint8_t     fact;       //  Aligned to Faction#
     uint16_t    loit;       //  Location ItemType (0: Null / Deck / Discard / Forum (In Rome) / Repopulation Rome / Province / War)
     uint16_t    lonr;       //  Location ElemNr
     bool        proc;       //  Proconsul
@@ -280,7 +278,8 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 #define ITEMCOUNT(rordata, itemname)  (p_ITEMTYPEINFO(rordata)[itemname ## Item-1].cnt)
 
 
-#define ERA(n)       (p_ITEM(rordata, Era     )[n-1])
+#define HEADER          (p_HEADER(rordata)[0])
+#define ERA(n)          (p_ITEM(rordata, Era        )[n-1])
 #define FACTION(n)      (p_ITEM(rordata, Faction    )[n-1])
 #define LOCATION(n)     (p_ITEM(rordata, Location   )[n-1])
 #define DECK(n)         (p_ITEM(rordata, Deck       )[n-1])

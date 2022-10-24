@@ -548,7 +548,7 @@ int main(void)
                 r_centerlistelem.x = (uint16_t)((screenWidth - r_centerlistelem.width) / 2);
                 r_centerlistelem.y = (uint16_t)((screenHeight - fcnt * r_centerlistelem.height - (fcnt - 1) * PAD) / 2);
                 Rectangle r = r_centerlistelem;
-                for (int f = 1; f <= fcnt; f++)
+                for (uint8_t f = 1; f <= fcnt; f++)
                 {
                     strcpy(str, FACTION(f).name);  // displayed cursor character will be added to str
                     if (CheckCollisionPointRec(mouse, r) && f != selected)
@@ -622,32 +622,15 @@ int main(void)
                     if (currentGesture == GESTURE_TAP)
                     {
                         DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
-                        int nfac = 1; // first "faction" (unaligned) is counted as well
-                        RoR_FactionItem_t *faction;
-                        faction = MemAlloc(sizeof(RoR_FactionItem_t));
-                        for (int f = 1; f <= fcnt; f++)
+                        for (uint8_t f = 1; f <= fcnt; f++)
                         {
-                            if (FACTION(f).name[0] == '\0')
-                            {
-                                FACTION(f).type = FactionUnused;
-                                if (f < fcnt)  // eliminate seat gaps
-                                {
-                                    memcpy(faction, &FACTION(f), sizeof(RoR_FactionItem_t));
-                                    memmove(&FACTION(f), &FACTION(f+1), sizeof(RoR_FactionItem_t) * (fcnt - f));
-                                    memcpy(&FACTION(fcnt), faction, sizeof(RoR_FactionItem_t));
-                                }
-                            }
-                            else
-                            {
-                                FACTION(f).type = FactionUsed;
-                                nfac += 1;
-                            }
+                            if (FACTION(f).name[0] == '\0') FACTION(f).type = FactionUnused;
+                            else FACTION(f).type = FactionUsed;
                         }
                         selected = -1;
                         framesCounter = 0;
                         randVal = 0;
                         randBitReq = -1;
-                        header->nfac = nfac;
                         header->phse = PhSetGamename;
                     }
                     else
@@ -1055,6 +1038,359 @@ int main(void)
                 DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                 DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
             } break;
+
+            case PhDealSenators:
+            {
+                // PREP
+                uint16_t dcnt = ITEMCOUNT(rordata, Deck);
+                uint16_t d;
+                for(d = dcnt; d <= 1 && DECK(d).eran != HEADER.eran || DECK(d).type != EraStartSenatorPool; d--);
+                uint16_t s;
+                uint8_t *sat = MemAlloc(ITEMCOUNT(rordata, Senator));
+                uint8_t decksenacnt = 0;
+                uint8_t *factsenacnt = MemAlloc(ITEMCOUNT(rordata, Faction) + 1);
+                memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
+                for(s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                {
+                    if (SENATOR(s).loit == DeckItem && DECK(SENATOR(s).lonr).eran == HEADER.eran && DECK(SENATOR(s).lonr).type == EraStartSenatorPool)
+                    {
+                        sat[s-1] = (1 << 7) + (SENATOR(s).lonr & 0x7F);
+                        decksenacnt++;
+                    }
+                    else if (SENATOR(s).loit == LocationItem && SENATOR(s).lonr == Forum)
+                    {
+                        sat[s-1] = SENATOR(s).fact & 0x3F;
+                        factsenacnt[sat[s-1]]++;
+                        sat[s-1] += 1 << 6;
+                    }
+                    else
+                    {
+                        sat[s-1] = 0;
+                    }
+                }
+                uint8_t dealstatus = 0;
+                uint8_t minfactsenacnt = 0xFF;
+                for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++)
+                {
+                    if (factsenacnt[f] == 0) dealstatus |= 0x01;
+                    else if (factsenacnt[f] < ERA(HEADER.eran).nsen) dealstatus |= 0x02;
+                    else if (factsenacnt[f] == ERA(HEADER.eran).nsen) dealstatus |= 0x04;
+                    else dealstatus |= 0x08;
+                    minfactsenacnt = min(minfactsenacnt, factsenacnt[f]);
+                }
+                uint8_t targetf = 0;
+                if (0 < dealstatus & 0x03) for (int targetf = 1; targetf <= ITEMCOUNT(rordata, Faction) && factsenacnt[targetf] != minfactsenacnt; targetf++);
+                // TITLE
+                Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                sprintf(str, "DEAL %i SENATORS TO EACH FACTION", ERA(HEADER.eran).nsen);
+                DrawTitle(str, r_title, COLOR_TITLETEXT, TextLeft);
+                // SENATORS AND FACTIONS PREP
+                Vector2 selectedvector;
+                Rectangle r_header = {0, 0, RECT_SEN_WIDTH, Font2RectH};
+                Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
+                // SENATORS
+                r_header.x = UNITCLAMP(screenWidth / 2) - (r_header.width + PAD) - 2 * UNIT;
+                r_header.y = (r_title.height + PAD) + 3 * UNIT;
+                Rectangle r_seantorarea = {r_header.x, r_header.y, r_header.width, screenHeight - r_header.y};
+                if (0 <= selected && CheckCollisionPointRec(mouse, r_seantorarea))
+                {
+                    DrawRectangleRec(r_header, COLOR_MOUSEHOVER_DROPTARGET);
+                    if (currentGesture != lastGesture && currentGesture == GESTURE_NONE)
+                    {
+                        s = selected; // for code coherence
+                        SENATOR(s).fact = 0;
+                        SENATOR(s).loit = DeckItem;
+                        SENATOR(s).lonr = d;
+                        selected = -1;
+                    }
+                }
+                else
+                {
+                    DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
+                }
+                DrawFont2("FAMILIES", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                DrawFont2("M", ((Rectangle){r_header.x + RECT_SEN_M_X, r_header.y, RECT_SEN_M_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("O", ((Rectangle){r_header.x + RECT_SEN_O_X, r_header.y, RECT_SEN_O_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("L", ((Rectangle){r_header.x + RECT_SEN_L_X, r_header.y, RECT_SEN_L_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("I", ((Rectangle){r_header.x + RECT_SEN_I_X, r_header.y, RECT_SEN_I_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("P", ((Rectangle){r_header.x + RECT_SEN_P_X, r_header.y, RECT_SEN_P_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                r_senator.x = r_header.x;
+                r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
+                for(s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                {
+                    if (sat[s-1] < (1 << 7)) continue;
+                    if (s == selected) continue;
+                    if (selected == -1 && CheckCollisionPointRec(mouse, r_senator))
+                    {
+                        if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
+                        {
+                            selected = s;
+                            selectedvector.x = mouse.x - r_senator.x;
+                            selectedvector.y = mouse.y - r_senator.y;
+                        }
+                        else DrawRectangleRec(r_senator, COLOR_MOUSEHOVER_DRAGABLE);
+                    }
+                    else if (selected != s) DrawRectangleRec(r_senator, COLOR_BLACKCARDBACKGROUND);
+                    sprintf(str, "%d", SENATOR(s).idnr);
+                    DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
+                    DrawFont2(SENATOR(s).name, ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
+                    sprintf(str, "%d", SENATOR(s).mil0);
+                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    sprintf(str, "%d", SENATOR(s).ora0);
+                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    sprintf(str, "%d", SENATOR(s).loy0);
+                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    sprintf(str, "%d", SENATOR(s).inf0);
+                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    if (SENATOR(s).pop0 != 0) {sprintf(str, "%i", SENATOR(s).pop0); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
+                    r_senator.y += (Font2RectH + PAD);
+                }
+                // FACTIONS
+                r_header.x = UNITCLAMP(screenWidth / 2) + 2 * UNIT;
+                DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
+                DrawFont2("SENATE", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                DrawFont2("M", ((Rectangle){r_header.x + RECT_SEN_M_X, r_header.y, RECT_SEN_M_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("O", ((Rectangle){r_header.x + RECT_SEN_O_X, r_header.y, RECT_SEN_O_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("L", ((Rectangle){r_header.x + RECT_SEN_L_X, r_header.y, RECT_SEN_L_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("I", ((Rectangle){r_header.x + RECT_SEN_I_X, r_header.y, RECT_SEN_I_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("P", ((Rectangle){r_header.x + RECT_SEN_P_X, r_header.y, RECT_SEN_P_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                r_senator.x = r_header.x;
+                r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
+                for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++)
+                {
+                    if (FACTION(f).type == FactionUnused) continue;
+                    if (FACTION(f).type == FactionUnset) continue;
+                    Rectangle r_faction = {r_senator.x, r_senator.y, r_senator.width, r_senator.height + (Font2RectH + PAD) * max(ERA(HEADER.eran).nsen, factsenacnt[f])};
+                    DrawRectangleRec(r_faction, COLOR_BACKGROUNDAREA);
+                    if (0 <= selected && CheckCollisionPointRec(mouse, r_faction))
+                    {
+                        DrawRectangleRec(r_senator, COLOR_MOUSEHOVER_DROPTARGET);
+                        if
+                        (
+                            (currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN)
+                            &&
+                            (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
+                        )
+                        {
+                            s = selected; // for code coherence
+                            SENATOR(s).fact = f;
+                            SENATOR(s).loit = LocationItem;
+                            SENATOR(s).lonr = Forum;
+                            selected = -1;
+                        }
+                    }
+                    else DrawRectangleRec(r_senator, COLOR_FACTION);
+                    DrawFont2(TextToUpper(FACTION(f).name), r_senator, COLOR_FACTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                    for(s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                    {
+                      if (s == selected) continue;  // handled elsewhere
+                      if ((sat[s-1] & 0x3F) != f) continue;  // not in this faction
+                      r_senator.y += (Font2RectH + PAD);
+                      if (selected == -1 && CheckCollisionPointRec(mouse, r_senator))
+                      {
+                          if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
+                          {
+                              selected = s;
+                              selectedvector.x = mouse.x - r_senator.x;
+                              selectedvector.y = mouse.y - r_senator.y;
+                          }
+                          else DrawRectangleRec(r_senator, COLOR_MOUSEHOVER_DRAGABLE);
+                      }
+                      else DrawRectangleRec(r_senator, COLOR_BLACKCARDBACKGROUND);
+                      sprintf(str, "%d", SENATOR(s).idnr);
+                      DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
+                      DrawFont2(SENATOR(s).name, ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
+                      sprintf(str, "%d", SENATOR(s).mil0);
+                      DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                      sprintf(str, "%d", SENATOR(s).ora0);
+                      DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                      sprintf(str, "%d", SENATOR(s).loy0);
+                      DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                      sprintf(str, "%d", SENATOR(s).inf0);
+                      DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                      if (SENATOR(s).pop0 != 0) {sprintf(str, "%i", SENATOR(s).pop0); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
+                    }
+                    r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
+                }
+//                // NEXT BUTTON
+//                Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+//                if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
+//                {
+//                    if (currentGesture == GESTURE_TAP)
+//                    {
+//                        DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
+//                        uint8_t temporaryromeconsulflags = *(A_ERAR_TERC_t*)(valabsaddr(rordata, G_ERAR, A_ERAR_TERC, game->erai));
+//                        if ((temporaryromeconsulflags & 0x05) == 0x00)
+//                        {
+//                            game->sphs = (A_GAME_SPHS_t)SPHS_PREP_TEMPORARYROMECONSUL;
+//                        }
+//                        else
+//                        {
+//                            game->sphs = (A_GAME_SPHS_t)SPHS_PREP_SELECTFACTIONLEADERS;
+//                        }
+//                        selected = -1;
+//                        framesCounter = 0;
+//                    }
+//                    else
+//                    {
+//                        DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+//                    }
+//                }
+//                else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+//                DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+//                DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+//                // RANDOM BUTTON
+//                if (0 < deckSize && 0 < (dealstatus & 0x03))
+//                {
+//                    r_button.width = UNITCLAMP(6 * Font3HUnit);
+//                    r_button.x -= 2 * UNIT + r_button.width;
+//                    if (selected == -501000)
+//                    {
+//                        if
+//                        (
+//                            (currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN)
+//                            &&
+//                            (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
+//                        )
+//                        {
+//                            selected = -1;
+//                        }
+//                    }
+//                    if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
+//                    {
+//                        if (currentGesture != lastGesture && currentGesture == GESTURE_TAP) // pick up
+//                        {
+//                            selected = -501000;
+//                            selectedvector.x = mouse.x - r_button.x;
+//                            selectedvector.y = mouse.y - r_button.y;
+//                        }
+//                        else
+//                        {
+//                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_DRAGABLE);
+//                            DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+//                            DrawFont3("RANDOM", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+//                            strcpy(str, "drag and shake it");
+//                            Vector2 textsize = MeasureTextEx(font2, str, Font2H, Font2Spacing);
+//                            textsize.x += 4 * Font2Spacing;
+//                            Rectangle r_tooltip = {UNITCLAMP(r_button.x + r_button.width / 2 - textsize.x / 2), r_button.y + r_button.height + 1 * UNIT, UNITCLAMP(textsize.x), Font2RectH};
+//                            DrawRectangleRec(r_tooltip, COLOR_TOOLTIPBACKGROUND);
+//                            DrawRectangleLinesEx(r_tooltip, 1.0f, COLOR_TOOLTIPOUTLINE);
+//                            DrawFont2(str, r_tooltip, COLOR_TOOLTIPTEXT, TextCenter, ((Vector2){0, -1}));
+//                        }
+//                    }
+//                    else if (selected == -501000 && (currentGesture == GESTURE_DRAG || currentGesture == GESTURE_HOLD))
+//                    {
+//                        int factidx = dealTargetFactionIdx; // for code coherence
+//                        uint8_t populationSize = deckSize; // for code coherence
+//                        r_button.x = mouse.x - selectedvector.x;
+//                        r_button.y = mouse.y - selectedvector.y;
+//                        DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEDRAG);
+//                        DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+//                        DrawFont3("RANDOM", r_button, COLOR_MOUSEDRAGTEXT, TextCenter, ((Vector2){0, 1}));
+//                        if (currentGesture == GESTURE_DRAG) mousedelta = GetGestureDragVector();
+//                        else mousedelta = GetMouseDelta();
+//                        if (mousedelta.x != (float)(0) || mousedelta.y != (float)(0))
+//                        {
+//                            uint8_t randSize = clp2(populationSize);
+//                            uint8_t randBitReqBase = ffs(randSize) - 1;
+//                            uint8_t randSizeHigh = flp2(randSize - populationSize);
+//                            if (populationSize == 1)
+//                            {
+//                                randVal = 0;
+//                                randBitReq = 0;
+//                            }
+//                            else
+//                            {
+//                                if (randBitReq == -1) randBitReq = randBitReqBase;
+//                                uint8_t bit = __rdtsc() & 0x01; // keep LSB (least significant bit)
+//                                randVal = (randVal << 1) + bit;
+//                                randBitReq -= 1;
+//                            }
+//                            if (randBitReq == 0)
+//                            {
+//                                if (randVal < populationSize)  // random result within bound
+//                                {
+//                                    int counter = 0;
+//                                    for (int senaidx = 0; senaidx < group(rordata, G_SENA).elems; senaidx++)
+//                                    {
+//                                        if (
+//                                            (*(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) != (A_SENA_CNGR_t)(G_DECK))
+//                                            ||
+//                                            (*(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) != (A_SENA_CNNR_t)(0))
+//                                        ) continue;
+//                                        if (counter == randVal)
+//                                        {
+//
+//                                            *(A_SENA_ALIG_t*)valabsaddr(rordata, G_SENA, A_SENA_ALIG, senaidx) = (A_SENA_ALIG_t)(factidx);
+//                                            *(A_SENA_CNGR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNGR, senaidx) = (A_SENA_CNGR_t)(G_FORU);
+//                                            *(A_SENA_CNNR_t*)valabsaddr(rordata, G_SENA, A_SENA_CNNR, senaidx) = (A_SENA_CNNR_t)(0);
+//                                            break;
+//                                        }
+//                                        counter += 1;
+//                                    }
+//                                    randVal = 0;
+//                                    randBitReq -= 1;
+//                                }
+//                                else if ((0 < randSizeHigh) && ((randSize - randSizeHigh) <= randVal))  // keep some bits for next attempt if possible
+//                                {
+//                                    randVal -= (randSize - randSizeHigh);
+//                                    uint8_t randBitReqBaseHigh = ffs(randSizeHigh) - 1;
+//                                    randBitReq = randBitReqBase - randBitReqBaseHigh;
+//                                }
+//                                else
+//                                {
+//                                    randVal = 0;
+//                                    randBitReq -= 1;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    else
+//                    {
+//                        DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+//                        DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+//                        DrawFont3("RANDOM", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+//                    }
+//                }
+//                else if (selected == -501000)
+//                {
+//                    selected = -1;
+//                }
+              // SELECTION
+              if (0 <= selected) // draw selected senator on top off all other
+              {
+                  if
+                  (
+                      (currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN)
+                      &&
+                      (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP)
+                  )
+                  {
+                      selected = -1;
+                  }
+                  else
+                  {
+                      s = selected;  // for code coherence
+                      r_senator.x = mouse.x - selectedvector.x;
+                      r_senator.y = mouse.y - selectedvector.y;
+                      DrawRectangleRec(r_senator, COLOR_MOUSEDRAG);
+                      sprintf(str, "%d", SENATOR(s).idnr);
+                      DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
+                      DrawFont2(SENATOR(s).name, ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
+                      sprintf(str, "%d", SENATOR(s).mil0);
+                      DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                      sprintf(str, "%d", SENATOR(s).ora0);
+                      DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                      sprintf(str, "%d", SENATOR(s).loy0);
+                      DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                      sprintf(str, "%d", SENATOR(s).inf0);
+                      DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                      if (SENATOR(s).pop0 != 0) {sprintf(str, "%i", SENATOR(s).pop0); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
+                  }
+              }
+            } break;
+
         }
 
         EndDrawing();
