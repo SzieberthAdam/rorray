@@ -192,16 +192,17 @@ rorray.c:1052:17: warning: incompatible implicit declaration of built-in functio
  1052 |                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
       |                 ^~~~~~
 rorray.c:1052:17: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:1082:23: warning: suggest parentheses around comparison in operand of '&' [-Wparentheses]
- 1082 |                 if (0 < dealstatus & 0x03) for (int targetf = 1; targetf <= ITEMCOUNT(rordata, Faction) && factsenacnt[targetf] != minfactsenacnt; targetf++);
-      |                     ~~^~~~~~~~~~~~
 rorray.c:1086:17: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
  1086 |                 sprintf(str, "DEAL %i SENATORS TO EACH FACTION", ERA(HEADER.eran).nsen);
       |                 ^~~~~~~
 rorray.c:1086:17: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1081:25: warning: unused variable 'targetf' [-Wunused-variable]
- 1081 |                 uint8_t targetf = 0;
-      |                         ^~~~~~~
+rorray.c:1248:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1248 |                             strcpy(str, "drag this for random draw");
+      |                             ^~~~~~
+rorray.c:1248:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1259:33: warning: unused variable 'f' [-Wunused-variable]
+ 1259 |                         uint8_t f = targetf; // for code coherence
+      |                                 ^
 rorray.c:389:13: warning: unused variable 'font3Ex' [-Wunused-variable]
   389 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
       |             ^~~~~~~
@@ -214,15 +215,6 @@ rorray.c:381:13: warning: unused variable 'font1Ex' [-Wunused-variable]
 rorray.c:380:13: warning: unused variable 'font1Em' [-Wunused-variable]
   380 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
       |             ^~~~~~~
-rorray.c:371:12: warning: variable 'randBitReq' set but not used [-Wunused-but-set-variable]
-  371 |     int8_t randBitReq = -1;
-      |            ^~~~~~~~~~
-rorray.c:370:19: warning: variable 'randVal' set but not used [-Wunused-but-set-variable]
-  370 |     unsigned char randVal = 0;
-      |                   ^~~~~~~
-rorray.c:366:13: warning: unused variable 'mousedelta' [-Wunused-variable]
-  366 |     Vector2 mousedelta;
-      |             ^~~~~~~~~~
 rorray.c:357:10: warning: variable 'rordataLoaded' set but not used [-Wunused-but-set-variable]
   357 |     bool rordataLoaded = false;
       |          ^~~~~~~~~~~~~
@@ -242,24 +234,24 @@ rorray.c:340:9: warning: unused variable 'debugvar' [-Wunused-variable]
   340 |     int debugvar = 0;
       |         ^~~~~~~~
 rorray.c: At top level:
-rorray.c:1412:13: warning: 'DrawTextBoxed' defined but not used [-Wunused-function]
- 1412 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
+rorray.c:1371:13: warning: 'DrawTextBoxed' defined but not used [-Wunused-function]
+ 1371 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
       |             ^~~~~~~~~~~~~
 rorray.c: In function 'main':
-rorray.c:1376:61: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
- 1376 |                       r_senator.y = mouse.y - selectedvector.y;
-      |                                               ~~~~~~~~~~~~~~^~
+rorray.c:1335:63: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+ 1335 |                         r_senator.y = mouse.y - selectedvector.y;
+      |                                                 ~~~~~~~~~~~~~~^~
 rorray.c:1089:25: note: 'selectedvector.y' was declared here
  1089 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1375:61: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
- 1375 |                       r_senator.x = mouse.x - selectedvector.x;
-      |                                               ~~~~~~~~~~~~~~^~
+rorray.c:1334:63: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+ 1334 |                         r_senator.x = mouse.x - selectedvector.x;
+      |                                                 ~~~~~~~~~~~~~~^~
 rorray.c:1089:25: note: 'selectedvector.x' was declared here
  1089 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1402:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
- 1402 |     UnloadFileData(rordata);      // Free memory from loaded file
+rorray.c:1361:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
+ 1361 |     UnloadFileData(rordata);      // Free memory from loaded file
       |     ^~~~~~~~~~~~~~~~~~~~~~~
 rorray.c:359:20: note: 'rordata' was declared here
   359 |     unsigned char *rordata;
