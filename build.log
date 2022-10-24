@@ -1,29 +1,48 @@
+rorray.c: In function 'TextToUpper2':
+rorray.c:172:5: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+  172 |     memset(buffer, 0, MAX_TEXT_BUFFER_LENGTH);
+      |     ^~~~~~
+rorray.c:18:1: note: include '<string.h>' or provide a declaration of 'memset'
+   17 | #include "rorfile.h"
+  +++ |+#include <string.h>
+   18 | 
+rorray.c:172:5: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+  172 |     memset(buffer, 0, MAX_TEXT_BUFFER_LENGTH);
+      |     ^~~~~~
+rorray.c:172:5: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:178:31: warning: implicit declaration of function 'toupper' [-Wimplicit-function-declaration]
+  178 |             buffer[i] = (char)toupper(text[i]);
+      |                               ^~~~~~~
+rorray.c:18:1: note: include '<ctype.h>' or provide a declaration of 'toupper'
+   17 | #include "rorfile.h"
+  +++ |+#include <ctype.h>
+   18 | 
 rorray.c: In function 'DrawText2':
-rorray.c:222:25: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-  222 |     Vector2 position = *(Vector2 *)(&box);
+rorray.c:255:25: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  255 |     Vector2 position = *(Vector2 *)(&box);
       |                         ^~~~~~~~~~~~~~~~~
 rorray.c: In function 'DrawTextEx2':
-rorray.c:258:25: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-  258 |     Vector2 position = *(Vector2 *)(&box);
+rorray.c:292:25: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  292 |     Vector2 position = *(Vector2 *)(&box);
       |                         ^~~~~~~~~~~~~~~~~
 rorray.c: In function 'save':
-rorray.c:294:6: warning: type of 'rordata' defaults to 'int' [-Wimplicit-int]
-  294 | bool save(rordata, length)
+rorray.c:329:6: warning: type of 'rordata' defaults to 'int' [-Wimplicit-int]
+  329 | bool save(rordata, length)
       |      ^~~~
-rorray.c:294:6: warning: type of 'length' defaults to 'int' [-Wimplicit-int]
-rorray.c:297:5: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
-  297 |     sprintf(fileName, "saved/%s %03d-%d-%d.ror", p_HEADER(rordata)->name, p_HEADER(rordata)->turn, (p_HEADER(rordata)->phse >> 28), (p_HEADER(rordata)->phse & 0x0FFFFFFF));
+rorray.c:329:6: warning: type of 'length' defaults to 'int' [-Wimplicit-int]
+rorray.c:332:5: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
+  332 |     sprintf(fileName, "saved/%s %03d-%d-%d.ror", p_HEADER(rordata)->name, p_HEADER(rordata)->turn, (p_HEADER(rordata)->phse >> 28), (p_HEADER(rordata)->phse & 0x0FFFFFFF));
       |     ^~~~~~~
 rorray.c:18:1: note: include '<stdio.h>' or provide a declaration of 'sprintf'
    17 | #include "rorfile.h"
   +++ |+#include <stdio.h>
    18 | 
-rorray.c:297:5: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  297 |     sprintf(fileName, "saved/%s %03d-%d-%d.ror", p_HEADER(rordata)->name, p_HEADER(rordata)->turn, (p_HEADER(rordata)->phse >> 28), (p_HEADER(rordata)->phse & 0x0FFFFFFF));
+rorray.c:332:5: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  332 |     sprintf(fileName, "saved/%s %03d-%d-%d.ror", p_HEADER(rordata)->name, p_HEADER(rordata)->turn, (p_HEADER(rordata)->phse >> 28), (p_HEADER(rordata)->phse & 0x0FFFFFFF));
       |     ^~~~~~~
-rorray.c:297:5: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:298:35: warning: passing argument 2 of 'SaveFileData' makes pointer from integer without a cast [-Wint-conversion]
-  298 |     return SaveFileData(fileName, rordata, length);
+rorray.c:332:5: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:333:35: warning: passing argument 2 of 'SaveFileData' makes pointer from integer without a cast [-Wint-conversion]
+  333 |     return SaveFileData(fileName, rordata, length);
       |                                   ^~~~~~~
       |                                   |
       |                                   int
@@ -32,159 +51,205 @@ C:\raylib\raylib\src/raylib.h:1058:53: note: expected 'void *' but argument is o
  1058 | RLAPI bool SaveFileData(const char *fileName, void *data, unsigned int bytesToWrite);   // Save data to file from byte array (write), returns true on success
       |                                               ~~~~~~^~~~
 rorray.c: In function 'main':
-rorray.c:327:12: warning: assignment to 'RoR_Header_t *' from pointer type 'void *' with incompatible scalar storage order [-Wscalar-storage-order]
-  327 |     header = MemAlloc(sizeof(RoR_Header_t));
+rorray.c:362:12: warning: assignment to 'RoR_Header_t *' from pointer type 'void *' with incompatible scalar storage order [-Wscalar-storage-order]
+  362 |     header = MemAlloc(sizeof(RoR_Header_t));
       |            ^
-rorray.c:422:49: warning: initialization of 'RoR_Header_t *' from pointer type 'unsigned char *' with incompatible scalar storage order [-Wscalar-storage-order]
-  422 |                         RoR_Header_t *header2 = LoadFileData(droppedfiles.paths[0], &readLength);
+rorray.c:459:49: warning: initialization of 'RoR_Header_t *' from pointer type 'unsigned char *' with incompatible scalar storage order [-Wscalar-storage-order]
+  459 |                         RoR_Header_t *header2 = LoadFileData(droppedfiles.paths[0], &readLength);
       |                                                 ^~~~~~~~~~~~
-rorray.c:422:49: warning: initialization of 'RoR_Header_t *' from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
-rorray.c:423:25: warning: implicit declaration of function 'strncpy' [-Wimplicit-function-declaration]
-  423 |                         strncpy(str, &(header2->sign), 3);
+rorray.c:459:49: warning: initialization of 'RoR_Header_t *' from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
+rorray.c:460:25: warning: implicit declaration of function 'strncpy' [-Wimplicit-function-declaration]
+  460 |                         strncpy(str, &(header2->sign), 3);
       |                         ^~~~~~~
-rorray.c:18:1: note: include '<string.h>' or provide a declaration of 'strncpy'
-   17 | #include "rorfile.h"
-  +++ |+#include <string.h>
-   18 | 
-rorray.c:423:25: warning: incompatible implicit declaration of built-in function 'strncpy' [-Wbuiltin-declaration-mismatch]
-  423 |                         strncpy(str, &(header2->sign), 3);
-      |                         ^~~~~~~
-rorray.c:423:25: note: include '<string.h>' or provide a declaration of 'strncpy'
-rorray.c:423:38: warning: passing argument 2 of 'strncpy' from incompatible pointer type [-Wincompatible-pointer-types]
-  423 |                         strncpy(str, &(header2->sign), 3);
+rorray.c:460:25: note: include '<string.h>' or provide a declaration of 'strncpy'
+rorray.c:460:25: warning: incompatible implicit declaration of built-in function 'strncpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:460:25: note: include '<string.h>' or provide a declaration of 'strncpy'
+rorray.c:460:38: warning: passing argument 2 of 'strncpy' from incompatible pointer type [-Wincompatible-pointer-types]
+  460 |                         strncpy(str, &(header2->sign), 3);
       |                                      ^~~~~~~~~~~~~~~~
       |                                      |
       |                                      char (*)[3]
-rorray.c:423:38: note: expected 'const char *' but argument is of type 'char (*)[3]'
-rorray.c:425:30: warning: implicit declaration of function 'strcmp' [-Wimplicit-function-declaration]
-  425 |                         if ((strcmp(str, RORFILESIGN) == 0) && (header2->vers == RORFILEVERS))
+rorray.c:460:38: note: expected 'const char *' but argument is of type 'char (*)[3]'
+rorray.c:462:30: warning: implicit declaration of function 'strcmp' [-Wimplicit-function-declaration]
+  462 |                         if ((strcmp(str, RORFILESIGN) == 0) && (header2->vers == RORFILEVERS))
       |                              ^~~~~~
-rorray.c:425:30: note: include '<string.h>' or provide a declaration of 'strcmp'
-rorray.c:430:37: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
-  430 |                             MemFree(header);
+rorray.c:462:30: note: include '<string.h>' or provide a declaration of 'strcmp'
+rorray.c:466:37: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
+  466 |                             MemFree(header);
       |                                     ^~~~~~
-rorray.c:436:40: warning: passing argument 1 of 'UnloadFileData' from incompatible scalar storage order [-Wscalar-storage-order]
-  436 |                         UnloadFileData(header2);
+rorray.c:472:40: warning: passing argument 1 of 'UnloadFileData' from incompatible scalar storage order [-Wscalar-storage-order]
+  472 |                         UnloadFileData(header2);
       |                                        ^~~~~~~
-rorray.c:436:40: warning: passing argument 1 of 'UnloadFileData' from incompatible pointer type [-Wincompatible-pointer-types]
-  436 |                         UnloadFileData(header2);
+rorray.c:472:40: warning: passing argument 1 of 'UnloadFileData' from incompatible pointer type [-Wincompatible-pointer-types]
+  472 |                         UnloadFileData(header2);
       |                                        ^~~~~~~
       |                                        |
       |                                        RoR_Header_t *
 C:\raylib\raylib\src/raylib.h:1057:42: note: expected 'unsigned char *' but argument is of type 'RoR_Header_t *'
  1057 | RLAPI void UnloadFileData(unsigned char *data);                   // Unload file data allocated by LoadFileData()
       |                           ~~~~~~~~~~~~~~~^~~~
-rorray.c:452:53: warning: initialization of 'RoR_Header_t *' from pointer type 'unsigned char *' with incompatible scalar storage order [-Wscalar-storage-order]
-  452 |                             RoR_Header_t *header2 = LoadFileData(files.paths[i], &readLength);
+rorray.c:488:53: warning: initialization of 'RoR_Header_t *' from pointer type 'unsigned char *' with incompatible scalar storage order [-Wscalar-storage-order]
+  488 |                             RoR_Header_t *header2 = LoadFileData(files.paths[i], &readLength);
       |                                                     ^~~~~~~~~~~~
-rorray.c:452:53: warning: initialization of 'RoR_Header_t *' from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
-rorray.c:455:29: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
-  455 |                             strcpy(descriptions[count], header2->desc);
+rorray.c:488:53: warning: initialization of 'RoR_Header_t *' from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
+rorray.c:491:29: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
+  491 |                             strcpy(descriptions[count], header2->desc);
       |                             ^~~~~~
-rorray.c:455:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:455:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-rorray.c:455:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:457:44: warning: passing argument 1 of 'UnloadFileData' from incompatible scalar storage order [-Wscalar-storage-order]
-  457 |                             UnloadFileData(header2);
+rorray.c:491:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:491:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:491:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:493:44: warning: passing argument 1 of 'UnloadFileData' from incompatible scalar storage order [-Wscalar-storage-order]
+  493 |                             UnloadFileData(header2);
       |                                            ^~~~~~~
-rorray.c:457:44: warning: passing argument 1 of 'UnloadFileData' from incompatible pointer type [-Wincompatible-pointer-types]
-  457 |                             UnloadFileData(header2);
+rorray.c:493:44: warning: passing argument 1 of 'UnloadFileData' from incompatible pointer type [-Wincompatible-pointer-types]
+  493 |                             UnloadFileData(header2);
       |                                            ^~~~~~~
       |                                            |
       |                                            RoR_Header_t *
 C:\raylib\raylib\src/raylib.h:1057:42: note: expected 'unsigned char *' but argument is of type 'RoR_Header_t *'
  1057 | RLAPI void UnloadFileData(unsigned char *data);                   // Unload file data allocated by LoadFileData()
       |                           ~~~~~~~~~~~~~~~^~~~
-rorray.c:480:41: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
-  480 |                                 MemFree(header);
+rorray.c:517:41: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
+  517 |                                 MemFree(header);
       |                                         ^~~~~~
-rorray.c:492:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  492 |                         sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
+rorray.c:529:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  529 |                         sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
       |                         ^~~~~~~
-rorray.c:492:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:516:21: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  516 |                     strcpy(str, FACTION(f).name);  // displayed cursor character will be added to str
+rorray.c:529:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:553:21: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  553 |                     strcpy(str, FACTION(f).name);  // displayed cursor character will be added to str
       |                     ^~~~~~
-rorray.c:516:21: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:530:43: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
-  530 |                         int letterCount = strlen(str);
+rorray.c:553:21: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:567:43: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
+  567 |                         int letterCount = strlen(str);
       |                                           ^~~~~~
-rorray.c:530:43: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:530:43: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-rorray.c:530:43: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:592:33: warning: assignment to 'RoR_FactionItem_t *' from pointer type 'void *' with incompatible scalar storage order [-Wscalar-storage-order]
-  592 |                         faction = MemAlloc(sizeof(RoR_FactionItem_t));
+rorray.c:567:43: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:567:43: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+rorray.c:567:43: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:627:33: warning: assignment to 'RoR_FactionItem_t *' from pointer type 'void *' with incompatible scalar storage order [-Wscalar-storage-order]
+  627 |                         faction = MemAlloc(sizeof(RoR_FactionItem_t));
       |                                 ^
-rorray.c:600:37: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
-  600 |                                     memcpy(faction, &FACTION(f), sizeof(RoR_FactionItem_t));
+rorray.c:635:37: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
+  635 |                                     memcpy(faction, &FACTION(f), sizeof(RoR_FactionItem_t));
       |                                     ^~~~~~
-rorray.c:600:37: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:600:37: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
-rorray.c:600:37: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:601:37: warning: implicit declaration of function 'memmove' [-Wimplicit-function-declaration]
-  601 |                                     memmove(&FACTION(f), &FACTION(f+1), sizeof(RoR_FactionItem_t) * (fcnt - f));
+rorray.c:635:37: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:635:37: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:635:37: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:636:37: warning: implicit declaration of function 'memmove' [-Wimplicit-function-declaration]
+  636 |                                     memmove(&FACTION(f), &FACTION(f+1), sizeof(RoR_FactionItem_t) * (fcnt - f));
       |                                     ^~~~~~~
-rorray.c:601:37: note: include '<string.h>' or provide a declaration of 'memmove'
-rorray.c:601:37: warning: incompatible implicit declaration of built-in function 'memmove' [-Wbuiltin-declaration-mismatch]
-rorray.c:601:37: note: include '<string.h>' or provide a declaration of 'memmove'
-rorray.c:641:17: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  641 |                 strcpy(str, header->name);  // displayed cursor character will be added to str
+rorray.c:636:37: note: include '<string.h>' or provide a declaration of 'memmove'
+rorray.c:636:37: warning: incompatible implicit declaration of built-in function 'memmove' [-Wbuiltin-declaration-mismatch]
+rorray.c:636:37: note: include '<string.h>' or provide a declaration of 'memmove'
+rorray.c:676:17: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  676 |                 strcpy(str, header->name);  // displayed cursor character will be added to str
       |                 ^~~~~~
-rorray.c:641:17: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:642:35: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-  642 |                 int letterCount = strlen(str);
+rorray.c:676:17: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:677:35: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+  677 |                 int letterCount = strlen(str);
       |                                   ^~~~~~
-rorray.c:642:35: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:352:13: warning: unused variable 'font3Ex' [-Wunused-variable]
-  352 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
+rorray.c:677:35: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:755:31: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  755 |                 if (*pe == 1) sprintf(str, "%s (first era)", TextToUpper(ERA(*pe).name));
+      |                               ^~~~~~~
+rorray.c:755:31: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:756:22: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  756 |                 else sprintf(str, "%s (after %s)", TextToUpper((ERA(*pe).name)), ERA(*pe-1).name); // Subsequent TextToUpper(); results should be cached first.
+      |                      ^~~~~~~
+rorray.c:756:22: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:791:17: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  791 |                 sprintf(str, "%d", (ERA(*pe).trig & 0x0FFF));
+      |                 ^~~~~~~
+rorray.c:791:17: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:807:25: warning: unused variable 'letterCount' [-Wunused-variable]
+  807 |                     int letterCount = 1;
+      |                         ^~~~~~~~~~~
+rorray.c:834:52: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  834 |                 if ((ERA(*pe).trig & 0x1000) == 0) strcpy(str, "OR");
+      |                                                    ^~~~~~
+rorray.c:834:52: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:835:22: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  835 |                 else strcpy(str, "AND");
+      |                      ^~~~~~
+rorray.c:835:22: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:840:39: warning: operation on '((RoR_EraItem_t *)(rordata + ((sizetype)((RoR_ItemTypeInfo_t *)(rordata + 130))->adr + (sizetype)((unsigned int)*pe * 20) + 4294967276)))->trig' may be undefined [-Wsequence-point]
+  840 |                         ERA(*pe).trig = BIT_FLIP(ERA(*pe).trig, 12);
+rorray.c:859:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  859 |                     case 0: {strcpy(str, "NEVER");} break;
+      |                              ^~~~~~
+rorray.c:859:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:860:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  860 |                     case 1: {strcpy(str, "DECK WITH THIS ERA COMES NEXT");} break;
+      |                              ^~~~~~
+rorray.c:860:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:861:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  861 |                     case 5: {strcpy(str, "CARD IS DRAWN FROM DECK WITH THIS ERA");} break;
+      |                              ^~~~~~
+rorray.c:861:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:862:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  862 |                     case 6: {strcpy(str, "CARD WITH THIS ERA IS DRAWN");} break;
+      |                              ^~~~~~
+rorray.c:862:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:863:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  863 |                     case 7: {strcpy(str, "CARD WITH THIS ERA IS DRAWN FROM DECK WITH THIS ERA");} break;
+      |                              ^~~~~~
+rorray.c:863:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:919:25: warning: unused variable 'letterCount' [-Wunused-variable]
+  919 |                     int letterCount = 1;
+      |                         ^~~~~~~~~~~
+rorray.c:778:25: warning: unused variable 'maxLetterCount' [-Wunused-variable]
+  778 |                 uint8_t maxLetterCount;
+      |                         ^~~~~~~~~~~~~~
+rorray.c:389:13: warning: unused variable 'font3Ex' [-Wunused-variable]
+  389 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
       |             ^~~~~~~
-rorray.c:349:13: warning: unused variable 'font2Ex' [-Wunused-variable]
-  349 |     Vector2 font2Ex = MeasureTextEx(font1, "x", font2.baseSize, 0);
+rorray.c:384:13: warning: unused variable 'font2Ex' [-Wunused-variable]
+  384 |     Vector2 font2Ex = MeasureTextEx(font1, "x", font2.baseSize, 0);
       |             ^~~~~~~
-rorray.c:346:13: warning: unused variable 'font1Ex' [-Wunused-variable]
-  346 |     Vector2 font1Ex = MeasureTextEx(font1, "x", font1.baseSize, 0);
+rorray.c:381:13: warning: unused variable 'font1Ex' [-Wunused-variable]
+  381 |     Vector2 font1Ex = MeasureTextEx(font1, "x", font1.baseSize, 0);
       |             ^~~~~~~
-rorray.c:345:13: warning: unused variable 'font1Em' [-Wunused-variable]
-  345 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
+rorray.c:380:13: warning: unused variable 'font1Em' [-Wunused-variable]
+  380 |     Vector2 font1Em = MeasureTextEx(font1, "M", font1.baseSize, 0);
       |             ^~~~~~~
-rorray.c:336:12: warning: variable 'randBitReq' set but not used [-Wunused-but-set-variable]
-  336 |     int8_t randBitReq = -1;
+rorray.c:371:12: warning: variable 'randBitReq' set but not used [-Wunused-but-set-variable]
+  371 |     int8_t randBitReq = -1;
       |            ^~~~~~~~~~
-rorray.c:335:19: warning: variable 'randVal' set but not used [-Wunused-but-set-variable]
-  335 |     unsigned char randVal = 0;
+rorray.c:370:19: warning: variable 'randVal' set but not used [-Wunused-but-set-variable]
+  370 |     unsigned char randVal = 0;
       |                   ^~~~~~~
-rorray.c:333:9: warning: variable 'lastGesture' set but not used [-Wunused-but-set-variable]
-  333 |     int lastGesture = GESTURE_NONE;
+rorray.c:368:9: warning: variable 'lastGesture' set but not used [-Wunused-but-set-variable]
+  368 |     int lastGesture = GESTURE_NONE;
       |         ^~~~~~~~~~~
-rorray.c:331:13: warning: unused variable 'mousedelta' [-Wunused-variable]
-  331 |     Vector2 mousedelta;
+rorray.c:366:13: warning: unused variable 'mousedelta' [-Wunused-variable]
+  366 |     Vector2 mousedelta;
       |             ^~~~~~~~~~
-rorray.c:322:10: warning: variable 'rordataLoaded' set but not used [-Wunused-but-set-variable]
-  322 |     bool rordataLoaded = false;
+rorray.c:357:10: warning: variable 'rordataLoaded' set but not used [-Wunused-but-set-variable]
+  357 |     bool rordataLoaded = false;
       |          ^~~~~~~~~~~~~
-rorray.c:316:14: warning: unused variable 'screenOffsetY' [-Wunused-variable]
-  316 |     uint16_t screenOffsetY = (windowedScreenHeight - DOWN * screenDowns) / 2;
+rorray.c:351:14: warning: unused variable 'screenOffsetY' [-Wunused-variable]
+  351 |     uint16_t screenOffsetY = (windowedScreenHeight - DOWN * screenDowns) / 2;
       |              ^~~~~~~~~~~~~
-rorray.c:315:14: warning: unused variable 'screenOffsetX' [-Wunused-variable]
-  315 |     uint16_t screenOffsetX = (windowedScreenWidth - RIGHT * screenRights) / 2;
+rorray.c:350:14: warning: unused variable 'screenOffsetX' [-Wunused-variable]
+  350 |     uint16_t screenOffsetX = (windowedScreenWidth - RIGHT * screenRights) / 2;
       |              ^~~~~~~~~~~~~
-rorray.c:308:13: warning: unused variable 'cursor' [-Wunused-variable]
-  308 |     Vector2 cursor;
+rorray.c:343:13: warning: unused variable 'cursor' [-Wunused-variable]
+  343 |     Vector2 cursor;
       |             ^~~~~~
-rorray.c:306:10: warning: unused variable 'debugstr' [-Wunused-variable]
-  306 |     char debugstr[256][256] = {0};
+rorray.c:341:10: warning: unused variable 'debugstr' [-Wunused-variable]
+  341 |     char debugstr[256][256] = {0};
       |          ^~~~~~~~
-rorray.c:305:9: warning: unused variable 'debugvar' [-Wunused-variable]
-  305 |     int debugvar = 0;
+rorray.c:340:9: warning: unused variable 'debugvar' [-Wunused-variable]
+  340 |     int debugvar = 0;
       |         ^~~~~~~~
 rorray.c: At top level:
-rorray.c:861:13: warning: 'DrawTextBoxed' defined but not used [-Wunused-function]
-  861 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
+rorray.c:1076:13: warning: 'DrawTextBoxed' defined but not used [-Wunused-function]
+ 1076 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
       |             ^~~~~~~~~~~~~
 rorray.c: In function 'main':
-rorray.c:851:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
-  851 |     UnloadFileData(rordata);      // Free memory from loaded file
+rorray.c:1066:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
+ 1066 |     UnloadFileData(rordata);      // Free memory from loaded file
       |     ^~~~~~~~~~~~~~~~~~~~~~~
-rorray.c:324:20: note: 'rordata' was declared here
-  324 |     unsigned char *rordata;
+rorray.c:359:20: note: 'rordata' was declared here
+  359 |     unsigned char *rordata;
       |                    ^~~~~~~

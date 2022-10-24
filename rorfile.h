@@ -60,12 +60,14 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     char        desc[76];
     RoR_Time_t  strt;       //  start
     RoR_Time_t  end;
-    uint8_t     nfac;       //  number of factions
-    uint8_t     peri;       //  period number
-    int16_t     turn;
+    uint16_t    turn;
     uint32_t    phse;       //  phase ((rulebook phase << 28) + subphase)
                             //  this value is the main logic control
-} RoR_Header_t;             //  size: 116 bytes
+    uint8_t     nfac;       //  number of factions
+    uint8_t     eran;       //  era number
+    uint8_t     deck;       //  active draw deck nr
+    char        pad;
+} RoR_Header_t;             //  size: 118 bytes
 
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
@@ -88,14 +90,22 @@ enum ItemType {
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     char        name[16];
-    uint8_t     nsen;       //  number of senators per faction to deal at period start
-    uint8_t     terc;       //  temporary rome consul protocol at period start
+    uint16_t    trig;       //  era triggers at specific game turn (value in bit0..11)
+                            //      bit12: 0:OR 1:AND
+                            //      bit13..15=0 : NEVER  -- NOTE(Adam): should be IMMEDIATELY but that would break natural language logic
+                            //      bit13..15=1 : deck with this era [0 card (with any=0 era) drawn from deck with this=1 era: 001]
+                            //      bit13..15=5 : card is drawn from deck with this era [1 card (with any=0 era) drawn from deck with this=1 era: 101]
+                            //      bit13..15=6 : card with this era is drawn [1 card (with this=1 era) drawn from deck with any=0 era: 110]
+                            //      bit13..15=7 : card with this era is drawn from deck with this era [1 card (with this=1 era) drawn from deck with this=1 era: 111]
+                            //  NOTE(Adam): for ERA end card, use value of 4096 (TURN 0 AND NEVER)
+    uint8_t     nsen;       //  number of senators per faction to deal at era start
+    uint8_t     terc;       //  temporary rome consul protocol at era start
                             //      bit0: no TERC (0) / TERC (1)
                             //      bit1: random draw (0) / lowest senator ID (1)
                             //      bit2: before(0) / after(1) faction leaders
                             //      bit3: repeat if dies in first mortality phase (1)
                             //      bit7: not resolved (0) / resolved (1)
-} RoR_EraItem_t;            //  size: 18 bytes each
+} RoR_EraItem_t;            //  size: 20 bytes each
 
 
 enum FactionType {
@@ -151,7 +161,7 @@ enum DeckType {
 
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
-    uint8_t     peri;       //  Period number
+    uint8_t     eran;       //  Era number
     uint8_t     type;       //  Deck type
     int16_t     size;
     uint8_t     prev;
@@ -204,7 +214,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     char        name[16];
-    uint8_t     peri;       //  Period number
+    uint8_t     eran;       //  Era number
     uint8_t     idnr;       //  Family ID number (#x)
     uint8_t     mil0;       //  initial Military
     uint8_t     ora0;       //  initial Oratory
@@ -232,7 +242,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     char        snam[16];   //  Short name
-    uint8_t     peri;       //  Period number
+    uint8_t     eran;       //  Era number
     uint8_t     idnr;       //  Family ID number (#x)
     char        idch[2];    //  ID character (#xA/#xB/..)
     char        name[64];   //  Name
@@ -270,14 +280,14 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 #define ITEMCOUNT(rordata, itemname)  (p_ITEMTYPEINFO(rordata)[itemname ## Item-1].cnt)
 
 
-#define ERA(n)  (p_ITEM(rordata, Era)[n-1])
-#define FACTION(n)  (p_ITEM(rordata, Faction)[n-1])
-#define LOCATION(n)  (p_ITEM(rordata, Location)[n-1])
-#define DECK(n)  (p_ITEM(rordata, Deck)[n-1])
-#define OFFICE(n)  (p_ITEM(rordata, Office)[n-1])
-#define MAGISTRATE(n)  (p_ITEM(rordata, Magistrate)[n-1])
-#define SENATOR(n)  (p_ITEM(rordata, Senator)[n-1])
-#define STATESMAN(n)  (p_ITEM(rordata, Statesman)[n-1])
+#define ERA(n)       (p_ITEM(rordata, Era     )[n-1])
+#define FACTION(n)      (p_ITEM(rordata, Faction    )[n-1])
+#define LOCATION(n)     (p_ITEM(rordata, Location   )[n-1])
+#define DECK(n)         (p_ITEM(rordata, Deck       )[n-1])
+#define OFFICE(n)       (p_ITEM(rordata, Office     )[n-1])
+#define MAGISTRATE(n)   (p_ITEM(rordata, Magistrate )[n-1])
+#define SENATOR(n)      (p_ITEM(rordata, Senator    )[n-1])
+#define STATESMAN(n)    (p_ITEM(rordata, Statesman  )[n-1])
 
 
 #endif  /* #ifndef __DEFINE_RORHFILE__ */
