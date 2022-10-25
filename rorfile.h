@@ -233,7 +233,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint16_t    loit;       //  Location ItemType (0: Null / Deck / Discard / Forum (In Rome) / Repopulation Rome / Province / War)
     uint16_t    lonr;       //  Location ElemNr
     uint16_t    losr;       //  Location SerialNr (Mainly for Repopulating Rome)
-    bool        proc;       //  Proconsul
+    uint8_t     offi;       //  Office
     uint8_t     pric;       //  Prior Consul counter
 } RoR_SenatorItem_t;        //  size: 42 bytes each
 
@@ -264,7 +264,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     fact;       //  Aligned to Faction#
     uint16_t    loit;       //  Location ItemType (0: Null / Deck / Discard / Forum (In Rome) / Repopulation Rome / Province / War)
     uint16_t    lonr;       //  Location ElemNr
-    bool        proc;       //  Proconsul
+    uint8_t     offi;       //  Office
     uint8_t     pric;       //  Prior Consul counter
     uint8_t     lo0w[4];    //  Loyalty=0 if in same Faction with StatesmanNr (StatesmanId+1); 0: None
     uint8_t     lo0n[2];    //  Loyalty=0 if NOT in same Faction with StatesmanNr (StatesmanId+1); 0: None
