@@ -543,13 +543,15 @@ int main(void)
                 // FACTIONS
                 int factclicked = -1;
                 uint8_t maxLetterCount = MEMBER_SIZE(RoR_FactionItem_t, name) - 1; // -1 because of the trailin null character
-                uint16_t fcnt = ITEMCOUNT(rordata, Faction);
+                uint8_t fcnt = 0;
+                for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++) if ((FACTION(f).type & FactionNeutral) == 0) fcnt++;
                 Rectangle r_centerlistelem = {0, 0, UNIT + UNITCLAMP((maxLetterCount + 1) * font2Em.x + ((maxLetterCount + 1) - 1) * Font2Spacing + 2 * Font2PaddingX), Font2RectH}; // "UNIT +" is required for unknown reason; (maxLetterCount + 1) because of the shown input cursor: "_"
                 r_centerlistelem.x = (uint16_t)((screenWidth - r_centerlistelem.width) / 2);
                 r_centerlistelem.y = (uint16_t)((screenHeight - fcnt * r_centerlistelem.height - (fcnt - 1) * PAD) / 2);
                 Rectangle r = r_centerlistelem;
-                for (uint8_t f = 1; f <= fcnt; f++)
+                for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++)
                 {
+                    if ((FACTION(f).type & FactionNeutral) != 0) continue;
                     strcpy(str, FACTION(f).name);  // displayed cursor character will be added to str
                     if (CheckCollisionPointRec(mouse, r) && f != selected)
                     {
@@ -622,10 +624,56 @@ int main(void)
                     if (currentGesture == GESTURE_TAP)
                     {
                         DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
-                        for (uint8_t f = 1; f <= fcnt; f++)
+                        uint8_t pcnt = 0;
+                        for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++) if ((FACTION(f).name[0] != '\0') && ((FACTION(f).type & FactionNeutral) == 0)) pcnt++;
+                        uint8_t assign = 0;
+                        switch (pcnt)
                         {
-                            if (FACTION(f).name[0] == '\0') FACTION(f).type = FactionUnused;
-                            else FACTION(f).type = FactionUsed;
+                            case 0: break;
+                            case 1: assign = SOLITAIRE_FCNT - pcnt; // fallthrough
+                            case 2: assign = TWOPLAYERS_FCNT - pcnt; // fallthrough
+                            default:
+                            {
+                                // assign neutral factions
+                                for (uint8_t a = 1; a <= assign; a++)
+                                {
+                                    uint8_t f;
+                                    for (f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).name[0] != '\0') || ((FACTION(f).type & FactionNeutral) != 0)); f++);
+                                    uint8_t fa;
+                                    for (fa = 1; (fa < (ITEMCOUNT(rordata, Faction)) && !(((FACTION(fa).type & FactionNeutral) != 0) && (FACTION(fa).asor == a)) ); fa++);
+                                    memcpy(&FACTION(f), &FACTION(fa), sizeof(RoR_FactionItem_t));  // copy
+                                    FACTION(f).type = FactionUsed | FactionNeutral;
+                                }
+                                // set type flags
+                                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)); f++)
+                                {
+                                    if (FACTION(f).type == FactionNeutral) FACTION(f).type = FactionSet | FactionNeutral;
+                                    else if ((FACTION(f).type & FactionNeutral) == 0)
+                                    {
+                                        if (FACTION(f).name[0] != '\0') FACTION(f).type = FactionSet | FactionUsed;
+                                        else FACTION(f).type = FactionSet;
+                                    }
+                                    // note that we skip the already assigned Neutrals which has the FActionUsed flag set
+                                }
+                                // eliminate gaps
+                                bool done = false;
+                                while (!done)
+                                {
+                                    uint8_t ffirstunused;
+                                    for (ffirstunused = 1; (ffirstunused <= ITEMCOUNT(rordata, Faction)) && ((FACTION(ffirstunused).type & FactionUsed) != 0); ffirstunused++);
+                                    uint8_t fnextused;
+                                    for (fnextused = ffirstunused + 1; (fnextused <= ITEMCOUNT(rordata, Faction)) &&((FACTION(fnextused).type & FactionUsed) == 0); fnextused++);
+                                    if (fnextused <= ITEMCOUNT(rordata, Faction))
+                                    {
+                                        RoR_FactionItem_t faction;
+                                        memcpy(&faction, &FACTION(fnextused), sizeof(RoR_FactionItem_t));
+                                        memcpy(&FACTION(fnextused), &FACTION(ffirstunused), sizeof(RoR_FactionItem_t));
+                                        memcpy(&FACTION(ffirstunused), &faction, sizeof(RoR_FactionItem_t));
+                                    }
+                                    else done = true;
+                                }
+
+                            }
                         }
                         selected = -1;
                         framesCounter = 0;
@@ -1043,6 +1091,7 @@ int main(void)
                 uint16_t d;
                 for(d = dcnt; d <= 1 && DECK(d).eran != HEADER.eran || DECK(d).type != EraStartSenatorPool; d--);
                 uint8_t *sat = MemAlloc(ITEMCOUNT(rordata, Senator));
+                memset(sat, 0, ITEMCOUNT(rordata, Senator) + 1);  // zero
                 uint8_t *factsenacnt = MemAlloc(ITEMCOUNT(rordata, Faction) + 1);
                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
                 uint8_t decksenacnt = 0;
@@ -1063,7 +1112,7 @@ int main(void)
                 }
                 uint8_t dealstatus = 0;
                 uint8_t minfactsenacnt = 0xFF;
-                for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++)
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
                 {
                     if (factsenacnt[f] == 0) dealstatus |= 0x01;
                     else if (factsenacnt[f] < ERA(HEADER.eran).nsen) dealstatus |= 0x02;
@@ -1071,8 +1120,13 @@ int main(void)
                     else dealstatus |= 0x08;
                     minfactsenacnt = min(minfactsenacnt, factsenacnt[f]);
                 }
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                {
+                    sprintf(str, "f: %d; senacnt: %d", f, factsenacnt[f]);
+                    DrawText(str, 30, 200 + 20*f, 10, WHITE);
+                }
                 uint8_t targetf = 0;
-                if (0 < (dealstatus & 0x03)) for (targetf = 1; targetf <= ITEMCOUNT(rordata, Faction) && factsenacnt[targetf] != minfactsenacnt; targetf++);
+                if (0 < (dealstatus & 0x03)) for (targetf = 1; (targetf <= ITEMCOUNT(rordata, Faction)) && ((FACTION(targetf).type & FactionUsed) != 0) && factsenacnt[targetf] != minfactsenacnt; targetf++);
                 // TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
@@ -1150,8 +1204,7 @@ int main(void)
                 r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
                 for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++)
                 {
-                    if (FACTION(f).type == FactionUnused) continue;
-                    if (FACTION(f).type == FactionUnset) continue;
+                    if ((FACTION(f).type & FactionUsed) == 0) continue;
                     Rectangle r_faction = {r_senator.x, r_senator.y, r_senator.width, r_senator.height + (Font2RectH + PAD) * max(ERA(HEADER.eran).nsen, factsenacnt[f])};
                     DrawRectangleRec(r_faction, COLOR_BACKGROUNDAREA);
                     if (0 <= selected && CheckCollisionPointRec(mouse, r_faction))

@@ -11,6 +11,9 @@
 #define ITEMTYPECOUNT 8
 #define TEMPSIZE 12
 
+#define SOLITAIRE_FCNT 5
+#define TWOPLAYERS_FCNT 5
+
 // uint32_t range : 0 to 4.294.967.295
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
@@ -65,13 +68,13 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
                             //  this value is the main logic control
     uint8_t     eran;       //  era number
     uint8_t     deck;       //  active draw deck nr
-} RoR_Header_t;             //  size: 118 bytes
+} RoR_Header_t;
 
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     uint16_t    cnt;
     uint32_t    adr;        //  address of the first elem
-} RoR_ItemTypeInfo_t;       //  size: 6 bytes each
+} RoR_ItemTypeInfo_t;
 
 
 enum ItemType {
@@ -103,29 +106,101 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
                             //      bit2: before(0) / after(1) faction leaders
                             //      bit3: repeat if dies in first mortality phase (1)
                             //      bit7: not resolved (0) / resolved (1)
-} RoR_EraItem_t;            //  size: 20 bytes each
+} RoR_EraItem_t;
 
 
 enum FactionType {
-    FactionUnused = 0,
-    FactionUsed = 1,
-    //FactionHuman,
-    //FactionPopulists,
-    //FactionConservatives,
-    //FactionPlutocrats,
-    //FactionImperials,
-    //FactionAI,
-    FactionUnset = 255
+    FactionSet     = 0x01,
+    FactionUsed    = 0x02,
+    FactionNeutral = 0x04
 };
 
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     char        name[16];
-    uint8_t     type;
-    uint16_t    leit;       //  Faction Leader ItemType (0=Null / Senator=Family Card / Statesman)
-    uint16_t    lenr;       //  Faction Leader ElemNr
-    char        pad;
-} RoR_FactionItem_t;        //  size: 20 bytes each
+    uint8_t     type;       //  See FactionType enum.
+    uint8_t     open;       //  Open Treasury (bit0=1) and Cards(bit1=1)
+    uint8_t     asor;       //  Assignment Order Value (0: will not get assigned; otherwise lower value first)
+    uint8_t     asta;       //  Assignment Target MOLI
+                            //      bit0: assign to the faction with lowest(0)/highest(1) value
+                            //      bit1..3: first order assign by
+                            //          0: Owner / Dominant Player decides
+                            //          1: total Military
+                            //          2: total Oratory
+                            //          3: total Loyalty
+                            //          4: total Influence
+                            //          5: first(bit0=0)/last(bit0=1) available
+                            //          6: Subservient Player (if any) decides
+                            //          7: random
+                            //      bit4: tie breaker counterpart of bit0
+                            //      bit5..7: tie breaker counterpart of bit0..3 (second step tie breaker is always random)
+    uint8_t     terc;       //  (Temporary) Rome Consul
+                            //      bit7=1: Faction claims the (Temporary Rome Consul)
+                            //      bit6..3: priority (highest takes the office)
+                            //      bit0..2: which senator?
+                            //          0: Owner / Dominant Player decides
+                            //          1: highest Military
+                            //          2: highest Oratory
+                            //          3: highest Loyalty
+                            //          4: highest Influence
+                            //          5: first(bit0=0)/last(bit0=1) available
+                            //          6: Subservient Player (if any) decides
+                            //          7: random
+    uint8_t     xsen;       //  Number of extra senators to deal to the faction at era start
+    uint8_t     ledr;       //  Faction Leader assignment (highest weight value wins it; tie-breaker is random)
+                            //      bit0: automatic(1) / Owner or Dominant Player decides (0)
+                            //      bit1=1: Military to weight value
+                            //      bit2=1: Oratory to weight value
+                            //      bit3=1: Loyalty to weight value
+                            //      bit4=1: Influence to weight value
+                            //      bit5=1: Popularity to weight value
+                            //      bit6=1: Knights to weight value
+                            //      bit7=1: Personal Treasury to weight value
+    uint8_t     ibi0;       //  Initiative opening bid modifier
+                            //      bit7: automatic(1) / Owner or Dominant Player decides(0)
+                            //      bit6: turn number to value
+                            //      bit5: 1d6 to value
+                            //      bit0..4: (x-16) to value
+    uint8_t     ibi1;       //  Initiative bid modifier
+                            //      bit7: automatic(1) / Owner or Dominant Player decides(0)
+                            //      bit6: turn number to value
+                            //      bit5: 1d6 to value
+                            //      bit0..4: (x-16) to value
+    uint8_t     reve;       //  Revenue:
+                            //      bit0: remainder to Faction Treasury(0)/Faction Leader(1)
+                            //      bi1..7=0: Owner / Dominant Player decides
+                            //      bi1..7=1: 1d6 to Faction Treasury
+                            //      bi1..7=2: Divided equally among senators
+                            //      bi1..7=3: 1/2 to Faction Treasury (rounded down)
+                            //      bi1..7=4: 1 per Senator and Faction Treasury
+    uint8_t     crty;       //  Charity:
+                            //      bit0=1: Treasury
+                            //      bit4=1: Games
+    uint8_t     prsp;       //  Provincial Spoils:
+                            //      0: Owner / Dominant Player decides
+                            //      1: Always
+                            //      2..6: (on 1d6>=2..6)
+                            //      7: None
+    uint8_t     spoi[6];    //  Spoils:
+                            //      0: None
+                            //      1: Rome Consul
+                            //      2: Field Consul
+                            //      3: Censor
+                            //      4: Concession
+                            //      5: Governor
+                            //      6: Land Bill
+                            //      Censor, Concessions, Governor, RC, FC
+                            //      RC, Censor, FC, Governor, Concession
+                            //      RC, FC, Censor, Concession, Land Bill, Governor
+    uint8_t     knig;       //  Talents for Knight attraction
+                            //      bit7: automatic(1) / Owner or Dominant Player decides(0)
+                            //      bit0..6: amount
+    int8_t      card;       //  Card limit (negative value: no limit)
+    bool        rulc;       //  In Ruling Coalition
+    uint8_t     domi;       //  Dominance
+    uint8_t     leit;       //  Faction Leader ItemType (0=Null / Senator=Family Card / Statesman)
+    uint8_t     lenr;       //  Faction Leader ElemNr
+} RoR_FactionItem_t;
 
 
 enum LocationElemNr {
@@ -146,7 +221,7 @@ enum LocationElemNr {
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
     char        name[32];
     uint16_t    seri;       // serial
-} RoR_LocationItem_t;   //  size: 34 bytes each
+} RoR_LocationItem_t;
 
 
 enum DeckType {
@@ -166,7 +241,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     next;
     uint16_t    topr;       //  First N cards goes to previous deck
     uint16_t    tonx;       //  Last N cards goes to next deck
-} RoR_DeckItem_t;           //  size: 10 bytes each
+} RoR_DeckItem_t;
 
 
 enum OfficeType {
@@ -190,7 +265,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     bool        life;       //  For life
     int8_t      infl;       //  Influence gain for taking
     char        pad;
-} RoR_OfficeItem_t;         //  size: 34 bytes each
+} RoR_OfficeItem_t;
 
 
 enum MagistrateType {
@@ -207,7 +282,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint16_t    owit;       //  Owner's ItemType (Senator / Statesman)
     uint16_t    ownr;       //  Owner's ElemNr
     char        pad;
-} RoR_MagistrateItem_t;     //  size: 50 bytes each
+} RoR_MagistrateItem_t;
 
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
@@ -235,7 +310,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint16_t    losr;       //  Location SerialNr (Mainly for Repopulating Rome)
     uint8_t     offi;       //  Office
     uint8_t     pric;       //  Prior Consul counter
-} RoR_SenatorItem_t;        //  size: 42 bytes each
+} RoR_SenatorItem_t;
 
 
 typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
@@ -268,7 +343,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     pric;       //  Prior Consul counter
     uint8_t     lo0w[4];    //  Loyalty=0 if in same Faction with StatesmanNr (StatesmanId+1); 0: None
     uint8_t     lo0n[2];    //  Loyalty=0 if NOT in same Faction with StatesmanNr (StatesmanId+1); 0: None
-} RoR_StatesmanItem_t;      //  size: 272 bytes each
+} RoR_StatesmanItem_t;
 
 
 #define p_HEADER(rordata)  ((RoR_Header_t*)(rordata))
