@@ -130,8 +130,8 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
                             //          3: total Loyalty
                             //          4: total Influence
                             //          5: first(bit0=0)/last(bit0=1) available
-                            //          6: Subservient Player (if any) decides
-                            //          7: random
+                            //          6: =5 [Subservient Player (if any) decides] not implemented
+                            //          7: =5 [random] not implemented
                             //      bit4: tie breaker counterpart of bit0
                             //      bit5..7: tie breaker counterpart of bit0..3 (second step tie breaker is always random)
     uint8_t     terc;       //  (Temporary) Rome Consul
@@ -200,6 +200,11 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     domi;       //  Dominance
     uint8_t     leit;       //  Faction Leader ItemType (0=Null / Senator=Family Card / Statesman)
     uint8_t     lenr;       //  Faction Leader ElemNr
+    uint16_t    tmil;       //  total Military
+    uint16_t    tora;       //  total Oratory
+    uint16_t    tloy;       //  total Loyalty
+    uint16_t    tinf;       //  total Influence
+    int16_t     tpop;       //  total Popularity
 } RoR_FactionItem_t;
 
 

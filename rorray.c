@@ -341,7 +341,7 @@ int main(void)
     char debugstr[256][256] = {0};
 
     Vector2 cursor;
-    char str[256];
+    char str[1024];
 
     uint16_t windowedScreenWidth = 1960;
     uint16_t windowedScreenHeight = 1080;
@@ -672,7 +672,6 @@ int main(void)
                                     }
                                     else done = true;
                                 }
-
                             }
                         }
                         selected = -1;
@@ -1073,6 +1072,7 @@ int main(void)
                     {
                         DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
                         header->phse = PhDealSenators;
+                        memset(p_TEMP(rordata), 0, TEMPSIZE);
                         save(rordata, rordataLength);
                         selected = -1;
                         framesCounter = 0;
@@ -1087,15 +1087,18 @@ int main(void)
             case PhDealSenators:
             {
                 // PREP
+                uint8_t *stage = (uint8_t*)(p_TEMP(rordata)+0);
+                uint8_t *change = (uint8_t*)(p_TEMP(rordata)+1);
+                *change = 0;
                 uint16_t dcnt = ITEMCOUNT(rordata, Deck);
                 uint16_t d;
-                for(d = dcnt; d <= 1 && DECK(d).eran != HEADER.eran || DECK(d).type != EraStartSenatorPool; d--);
+                for (d = dcnt; d <= 1 && DECK(d).eran != HEADER.eran || DECK(d).type != EraStartSenatorPool; d--);
                 uint8_t *sat = MemAlloc(ITEMCOUNT(rordata, Senator));
                 memset(sat, 0, ITEMCOUNT(rordata, Senator) + 1);  // zero
                 uint8_t *factsenacnt = MemAlloc(ITEMCOUNT(rordata, Faction) + 1);
                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
                 uint8_t decksenacnt = 0;
-                for(uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                for (uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
                 {
                     if (SENATOR(s).loit == DeckItem && DECK(SENATOR(s).lonr).eran == HEADER.eran && DECK(SENATOR(s).lonr).type == EraStartSenatorPool)
                     {
@@ -1114,23 +1117,51 @@ int main(void)
                 uint8_t minfactsenacnt = 0xFF;
                 for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
                 {
-                    if (factsenacnt[f] == 0) dealstatus |= 0x01;
-                    else if (factsenacnt[f] < ERA(HEADER.eran).nsen) dealstatus |= 0x02;
-                    else if (factsenacnt[f] == ERA(HEADER.eran).nsen) dealstatus |= 0x04;
-                    else dealstatus |= 0x08;
-                    minfactsenacnt = min(minfactsenacnt, factsenacnt[f]);
+                    uint8_t fdealstatus = 0;
+                    if (factsenacnt[f] == 0) fdealstatus |= 0x01;
+                    if (factsenacnt[f] < ERA(HEADER.eran).nsen + FACTION(f).xsen)
+                    {
+                        fdealstatus |= 0x02;
+                        minfactsenacnt = min(minfactsenacnt, factsenacnt[f]);
+                    }
+                    else if (factsenacnt[f] == ERA(HEADER.eran).nsen + FACTION(f).xsen) fdealstatus |= 0x04;
+                    if (factsenacnt[f] < ERA(HEADER.eran).nsen) fdealstatus |= 0x08;
+                    else if (factsenacnt[f] == ERA(HEADER.eran).nsen) fdealstatus |= 0x10;
+                    dealstatus |= fdealstatus;
+                    if (fdealstatus == 0) dealstatus |= 0x80;
                 }
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)); f++)
+                {
+                    // memset((&FACTION(f))->tmil, 0, 10); // clear M O L I P, all 16 bit (u)integers //TODO: FOR SOME REASON IT CRASHES
+                    FACTION(f).tmil = 0;
+                    FACTION(f).tora = 0;
+                    FACTION(f).tloy = 0;
+                    FACTION(f).tinf = 0;
+                    FACTION(f).tpop = 0;
+                }
+                for (uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                {
+                    uint8_t f = SENATOR(s).fact;
+                    FACTION(f).tmil += SENATOR(s).mil1;
+                    FACTION(f).tora += SENATOR(s).ora1;
+                    FACTION(f).tloy += SENATOR(s).loy1;
+                    FACTION(f).tinf += SENATOR(s).inf1;
+                    FACTION(f).tpop += SENATOR(s).pop1;
+                }
+                sprintf(str, "dealstatus: %d ; stage: %d ; change: %d", dealstatus, *stage, *change);
+                DrawText(str, 30, 180, 10, ORANGE);
                 for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
                 {
                     sprintf(str, "f: %d; senacnt: %d", f, factsenacnt[f]);
                     DrawText(str, 30, 200 + 20*f, 10, WHITE);
                 }
                 uint8_t targetf = 0;
-                if (0 < (dealstatus & 0x03)) for (targetf = 1; (targetf <= ITEMCOUNT(rordata, Faction)) && ((FACTION(targetf).type & FactionUsed) != 0) && factsenacnt[targetf] != minfactsenacnt; targetf++);
+                if (0 < (dealstatus & 0x03)) for (targetf = 1; (targetf <= ITEMCOUNT(rordata, Faction)) && ((FACTION(targetf).type & FactionUsed) != 0) && ((factsenacnt[targetf] != minfactsenacnt) || ((factsenacnt[targetf] >= ERA(HEADER.eran).nsen + FACTION(targetf).xsen))); targetf++);
                 // TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
-                sprintf(str, "DEAL %i SENATORS TO EACH FACTION", ERA(HEADER.eran).nsen);
+                if (*stage == 0) sprintf(str, "DEAL %i SENATORS TO EACH FACTION", ERA(HEADER.eran).nsen);
+                else strcpy(str, "DEAL THE EXTRA SENATORS");
                 DrawTitle(str, r_title, COLOR_TITLETEXT, TextLeft);
                 // SENATORS AND FACTIONS PREP
                 Vector2 selectedvector;
@@ -1146,9 +1177,22 @@ int main(void)
                     if (currentGesture != lastGesture && currentGesture == GESTURE_NONE)
                     {
                         uint8_t s = selected; // for code coherence
+                        uint8_t f0 = SENATOR(s).fact;
+                        if (f0 != 0)
+                        {
+                            FACTION(f0).tmil -= SENATOR(s).mil1;
+                            FACTION(f0).tora -= SENATOR(s).ora1;
+                            FACTION(f0).tloy -= SENATOR(s).loy1;
+                            FACTION(f0).tinf -= SENATOR(s).inf1;
+                            FACTION(f0).tpop -= SENATOR(s).pop1;
+                            factsenacnt[f0]--;
+                        }
                         SENATOR(s).fact = 0;
                         SENATOR(s).loit = DeckItem;
                         SENATOR(s).lonr = d;
+                        sat[s-1] = (1 << 7) + (SENATOR(s).lonr & 0x7F);
+                        decksenacnt++;
+                        *change = 1;
                         save(rordata, rordataLength);
                         selected = -1;
                     }
@@ -1205,7 +1249,7 @@ int main(void)
                 for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++)
                 {
                     if ((FACTION(f).type & FactionUsed) == 0) continue;
-                    Rectangle r_faction = {r_senator.x, r_senator.y, r_senator.width, r_senator.height + (Font2RectH + PAD) * max(ERA(HEADER.eran).nsen, factsenacnt[f])};
+                    Rectangle r_faction = {r_senator.x, r_senator.y, r_senator.width, r_senator.height + (Font2RectH + PAD) * max(ERA(HEADER.eran).nsen + ((*stage == 0) ? 0 : FACTION(f).xsen), factsenacnt[f])};
                     DrawRectangleRec(r_faction, COLOR_BACKGROUNDAREA);
                     if (0 <= selected && CheckCollisionPointRec(mouse, r_faction))
                     {
@@ -1213,15 +1257,46 @@ int main(void)
                         if ((currentGesture == GESTURE_NONE || currentGesture == GESTURE_SWIPE_RIGHT || currentGesture == GESTURE_SWIPE_LEFT || currentGesture == GESTURE_SWIPE_UP || currentGesture == GESTURE_SWIPE_DOWN) && (lastGesture == GESTURE_HOLD || lastGesture == GESTURE_DRAG || lastGesture == GESTURE_TAP))
                         {
                             uint8_t s = selected; // for code coherence
+                            uint8_t f0 = SENATOR(s).fact;
+                            if (f0 != 0)
+                            {
+                                FACTION(f0).tmil -= SENATOR(s).mil1;
+                                FACTION(f0).tora -= SENATOR(s).ora1;
+                                FACTION(f0).tloy -= SENATOR(s).loy1;
+                                FACTION(f0).tinf -= SENATOR(s).inf1;
+                                FACTION(f0).tpop -= SENATOR(s).pop1;
+                                factsenacnt[f0]--;
+                            }
+                            else if (SENATOR(s).loit == DeckItem)
+                            {
+                                decksenacnt--;
+                            }
                             SENATOR(s).fact = f;
                             SENATOR(s).loit = LocationItem;
                             SENATOR(s).lonr = Forum;
+                            FACTION(f).tmil += SENATOR(s).mil1;
+                            FACTION(f).tora += SENATOR(s).ora1;
+                            FACTION(f).tloy += SENATOR(s).loy1;
+                            FACTION(f).tinf += SENATOR(s).inf1;
+                            FACTION(f).tpop += SENATOR(s).pop1;
+                            sat[s-1] = (1 << 6) + (f & 0x3F);
+                            factsenacnt[f]++;
+                            *change = 1;
                             save(rordata, rordataLength);
                             selected = -1;
                         }
                     }
                     else DrawRectangleRec(r_senator, COLOR_FACTION);
                     DrawFont2(TextToUpper(FACTION(f).name), r_senator, COLOR_FACTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                    sprintf(str, "%d", FACTION(f).tmil);
+                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    sprintf(str, "%d", FACTION(f).tora);
+                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    sprintf(str, "%d", FACTION(f).tloy);
+                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    sprintf(str, "%d", FACTION(f).tinf);
+                    DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    if (FACTION(f).tpop != 0) {sprintf(str, "%i", FACTION(f).tpop); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
                     for(uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
                     {
                         if (s == selected) continue;  // handled elsewhere
@@ -1262,6 +1337,7 @@ int main(void)
                         DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
                         if ((ERA(HEADER.eran).terc & 0x05) == 0x01) header->phse = PhTemporaryRomeConsul;
                         else header->phse = PhSelectFactionLeaders;
+                        memset(p_TEMP(rordata), 0, TEMPSIZE);
                         save(rordata, rordataLength);
                         MemFree(sat);
                         MemFree(factsenacnt);
@@ -1274,7 +1350,7 @@ int main(void)
                 DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                 DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
                 // RANDOM BUTTON
-                if (0 < decksenacnt && 0 < (dealstatus & 0x03))
+                if (0 < decksenacnt && 0 < (dealstatus & 0x0B))
                 {
                     r_button.width = UNITCLAMP(6 * Font3HUnit);
                     r_button.x -= 2 * UNIT + r_button.width;
@@ -1342,6 +1418,15 @@ int main(void)
                                             SENATOR(s).fact = f;
                                             SENATOR(s).loit = LocationItem;
                                             SENATOR(s).lonr = Forum;
+                                            FACTION(f).tmil += SENATOR(s).mil1;
+                                            FACTION(f).tora += SENATOR(s).ora1;
+                                            FACTION(f).tloy += SENATOR(s).loy1;
+                                            FACTION(f).tinf += SENATOR(s).inf1;
+                                            FACTION(f).tpop += SENATOR(s).pop1;
+                                            decksenacnt--;
+                                            sat[s-1] = (1 << 6) + (f & 0x3F);
+                                            factsenacnt[f]++;
+                                            *change = 1;
                                             save(rordata, rordataLength);
                                             break;
                                         }
@@ -1394,6 +1479,153 @@ int main(void)
                         DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
                         if (SENATOR(s).pop0 != 0) {sprintf(str, "%i", SENATOR(s).pop0); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
                     }
+                }
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                {
+                    sprintf(str, "%d", FACTION(f).tmil);
+                    DrawText(str, 180, 200 + 20*f, 10, WHITE);
+                    sprintf(str, "%d", FACTION(f).tora);
+                    DrawText(str, 220, 200 + 20*f, 10, WHITE);
+                    sprintf(str, "%d", FACTION(f).tloy);
+                    DrawText(str, 260, 200 + 20*f, 10, WHITE);
+                    sprintf(str, "%d", FACTION(f).tinf);
+                    DrawText(str, 300, 200 + 20*f, 10, WHITE);
+                    sprintf(str, "%d", FACTION(f).tpop);
+                    DrawText(str, 340, 200 + 20*f, 10, WHITE);
+                }
+                // UPDATE dealstatus
+                if (*change == 1)
+                {
+                    dealstatus = 0;
+                    minfactsenacnt = 0xFF;
+                    for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                    {
+                        uint8_t fdealstatus = 0;
+                        if (factsenacnt[f] == 0) fdealstatus |= 0x01;
+                        if (factsenacnt[f] < ERA(HEADER.eran).nsen + FACTION(f).xsen)
+                        {
+                            fdealstatus |= 0x02;
+                            minfactsenacnt = min(minfactsenacnt, factsenacnt[f]);
+                        }
+                        else if (factsenacnt[f] == ERA(HEADER.eran).nsen + FACTION(f).xsen) fdealstatus |= 0x04;
+                        if (factsenacnt[f] < ERA(HEADER.eran).nsen) fdealstatus |= 0x08;
+                        else if (factsenacnt[f] == ERA(HEADER.eran).nsen) fdealstatus |= 0x10;
+                        dealstatus |= fdealstatus;
+                        if (fdealstatus == 0) dealstatus |= 0x80;
+                    }
+                    sprintf(str, "newdealstatus: %d ; stage: %d ; change: %d", dealstatus, *stage, *change);
+                    TraceLog(LOG_DEBUG, str);
+                }
+                // Update stage drop now so I can reallocate based on that
+                if (((dealstatus & 0x09) != 0) && (*stage != 0))
+                {
+                    *stage = 0;
+                    save(rordata, rordataLength);
+                }
+                // REALLOCATE NEUTRAL FACTIONS
+                if (*stage == 0 && *change == 1)
+                {
+                    uint8_t assign = 0;
+                    uint8_t pcnt = 0;
+                    for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++) if ((FACTION(f).name[0] != '\0') && ((FACTION(f).type & FactionNeutral) == 0)) pcnt++;
+                    switch (pcnt)
+                    {
+                        case 0: break;
+                        case 1: assign = SOLITAIRE_FCNT - pcnt; // fallthrough
+                        case 2: assign = TWOPLAYERS_FCNT - pcnt; // fallthrough
+                        default:
+                        {
+                            // assign neutral factions
+                            int32_t basefactweight;
+                            int32_t maxfactweight;
+                            int32_t factweight;
+                            uint8_t fa;
+                            for (uint8_t a = 1; a <= assign; a++)
+                            {
+                                for (fa = 1; (fa < (ITEMCOUNT(rordata, Faction)) && ((FACTION(fa).type & FactionUsed) != 0) && !(((FACTION(fa).type & FactionNeutral) != 0) && (FACTION(fa).asor == a)) ); fa++);
+                                if (!(((FACTION(fa).type & FactionNeutral) != 0) && (FACTION(fa).asor == a))) continue;
+                                int8_t fmax = -1;
+                                switch (FACTION(fa).asta & 0x11)
+                                {
+                                    case 0x00: basefactweight = 2147483647;        break;
+                                    case 0x01: basefactweight = -2147483648+32768; break;
+                                    case 0x10: basefactweight = 2147483647-32768;  break;
+                                    case 0x11: basefactweight = -2147483648;       break;
+                                }
+                                maxfactweight = -2147483648;
+                                sprintf(str, "a: %d ; fa: %d ; faname: %s ; asta: %d ; basefactweight: %d", a, fa, FACTION(fa).name, FACTION(fa).asta, basefactweight);
+                                TraceLog(LOG_DEBUG, str);
+                                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                                {
+                                    if ((FACTION(f).type & FactionNeutral) == 0) continue;
+                                    if (FACTION(f).asor < a) continue;
+                                    factweight = basefactweight;
+                                    switch ((FACTION(fa).asta & 0x0E) >> 1)
+                                    {
+                                        case 1: factweight += FACTION(f).tmil * ((0 < (FACTION(fa).asta & 0x01)) ? (32768) : (-32768)); break;
+                                        case 2: factweight += FACTION(f).tora * ((0 < (FACTION(fa).asta & 0x01)) ? (32768) : (-32768)); break;
+                                        case 3: factweight += FACTION(f).tloy * ((0 < (FACTION(fa).asta & 0x01)) ? (32768) : (-32768)); break;
+                                        case 4: factweight += FACTION(f).tinf * ((0 < (FACTION(fa).asta & 0x01)) ? (32768) : (-32768)); break;
+                                        case 0:
+                                        case 6:
+                                        case 7:
+                                        case 5: factweight += f * ((FACTION(fa).asta & 0x01) ? (32768) : (-32768)); break;
+                                    }
+                                    switch ((FACTION(fa).asta & 0xE0) >> 5)
+                                    {
+                                        case 1: factweight += FACTION(f).tmil * ((0 < (FACTION(fa).asta & 0x10)) ? (1) : (-1)); break;
+                                        case 2: factweight += FACTION(f).tora * ((0 < (FACTION(fa).asta & 0x10)) ? (1) : (-1)); break;
+                                        case 3: factweight += FACTION(f).tloy * ((0 < (FACTION(fa).asta & 0x10)) ? (1) : (-1)); break;
+                                        case 4: factweight += FACTION(f).tinf * ((0 < (FACTION(fa).asta & 0x10)) ? (1) : (-1)); break;
+                                        case 0:
+                                        case 6:
+                                        case 7:
+                                        case 5: factweight += f * ((FACTION(fa).asta & 0x01) ? (1) : (-1)); break;
+                                    }
+                                    sprintf(str, "f: %d ; fname: %s ; tinf: %d ; factweight: %d ; maxfactweight: %d", f, FACTION(f).name, FACTION(f).tinf, factweight, maxfactweight);
+                                    TraceLog(LOG_DEBUG, str);
+                                    if (maxfactweight < factweight)
+                                    {
+                                        fmax = f;
+                                        maxfactweight = factweight;
+                                    }
+                                }
+                                if ((0 <= fmax) && ((uint8_t)fmax != fa))
+                                {
+                                    RoR_FactionItem_t faction;
+                                    memcpy(&faction, &FACTION(fa), sizeof(RoR_FactionItem_t));
+                                    faction.tmil = FACTION(fmax).tmil;
+                                    faction.tora = FACTION(fmax).tora;
+                                    faction.tloy = FACTION(fmax).tloy;
+                                    faction.tinf = FACTION(fmax).tinf;
+                                    faction.tpop = FACTION(fmax).tpop;
+                                    FACTION(fmax).tmil = FACTION(fa).tmil;
+                                    FACTION(fmax).tora = FACTION(fa).tora;
+                                    FACTION(fmax).tloy = FACTION(fa).tloy;
+                                    FACTION(fmax).tinf = FACTION(fa).tinf;
+                                    FACTION(fmax).tpop = FACTION(fa).tpop;
+                                    memcpy(&FACTION(fa), &FACTION(fmax), sizeof(RoR_FactionItem_t));
+                                    memcpy(&FACTION(fmax), &faction, sizeof(RoR_FactionItem_t));
+                                    save(rordata, rordataLength);
+                                }
+                            }
+                        }
+                    }
+                }
+                // Stage promotion though goes after a final reallocation of neutral factions
+                if (((dealstatus & 0x09) == 0) && (*stage == 0))
+                {
+                    selected = -1;
+                    *stage = 1;
+                    save(rordata, rordataLength);
+                }
+                // Now that I handled the change in this fram, I can set it back
+                if (*change == 1)
+                {
+                    sprintf(str, "change dealstatus: %d ; stage: %d ; change: %d", dealstatus, *stage, *change);
+                    TraceLog(LOG_DEBUG, str);
+                    *change = 0;
+                    save(rordata, rordataLength);
                 }
             } break;
 

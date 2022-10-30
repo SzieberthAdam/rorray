@@ -136,96 +136,104 @@ rorray.c:669:41: warning: incompatible implicit declaration of built-in function
   669 |                                         memcpy(&faction, &FACTION(fnextused), sizeof(RoR_FactionItem_t));
       |                                         ^~~~~~
 rorray.c:669:41: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:707:17: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  707 |                 strcpy(str, header->name);  // displayed cursor character will be added to str
+rorray.c:706:17: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  706 |                 strcpy(str, header->name);  // displayed cursor character will be added to str
       |                 ^~~~~~
-rorray.c:707:17: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:708:35: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-  708 |                 int letterCount = strlen(str);
+rorray.c:706:17: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:707:35: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+  707 |                 int letterCount = strlen(str);
       |                                   ^~~~~~
-rorray.c:708:35: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:786:31: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  786 |                 if (*pe == 1) sprintf(str, "%s (first era)", TextToUpper(ERA(*pe).name));
+rorray.c:707:35: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:785:31: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  785 |                 if (*pe == 1) sprintf(str, "%s (first era)", TextToUpper(ERA(*pe).name));
       |                               ^~~~~~~
-rorray.c:786:31: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:787:22: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  787 |                 else sprintf(str, "%s (after %s)", TextToUpper((ERA(*pe).name)), ERA(*pe-1).name); // Subsequent TextToUpper(); results should be cached first.
+rorray.c:785:31: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:786:22: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  786 |                 else sprintf(str, "%s (after %s)", TextToUpper((ERA(*pe).name)), ERA(*pe-1).name); // Subsequent TextToUpper(); results should be cached first.
       |                      ^~~~~~~
-rorray.c:787:22: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:822:17: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  822 |                 sprintf(str, "%d", (ERA(*pe).trig & 0x0FFF));
+rorray.c:786:22: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:821:17: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  821 |                 sprintf(str, "%d", (ERA(*pe).trig & 0x0FFF));
       |                 ^~~~~~~
-rorray.c:822:17: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:838:25: warning: unused variable 'letterCount' [-Wunused-variable]
-  838 |                     int letterCount = 1;
+rorray.c:821:17: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:837:25: warning: unused variable 'letterCount' [-Wunused-variable]
+  837 |                     int letterCount = 1;
       |                         ^~~~~~~~~~~
-rorray.c:865:52: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  865 |                 if ((ERA(*pe).trig & 0x1000) == 0) strcpy(str, "OR");
+rorray.c:864:52: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  864 |                 if ((ERA(*pe).trig & 0x1000) == 0) strcpy(str, "OR");
       |                                                    ^~~~~~
-rorray.c:865:52: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:866:22: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  866 |                 else strcpy(str, "AND");
+rorray.c:864:52: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:865:22: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  865 |                 else strcpy(str, "AND");
       |                      ^~~~~~
-rorray.c:866:22: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:871:39: warning: operation on '((RoR_EraItem_t *)(rordata + ((sizetype)((RoR_ItemTypeInfo_t *)(rordata + 128))->adr + (sizetype)((unsigned int)*pe * 20) + 4294967276)))->trig' may be undefined [-Wsequence-point]
-  871 |                         ERA(*pe).trig = BIT_FLIP(ERA(*pe).trig, 12);
+rorray.c:865:22: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:870:39: warning: operation on '((RoR_EraItem_t *)(rordata + ((sizetype)((RoR_ItemTypeInfo_t *)(rordata + 128))->adr + (sizetype)((unsigned int)*pe * 20) + 4294967276)))->trig' may be undefined [-Wsequence-point]
+  870 |                         ERA(*pe).trig = BIT_FLIP(ERA(*pe).trig, 12);
+rorray.c:889:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  889 |                     case 0: {strcpy(str, "NEVER");} break;
+      |                              ^~~~~~
+rorray.c:889:30: note: include '<string.h>' or provide a declaration of 'strcpy'
 rorray.c:890:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  890 |                     case 0: {strcpy(str, "NEVER");} break;
+  890 |                     case 1: {strcpy(str, "DECK WITH THIS ERA COMES NEXT");} break;
       |                              ^~~~~~
 rorray.c:890:30: note: include '<string.h>' or provide a declaration of 'strcpy'
 rorray.c:891:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  891 |                     case 1: {strcpy(str, "DECK WITH THIS ERA COMES NEXT");} break;
+  891 |                     case 5: {strcpy(str, "CARD IS DRAWN FROM DECK WITH THIS ERA");} break;
       |                              ^~~~~~
 rorray.c:891:30: note: include '<string.h>' or provide a declaration of 'strcpy'
 rorray.c:892:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  892 |                     case 5: {strcpy(str, "CARD IS DRAWN FROM DECK WITH THIS ERA");} break;
+  892 |                     case 6: {strcpy(str, "CARD WITH THIS ERA IS DRAWN");} break;
       |                              ^~~~~~
 rorray.c:892:30: note: include '<string.h>' or provide a declaration of 'strcpy'
 rorray.c:893:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  893 |                     case 6: {strcpy(str, "CARD WITH THIS ERA IS DRAWN");} break;
+  893 |                     case 7: {strcpy(str, "CARD WITH THIS ERA IS DRAWN FROM DECK WITH THIS ERA");} break;
       |                              ^~~~~~
 rorray.c:893:30: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:894:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  894 |                     case 7: {strcpy(str, "CARD WITH THIS ERA IS DRAWN FROM DECK WITH THIS ERA");} break;
-      |                              ^~~~~~
-rorray.c:894:30: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:950:25: warning: unused variable 'letterCount' [-Wunused-variable]
-  950 |                     int letterCount = 1;
+rorray.c:949:25: warning: unused variable 'letterCount' [-Wunused-variable]
+  949 |                     int letterCount = 1;
       |                         ^~~~~~~~~~~
-rorray.c:809:25: warning: unused variable 'maxLetterCount' [-Wunused-variable]
-  809 |                 uint8_t maxLetterCount;
+rorray.c:1075:25: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+ 1075 |                         memset(p_TEMP(rordata), 0, TEMPSIZE);
+      |                         ^~~~~~
+rorray.c:1075:25: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:808:25: warning: unused variable 'maxLetterCount' [-Wunused-variable]
+  808 |                 uint8_t maxLetterCount;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1092:38: warning: suggest parentheses around '&&' within '||' [-Wparentheses]
- 1092 |                 for(d = dcnt; d <= 1 && DECK(d).eran != HEADER.eran || DECK(d).type != EraStartSenatorPool; d--);
-      |                               ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-rorray.c:1094:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
- 1094 |                 memset(sat, 0, ITEMCOUNT(rordata, Senator) + 1);  // zero
+rorray.c:1095:39: warning: suggest parentheses around '&&' within '||' [-Wparentheses]
+ 1095 |                 for (d = dcnt; d <= 1 && DECK(d).eran != HEADER.eran || DECK(d).type != EraStartSenatorPool; d--);
+      |                                ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rorray.c:1097:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+ 1097 |                 memset(sat, 0, ITEMCOUNT(rordata, Senator) + 1);  // zero
       |                 ^~~~~~
-rorray.c:1094:17: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:1125:21: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1125 |                     sprintf(str, "f: %d; senacnt: %d", f, factsenacnt[f]);
-      |                     ^~~~~~~
-rorray.c:1125:21: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1133:17: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1133 |                 sprintf(str, "DEAL %i SENATORS TO EACH FACTION", ERA(HEADER.eran).nsen);
+rorray.c:1097:17: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:1151:17: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1151 |                 sprintf(str, "dealstatus: %d ; stage: %d ; change: %d", dealstatus, *stage, *change);
       |                 ^~~~~~~
-rorray.c:1133:17: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1295:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1295 |                             strcpy(str, "drag this for random draw");
+rorray.c:1151:17: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1164:22: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1164 |                 else strcpy(str, "DEAL THE EXTRA SENATORS");
+      |                      ^~~~~~
+rorray.c:1164:22: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1371:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1371 |                             strcpy(str, "drag this for random draw");
       |                             ^~~~~~
-rorray.c:1295:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1408:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
- 1408 |                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
+rorray.c:1371:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1596:37: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+ 1596 |                                     memcpy(&faction, &FACTION(fa), sizeof(RoR_FactionItem_t));
+      |                                     ^~~~~~
+rorray.c:1596:37: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:1640:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+ 1640 |                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
       |                 ^~~~~~
-rorray.c:1408:17: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:1540:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1540 |                         sprintf(str, "%d", SENATOR(s).idnr);
+rorray.c:1640:17: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:1772:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1772 |                         sprintf(str, "%d", SENATOR(s).idnr);
       |                         ^~~~~~~
-rorray.c:1540:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1601:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1601 |                             strcpy(str, "drag this for random draw");
+rorray.c:1772:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1833:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1833 |                             strcpy(str, "drag this for random draw");
       |                             ^~~~~~
-rorray.c:1601:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1833:29: note: include '<string.h>' or provide a declaration of 'strcpy'
 rorray.c:389:13: warning: unused variable 'font3Ex' [-Wunused-variable]
   389 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
       |             ^~~~~~~
@@ -257,36 +265,42 @@ rorray.c:340:9: warning: unused variable 'debugvar' [-Wunused-variable]
   340 |     int debugvar = 0;
       |         ^~~~~~~~
 rorray.c: At top level:
-rorray.c:1710:13: warning: 'DrawTextBoxed' defined but not used [-Wunused-function]
- 1710 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
+rorray.c:1942:13: warning: 'DrawTextBoxed' defined but not used [-Wunused-function]
+ 1942 | static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
       |             ^~~~~~~~~~~~~
 rorray.c: In function 'main':
-rorray.c:1614:62: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
- 1614 |                         r_button.y = mouse.y - selectedvector.y;
+rorray.c:1846:62: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+ 1846 |                         r_button.y = mouse.y - selectedvector.y;
       |                                                ~~~~~~~~~~~~~~^~
-rorray.c:1457:25: note: 'selectedvector.y' was declared here
- 1457 |                 Vector2 selectedvector;
+rorray.c:1689:25: note: 'selectedvector.y' was declared here
+ 1689 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1613:62: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
- 1613 |                         r_button.x = mouse.x - selectedvector.x;
+rorray.c:1845:62: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+ 1845 |                         r_button.x = mouse.x - selectedvector.x;
       |                                                ~~~~~~~~~~~~~~^~
-rorray.c:1457:25: note: 'selectedvector.x' was declared here
- 1457 |                 Vector2 selectedvector;
+rorray.c:1689:25: note: 'selectedvector.x' was declared here
+ 1689 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1382:63: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
- 1382 |                         r_senator.y = mouse.y - selectedvector.y;
+rorray.c:1467:63: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+ 1467 |                         r_senator.y = mouse.y - selectedvector.y;
       |                                                 ~~~~~~~~~~~~~~^~
-rorray.c:1136:25: note: 'selectedvector.y' was declared here
- 1136 |                 Vector2 selectedvector;
+rorray.c:1167:25: note: 'selectedvector.y' was declared here
+ 1167 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1381:63: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
- 1381 |                         r_senator.x = mouse.x - selectedvector.x;
+rorray.c:1466:63: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+ 1466 |                         r_senator.x = mouse.x - selectedvector.x;
       |                                                 ~~~~~~~~~~~~~~^~
-rorray.c:1136:25: note: 'selectedvector.x' was declared here
- 1136 |                 Vector2 selectedvector;
+rorray.c:1167:25: note: 'selectedvector.x' was declared here
+ 1167 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1700:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
- 1700 |     UnloadFileData(rordata);      // Free memory from loaded file
+rorray.c:1572:60: warning: 'basefactweight' may be used uninitialized [-Wmaybe-uninitialized]
+ 1572 |                                         case 5: factweight += f * ((FACTION(fa).asta & 0x01) ? (32768) : (-32768)); break;
+      |                                                 ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rorray.c:1539:37: note: 'basefactweight' was declared here
+ 1539 |                             int32_t basefactweight;
+      |                                     ^~~~~~~~~~~~~~
+rorray.c:1932:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
+ 1932 |     UnloadFileData(rordata);      // Free memory from loaded file
       |     ^~~~~~~~~~~~~~~~~~~~~~~
 rorray.c:359:20: note: 'rordata' was declared here
   359 |     unsigned char *rordata;
