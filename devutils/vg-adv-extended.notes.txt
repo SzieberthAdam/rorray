@@ -1,0 +1,25 @@
+2022-10-30
+==========
+
+4.01.2 ASSIGNING NEUTRALS How would you handle tie-breaks? I feel it significant
+because Conservatives get 2 extra cards, while Populists got one. Plutocrats &
+Populists can easily have the same total Influence after the normal deal which
+will end up Populists with higher value thanks to the extra senator. To counter
+this, it would make sense to pick Plutocrats as the "stronger" faction from the
+two which are tied. Stronger, especially in the early republic is the one with
+better commanders but Populists avoid those offices as best as they can so they
+seem the least militant faction.
+
+Imperials tie-break would be less Influence to let most influence to the
+Plutocrats, but if that would go to the Populists (as per my prev post), then
+rather not.
+
+Conservatives should be the weakest.
+
+Thus, I would go for this (h: highest, l: lowest):
+* 1. Imperials: hM hI hL hO
+* 2. Plutocrats: hI hM hO hL
+* 3. Conservatives: lI lM lO lL
+* 4. Populists: (irrelevant, but) hO hI hL hM
+
+Currently the system handles the first two only.

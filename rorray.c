@@ -1148,13 +1148,6 @@ int main(void)
                     FACTION(f).tinf += SENATOR(s).inf1;
                     FACTION(f).tpop += SENATOR(s).pop1;
                 }
-                sprintf(str, "dealstatus: %d ; stage: %d ; change: %d", dealstatus, *stage, *change);
-                DrawText(str, 30, 180, 10, ORANGE);
-                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
-                {
-                    sprintf(str, "f: %d; senacnt: %d", f, factsenacnt[f]);
-                    DrawText(str, 30, 200 + 20*f, 10, WHITE);
-                }
                 uint8_t targetf = 0;
                 if (0 < (dealstatus & 0x03)) for (targetf = 1; (targetf <= ITEMCOUNT(rordata, Faction)) && ((FACTION(targetf).type & FactionUsed) != 0) && ((factsenacnt[targetf] != minfactsenacnt) || ((factsenacnt[targetf] >= ERA(HEADER.eran).nsen + FACTION(targetf).xsen))); targetf++);
                 // TITLE
@@ -1480,19 +1473,6 @@ int main(void)
                         if (SENATOR(s).pop0 != 0) {sprintf(str, "%i", SENATOR(s).pop0); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
                     }
                 }
-                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
-                {
-                    sprintf(str, "%d", FACTION(f).tmil);
-                    DrawText(str, 180, 200 + 20*f, 10, WHITE);
-                    sprintf(str, "%d", FACTION(f).tora);
-                    DrawText(str, 220, 200 + 20*f, 10, WHITE);
-                    sprintf(str, "%d", FACTION(f).tloy);
-                    DrawText(str, 260, 200 + 20*f, 10, WHITE);
-                    sprintf(str, "%d", FACTION(f).tinf);
-                    DrawText(str, 300, 200 + 20*f, 10, WHITE);
-                    sprintf(str, "%d", FACTION(f).tpop);
-                    DrawText(str, 340, 200 + 20*f, 10, WHITE);
-                }
                 // UPDATE dealstatus
                 if (*change == 1)
                 {
@@ -1513,8 +1493,6 @@ int main(void)
                         dealstatus |= fdealstatus;
                         if (fdealstatus == 0) dealstatus |= 0x80;
                     }
-                    sprintf(str, "newdealstatus: %d ; stage: %d ; change: %d", dealstatus, *stage, *change);
-                    TraceLog(LOG_DEBUG, str);
                 }
                 // Update stage drop now so I can reallocate based on that
                 if (((dealstatus & 0x09) != 0) && (*stage != 0))
@@ -1553,8 +1531,6 @@ int main(void)
                                     case 0x11: basefactweight = -2147483648;       break;
                                 }
                                 maxfactweight = -2147483648;
-                                sprintf(str, "a: %d ; fa: %d ; faname: %s ; asta: %d ; basefactweight: %d", a, fa, FACTION(fa).name, FACTION(fa).asta, basefactweight);
-                                TraceLog(LOG_DEBUG, str);
                                 for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
                                 {
                                     if ((FACTION(f).type & FactionNeutral) == 0) continue;
@@ -1582,8 +1558,6 @@ int main(void)
                                         case 7:
                                         case 5: factweight += f * ((FACTION(fa).asta & 0x01) ? (1) : (-1)); break;
                                     }
-                                    sprintf(str, "f: %d ; fname: %s ; tinf: %d ; factweight: %d ; maxfactweight: %d", f, FACTION(f).name, FACTION(f).tinf, factweight, maxfactweight);
-                                    TraceLog(LOG_DEBUG, str);
                                     if (maxfactweight < factweight)
                                     {
                                         fmax = f;
@@ -1622,8 +1596,6 @@ int main(void)
                 // Now that I handled the change in this fram, I can set it back
                 if (*change == 1)
                 {
-                    sprintf(str, "change dealstatus: %d ; stage: %d ; change: %d", dealstatus, *stage, *change);
-                    TraceLog(LOG_DEBUG, str);
                     *change = 0;
                     save(rordata, rordataLength);
                 }
