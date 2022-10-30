@@ -1541,8 +1541,6 @@ int main(void)
                                         if (0 < (ast & 0x04)) factweight -= mul * FACTION(f).tora;
                                         if (0 < (ast & 0x02)) factweight -= mul * FACTION(f).tloy;
                                         if (0 < (ast & 0x01)) factweight -= mul * FACTION(f).tinf;
-                                        sprintf(str, "a: %d f: %d i: %d ast: %d mul: %d w: %d", a, f, i, ast, mul, factweight);
-                                        TraceLog(LOG_DEBUG, str);
                                     }
                                     if (maxfactweight < factweight)
                                     {
@@ -1584,19 +1582,6 @@ int main(void)
                 {
                     *change = 0;
                     save(rordata, rordataLength);
-                }
-                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
-                {
-                    sprintf(str, "%d %d %d %d", FACTION(f).ast1, FACTION(f).ast2, FACTION(f).ast3, FACTION(f).ast4);
-                    DrawText(str, 30, 200 + f * 20, 10, WHITE);
-                    void *p = &(((RoR_FactionItem_t_unordered *)p_ITEM(rordata, Faction) + (f-1))->ast1);
-                    sprintf(str, "%p", p);
-                    DrawText(str, 100, 200 + f * 20, 10, ORANGE);
-                    for (uint8_t i=0; i < 4; i++)
-                    {
-                        sprintf(str, "%d", *(uint8_t*)(p+i));
-                        DrawText(str, 200 + 20 * i, 200 + f * 20, 10, WHITE);
-                    }
                 }
             } break;
 
