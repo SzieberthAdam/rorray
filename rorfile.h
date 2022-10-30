@@ -121,19 +121,18 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     type;       //  See FactionType enum.
     uint8_t     open;       //  Open Treasury (bit0=1) and Cards(bit1=1)
     uint8_t     asor;       //  Assignment Order Value (0: will not get assigned; otherwise lower value first)
-    uint8_t     asta;       //  Assignment Target MOLI
-                            //      bit0: assign to the faction with lowest(0)/highest(1) value
-                            //      bit1..3: first order assign by
-                            //          0: Owner / Dominant Player decides
-                            //          1: total Military
-                            //          2: total Oratory
-                            //          3: total Loyalty
-                            //          4: total Influence
-                            //          5: first(bit0=0)/last(bit0=1) available
-                            //          6: =5 [Subservient Player (if any) decides] not implemented
-                            //          7: =5 [random] not implemented
-                            //      bit4: tie breaker counterpart of bit0
-                            //      bit5..7: tie breaker counterpart of bit0..3 (second step tie breaker is always random)
+    uint8_t     ast1;       //  Assignment by this value first (value start from zero)
+                            //      bit7: +total Military
+                            //      bit6: +total Oratory
+                            //      bit5: +total Loyalty
+                            //      bit4: +total Influence
+                            //      bit3: -total Military
+                            //      bit2: -total Oratory
+                            //      bit1: -total Loyalty
+                            //      bit0: -total Influence
+    uint8_t     ast2;       //  Assignment by this value second (first tiebreaker)
+    uint8_t     ast3;       //  Assignment by this value third (second tiebreaker)
+    uint8_t     ast4;       //  Assignment by this value fourth (third tiebreaker)
     uint8_t     terc;       //  (Temporary) Rome Consul
                             //      bit7=1: Faction claims the (Temporary Rome Consul)
                             //      bit6..3: priority (highest takes the office)
@@ -205,7 +204,42 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint16_t    tloy;       //  total Loyalty
     uint16_t    tinf;       //  total Influence
     int16_t     tpop;       //  total Popularity
+    char        pad;
 } RoR_FactionItem_t;
+
+
+typedef struct __attribute__((__packed__)) {
+    char        name[16];
+    uint8_t     type;
+    uint8_t     open;
+    uint8_t     asor;
+    uint8_t     ast1;
+    uint8_t     ast2;
+    uint8_t     ast3;
+    uint8_t     ast4;
+    uint8_t     terc;
+    uint8_t     xsen;
+    uint8_t     ledr;
+    uint8_t     ibi0;
+    uint8_t     ibi1;
+    uint8_t     reve;
+    uint8_t     crty;
+    uint8_t     prsp;
+    uint8_t     spoi[6];
+    uint8_t     knig;
+    int8_t      card;
+    bool        rulc;
+    uint8_t     domi;
+    uint8_t     leit;
+    uint8_t     lenr;
+    uint16_t    tmil;
+    uint16_t    tora;
+    uint16_t    tloy;
+    uint16_t    tinf;
+    int16_t     tpop;
+    char        pad;
+} RoR_FactionItem_t_unordered;
+
 
 
 enum LocationElemNr {

@@ -1514,7 +1514,6 @@ int main(void)
                         default:
                         {
                             // assign neutral factions
-                            int32_t basefactweight;
                             int32_t maxfactweight;
                             int32_t factweight;
                             uint8_t fa;
@@ -1522,41 +1521,28 @@ int main(void)
                             {
                                 for (fa = 1; (fa < (ITEMCOUNT(rordata, Faction)) && ((FACTION(fa).type & FactionUsed) != 0) && !(((FACTION(fa).type & FactionNeutral) != 0) && (FACTION(fa).asor == a)) ); fa++);
                                 if (!(((FACTION(fa).type & FactionNeutral) != 0) && (FACTION(fa).asor == a))) continue;
+                                void *p = &(((RoR_FactionItem_t_unordered *)p_ITEM(rordata, Faction) + (fa-1))->ast1);
                                 int8_t fmax = -1;
-                                switch (FACTION(fa).asta & 0x11)
-                                {
-                                    case 0x00: basefactweight = 2147483647;        break;
-                                    case 0x01: basefactweight = -2147483648+32768; break;
-                                    case 0x10: basefactweight = 2147483647-32768;  break;
-                                    case 0x11: basefactweight = -2147483648;       break;
-                                }
                                 maxfactweight = -2147483648;
                                 for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
                                 {
                                     if ((FACTION(f).type & FactionNeutral) == 0) continue;
                                     if (FACTION(f).asor < a) continue;
-                                    factweight = basefactweight;
-                                    switch ((FACTION(fa).asta & 0x0E) >> 1)
+                                    factweight = 0;
+                                    for (uint8_t i=0; i <= 3; i++)
                                     {
-                                        case 1: factweight += FACTION(f).tmil * ((0 < (FACTION(fa).asta & 0x01)) ? (32768) : (-32768)); break;
-                                        case 2: factweight += FACTION(f).tora * ((0 < (FACTION(fa).asta & 0x01)) ? (32768) : (-32768)); break;
-                                        case 3: factweight += FACTION(f).tloy * ((0 < (FACTION(fa).asta & 0x01)) ? (32768) : (-32768)); break;
-                                        case 4: factweight += FACTION(f).tinf * ((0 < (FACTION(fa).asta & 0x01)) ? (32768) : (-32768)); break;
-                                        case 0:
-                                        case 6:
-                                        case 7:
-                                        case 5: factweight += f * ((FACTION(fa).asta & 0x01) ? (32768) : (-32768)); break;
-                                    }
-                                    switch ((FACTION(fa).asta & 0xE0) >> 5)
-                                    {
-                                        case 1: factweight += FACTION(f).tmil * ((0 < (FACTION(fa).asta & 0x10)) ? (1) : (-1)); break;
-                                        case 2: factweight += FACTION(f).tora * ((0 < (FACTION(fa).asta & 0x10)) ? (1) : (-1)); break;
-                                        case 3: factweight += FACTION(f).tloy * ((0 < (FACTION(fa).asta & 0x10)) ? (1) : (-1)); break;
-                                        case 4: factweight += FACTION(f).tinf * ((0 < (FACTION(fa).asta & 0x10)) ? (1) : (-1)); break;
-                                        case 0:
-                                        case 6:
-                                        case 7:
-                                        case 5: factweight += f * ((FACTION(fa).asta & 0x01) ? (1) : (-1)); break;
+                                        uint8_t ast = *(uint8_t*)(p+i);
+                                        int32_t mul = (1 << (7 * (3-i)));
+                                        if (0 < (ast & 0x80)) factweight += mul * FACTION(f).tmil;
+                                        if (0 < (ast & 0x40)) factweight += mul * FACTION(f).tora;
+                                        if (0 < (ast & 0x20)) factweight += mul * FACTION(f).tloy;
+                                        if (0 < (ast & 0x10)) factweight += mul * FACTION(f).tinf;
+                                        if (0 < (ast & 0x08)) factweight -= mul * FACTION(f).tmil;
+                                        if (0 < (ast & 0x04)) factweight -= mul * FACTION(f).tora;
+                                        if (0 < (ast & 0x02)) factweight -= mul * FACTION(f).tloy;
+                                        if (0 < (ast & 0x01)) factweight -= mul * FACTION(f).tinf;
+                                        sprintf(str, "a: %d f: %d i: %d ast: %d mul: %d w: %d", a, f, i, ast, mul, factweight);
+                                        TraceLog(LOG_DEBUG, str);
                                     }
                                     if (maxfactweight < factweight)
                                     {
@@ -1598,6 +1584,19 @@ int main(void)
                 {
                     *change = 0;
                     save(rordata, rordataLength);
+                }
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                {
+                    sprintf(str, "%d %d %d %d", FACTION(f).ast1, FACTION(f).ast2, FACTION(f).ast3, FACTION(f).ast4);
+                    DrawText(str, 30, 200 + f * 20, 10, WHITE);
+                    void *p = &(((RoR_FactionItem_t_unordered *)p_ITEM(rordata, Faction) + (f-1))->ast1);
+                    sprintf(str, "%p", p);
+                    DrawText(str, 100, 200 + f * 20, 10, ORANGE);
+                    for (uint8_t i=0; i < 4; i++)
+                    {
+                        sprintf(str, "%d", *(uint8_t*)(p+i));
+                        DrawText(str, 200 + 20 * i, 200 + f * 20, 10, WHITE);
+                    }
                 }
             } break;
 
