@@ -134,16 +134,11 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     ast3;       //  Assignment by this value third (second tiebreaker)
     uint8_t     ast4;       //  Assignment by this value fourth (third tiebreaker)
     uint8_t     terc;       //  (Temporary) Rome Consul (value=0 signs that faction does not claim the TERC)
-                            //      bit7..3: priority (highest takes the office)
-                            //      bit0..2: which senator?
-                            //          0: Owner / Dominant Player decides
-                            //          1: highest Military
-                            //          2: highest Oratory
-                            //          3: highest Loyalty
-                            //          4: highest Influence
-                            //          5: first(bit0=0)/last(bit0=1) available
-                            //          6: Subservient Player (if any) decides
-                            //          7: random
+                            //      bit7..4: priority (highest faction takes the office)
+                            //      bit3: Military adds to senator weight (senator with highest weight wins; tie-breaker is the lower ID)
+                            //      bit2: Oratory adds to senator weight
+                            //      bit1: Loyalty adds to senator weight
+                            //      bit0: Influence adds to senator weight
     uint8_t     xsen;       //  Number of extra senators to deal to the faction at era start
     uint8_t     ledr;       //  Faction Leader assignment (highest weight value wins it; tie-breaker is random)
                             //      bit0: automatic(1) / Owner or Dominant Player decides (0)
