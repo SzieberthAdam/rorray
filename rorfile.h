@@ -133,9 +133,8 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
     uint8_t     ast2;       //  Assignment by this value second (first tiebreaker)
     uint8_t     ast3;       //  Assignment by this value third (second tiebreaker)
     uint8_t     ast4;       //  Assignment by this value fourth (third tiebreaker)
-    uint8_t     terc;       //  (Temporary) Rome Consul
-                            //      bit7=1: Faction claims the (Temporary Rome Consul)
-                            //      bit6..3: priority (highest takes the office)
+    uint8_t     terc;       //  (Temporary) Rome Consul (value=0 signs that faction does not claim the TERC)
+                            //      bit7..3: priority (highest takes the office)
                             //      bit0..2: which senator?
                             //          0: Owner / Dominant Player decides
                             //          1: highest Military

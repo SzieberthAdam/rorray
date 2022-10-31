@@ -1609,7 +1609,51 @@ int main(void)
                     }
                     else sat[s-1] = 0;
                 }
-                if ((ERA(HEADER.eran).terc & 0x82) == 0x02)
+                uint8_t maxterc = 0;
+                uint8_t maxtercf = 0;
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                {
+                    if (maxterc < FACTION(f).terc)
+                    {
+                        maxterc = FACTION(f).terc;
+                        maxtercf = f;
+                    }
+                }
+                if ((0 < maxterc) && ((ERA(HEADER.eran).terc & 0x80) == 0))
+                {
+                    uint8_t f = maxtercf;  // for code coherence
+                    int32_t maxsenaweight;
+                    int32_t senaweight;
+                    uint8_t smax = 0;
+                    for(uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                    {
+                        if ((sat[s-1] & 0x3F) != f) continue;
+                        senaweight = -SENATOR(s).idnr;
+                        if (0 < (maxterc & 0x08)) senaweight += 128 * SENATOR(s).mil1;
+                        if (0 < (maxterc & 0x04)) senaweight += 128 * SENATOR(s).ora1;
+                        if (0 < (maxterc & 0x02)) senaweight += 128 * SENATOR(s).loy1;
+                        if (0 < (maxterc & 0x01)) senaweight += 128 * SENATOR(s).inf1;
+                        if (maxsenaweight < senaweight)
+                        {
+                            smax = s;
+                            maxsenaweight = senaweight;
+                        }
+                    }
+                    if (0 < smax)
+                    {
+                        uint8_t s = smax; // for code coherence
+                        SENATOR(s).offi = o;
+                        SENATOR(s).inf1 += OFFICE(o).infl;
+                        SENATOR(s).inf2 = SENATOR(s).inf1;
+                        SENATOR(s).pric += 1;
+                        MAGISTRATE(HRAO).owit = SenatorItem;
+                        MAGISTRATE(HRAO).ownr = s;
+                        ERA(HEADER.eran).terc |= 0x80;  // resolved
+                        save(rordata, rordataLength);
+                    }
+
+                }
+                else if ((ERA(HEADER.eran).terc & 0x82) == 0x02)
                 {
                     uint8_t s;
                     for(s = 1; s <= ITEMCOUNT(rordata, Senator) && ((SENATOR(s).fact == 0) || (SENATOR(s).idnr != minsenaidnr)); s++);
@@ -1657,7 +1701,7 @@ int main(void)
                 DrawFont2("PC", ((Rectangle){r_header.x + RECT_SEN_PRIC_X, r_header.y, RECT_SEN_PRIC_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
                 r_senator.x = r_header.x;
                 r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
-                for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++)
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
                 {
                     Rectangle r_faction = {r_senator.x, r_senator.y, r_senator.width, r_senator.height + (Font2RectH + PAD) * factsenacnt[f]};
                     DrawRectangleRec(r_faction, COLOR_BACKGROUNDAREA);

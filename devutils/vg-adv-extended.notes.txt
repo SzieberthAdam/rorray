@@ -1,3 +1,9 @@
+2022-10-31
+==========
+
+4.01.2 ASSIGNING NEUTRALS It seems sensible to make Plutocrat Temporary Rome
+Consul tie-breaker the lower family ID value.
+
 2022-10-30
 ==========
 
@@ -21,5 +27,3 @@ Thus, I would go for this (h: highest, l: lowest):
 * 2. Plutocrats: hI hM hO hL
 * 3. Conservatives: lI lM lO lL
 * 4. Populists: (irrelevant, but) hO hI hL hM
-
-Currently the system handles the first two only.
