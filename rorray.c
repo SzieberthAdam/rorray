@@ -1142,13 +1142,16 @@ int main(void)
                 for (uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
                 {
                     uint8_t f = SENATOR(s).fact;
-                    FACTION(f).tmil += SENATOR(s).mil1;
-                    FACTION(f).tora += SENATOR(s).ora1;
-                    FACTION(f).tloy += SENATOR(s).loy1;
-                    FACTION(f).tinf += SENATOR(s).inf1;
-                    FACTION(f).tpop += SENATOR(s).pop1;
+                    if (0 < f)
+                    {
+                        FACTION(f).tmil += SENATOR(s).mil1;
+                        FACTION(f).tora += SENATOR(s).ora1;
+                        FACTION(f).tloy += SENATOR(s).loy1;
+                        FACTION(f).tinf += SENATOR(s).inf1;
+                        FACTION(f).tpop += SENATOR(s).pop1;
+                    }
                 }
-                uint8_t targetf = 0;
+                uint8_t targetf = 1;
                 if (0 < (dealstatus & 0x03)) for (targetf = 1; (targetf <= ITEMCOUNT(rordata, Faction)) && ((FACTION(targetf).type & FactionUsed) != 0) && ((factsenacnt[targetf] != minfactsenacnt) || ((factsenacnt[targetf] >= ERA(HEADER.eran).nsen + FACTION(targetf).xsen))); targetf++);
                 // TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
@@ -1171,7 +1174,7 @@ int main(void)
                     {
                         uint8_t s = selected; // for code coherence
                         uint8_t f0 = SENATOR(s).fact;
-                        if (f0 != 0)
+                        if (0 < f0)
                         {
                             FACTION(f0).tmil -= SENATOR(s).mil1;
                             FACTION(f0).tora -= SENATOR(s).ora1;
@@ -1251,7 +1254,7 @@ int main(void)
                         {
                             uint8_t s = selected; // for code coherence
                             uint8_t f0 = SENATOR(s).fact;
-                            if (f0 != 0)
+                            if (0 < f0)
                             {
                                 FACTION(f0).tmil -= SENATOR(s).mil1;
                                 FACTION(f0).tora -= SENATOR(s).ora1;
@@ -1260,10 +1263,7 @@ int main(void)
                                 FACTION(f0).tpop -= SENATOR(s).pop1;
                                 factsenacnt[f0]--;
                             }
-                            else if (SENATOR(s).loit == DeckItem)
-                            {
-                                decksenacnt--;
-                            }
+                            else if (SENATOR(s).loit == DeckItem) decksenacnt--;
                             SENATOR(s).fact = f;
                             SENATOR(s).loit = LocationItem;
                             SENATOR(s).lonr = Forum;
@@ -1500,6 +1500,19 @@ int main(void)
                     *stage = 0;
                     save(rordata, rordataLength);
                 }
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                {
+                    sprintf(str, "%d %d %d %d", FACTION(f).ast1, FACTION(f).ast2, FACTION(f).ast3, FACTION(f).ast4);
+                    DrawText(str, 30, 200 + f * 20, 10, WHITE);
+                    void *p = &(((RoR_FactionItem_t_unordered *)p_ITEM(rordata, Faction) + (f-1))->ast1);
+                    sprintf(str, "%p", p);
+                    DrawText(str, 100, 200 + f * 20, 10, ORANGE);
+                    for (uint8_t i=0; i < 4; i++)
+                    {
+                        sprintf(str, "%d", *(uint8_t*)(p+i));
+                        DrawText(str, 200 + 20 * i, 200 + f * 20, 10, WHITE);
+                    }
+                }
                 // REALLOCATE NEUTRAL FACTIONS
                 if (*stage == 0 && *change == 1)
                 {
@@ -1541,6 +1554,8 @@ int main(void)
                                         if (0 < (ast & 0x04)) factweight -= mul * FACTION(f).tora;
                                         if (0 < (ast & 0x02)) factweight -= mul * FACTION(f).tloy;
                                         if (0 < (ast & 0x01)) factweight -= mul * FACTION(f).tinf;
+                                        sprintf(str, "a: %d f: %d i: %d ast: %d mul: %d w: %d", a, f, i, ast, mul, factweight);
+                                        TraceLog(LOG_DEBUG, str);
                                     }
                                     if (maxfactweight < factweight)
                                     {
@@ -1685,7 +1700,7 @@ int main(void)
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("(TEMPORARY) ROME CONSUL", r_title, COLOR_TITLETEXT, TextLeft);
-                // FACTIONS PREP
+                // FACTIONS
                 Vector2 selectedvector;
                 Rectangle r_header = {0, 0, RECT_SEN_WIDTH2, Font2RectH};
                 Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
@@ -1778,15 +1793,15 @@ int main(void)
                             DrawRectangleRec(r_office, COLOR_OFFICE);
                             DrawFont2(OFFICE(SENATOR(s).offi).snam, r_office, COLOR_OFFICETEXT, TextCenter, ((Vector2){0, 0}));
                         }
-                        sprintf(str, "%d", SENATOR(s).mil2);
+                        sprintf(str, "%d", SENATOR(s).mil1);
                         DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
-                        sprintf(str, "%d", SENATOR(s).ora2);
+                        sprintf(str, "%d", SENATOR(s).ora1);
                         DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
-                        sprintf(str, "%d", SENATOR(s).loy2);
+                        sprintf(str, "%d", SENATOR(s).loy1);
                         DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
-                        sprintf(str, "%d", SENATOR(s).inf2);
+                        sprintf(str, "%d", SENATOR(s).inf1);
                         DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
-                        if (SENATOR(s).pop2 != 0) {sprintf(str, "%i", SENATOR(s).pop2); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
+                        if (SENATOR(s).pop1 != 0) {sprintf(str, "%i", SENATOR(s).pop1); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
                         if (0 < SENATOR(s).pric) DrawFont2("PC", ((Rectangle){r_senator.x + RECT_SEN_PRIC_X, r_senator.y, RECT_SEN_PRIC_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
                     }
                     r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
@@ -1919,6 +1934,177 @@ int main(void)
                     }
                 }
                 else if (selected == -501000) selected = -1;
+            } break;
+
+            case PhSelectFactionLeaders:
+            {
+                // PREP
+                uint8_t o;
+                for(o = 1; o <= ITEMCOUNT(rordata, Office) && OFFICE(o).type != RomeConsul; o++);  // find rome consul
+                uint8_t src = 0;
+                uint8_t *sat = MemAlloc(ITEMCOUNT(rordata, Senator));
+                uint8_t *factsenacnt = MemAlloc(ITEMCOUNT(rordata, Faction) + 1);
+                memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
+                for(uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                {
+                    if (SENATOR(s).loit == LocationItem && SENATOR(s).lonr == Forum)
+                    {
+                        sat[s-1] = (1 << 6) + (SENATOR(s).fact & 0x3F);
+                        factsenacnt[SENATOR(s).fact]++;
+                        if (SENATOR(s).offi == o) src = s;
+                    }
+                    else sat[s-1] = 0;
+                }
+                // TITLE
+                Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                DrawTitle("NOMINATE LEADERS FOR EACH FACTION", r_title, COLOR_TITLETEXT, TextLeft);
+                // FACTIONS
+                Rectangle r_header = {0, 0, RECT_SEN_WIDTH2, Font2RectH};
+                Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
+                r_header.x = UNITCLAMP((screenWidth - (RECT_SEN_HRAO_WIDTH + RECT_SEN_WIDTH2 + PAD + 4 * UNIT + RECT_SEN_WIDTH + PAD - (RECT_SEN_OFF_WIDTH + PAD))) / 2 + RECT_SEN_HRAO_WIDTH);
+                r_header.y = (r_title.height + PAD) + 3 * UNIT;
+                DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
+                DrawFont2("SENATE", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                DrawFont2("M", ((Rectangle){r_header.x + RECT_SEN_M_X, r_header.y, RECT_SEN_M_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("O", ((Rectangle){r_header.x + RECT_SEN_O_X, r_header.y, RECT_SEN_O_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("L", ((Rectangle){r_header.x + RECT_SEN_L_X, r_header.y, RECT_SEN_L_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("I", ((Rectangle){r_header.x + RECT_SEN_I_X, r_header.y, RECT_SEN_I_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("P", ((Rectangle){r_header.x + RECT_SEN_P_X, r_header.y, RECT_SEN_P_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("PC", ((Rectangle){r_header.x + RECT_SEN_PRIC_X, r_header.y, RECT_SEN_PRIC_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                r_senator.x = r_header.x;
+                r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                {
+                    Rectangle r_faction = {r_senator.x, r_senator.y, r_senator.width, r_senator.height + (Font2RectH + PAD) * factsenacnt[f]};
+                    DrawRectangleRec(r_faction, COLOR_BACKGROUNDAREA);
+                    DrawRectangleRec(r_senator, COLOR_FACTION);
+                    DrawFont2(TextToUpper(FACTION(f).name), r_senator, COLOR_FACTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                    for(uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                    {
+                        if ((sat[s-1] & 0x3F) != f) continue;  // not in this faction
+                        r_senator.y += (Font2RectH + PAD);
+                        if ((FACTION(f).leit != SenatorItem || FACTION(f).lenr != s) && (CheckCollisionPointRec(mouse, r_senator)))
+                        {
+                            if (currentGesture != lastGesture && currentGesture == GESTURE_TAP)
+                            {
+                                FACTION(f).leit = SenatorItem;
+                                FACTION(f).lenr = s;
+                                save(rordata, rordataLength);
+                                DrawRectangleRec(r_senator, COLOR_CLICKED);
+                            }
+                            else DrawRectangleRec(r_senator, COLOR_MOUSEHOVER_CLICKABLE);
+                        }
+                        else DrawRectangleRec(r_senator, COLOR_BLACKCARDBACKGROUND);
+                        if (MAGISTRATE(HRAO).owit == SenatorItem && MAGISTRATE(HRAO).ownr == s)
+                        {
+                            Rectangle r_hrao = {r_senator.x + RECT_SEN_HRAO_X, r_senator.y, RECT_SEN_HRAO_WIDTH, r_senator.height};
+                            DrawRectangleRec(r_hrao, COLOR_HRAO);
+                            DrawFont2("H", r_hrao, COLOR_OFFICETEXT, TextCenter, ((Vector2){1, 0}));
+                        }
+                        if (FACTION(f).leit == SenatorItem && FACTION(f).lenr == s)
+                        {
+                            DrawRectangleRec(((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH + 2, r_senator.height}), COLOR_FACTION);
+                            DrawRectangleRec(((Rectangle){r_senator.x + RECT_SEN_ID_X + 1, r_senator.y + r_senator.height - 4, RECT_SEN_ID_WIDTH, 3}), COLOR_BLACKCARDTEXT);
+                        }
+                        sprintf(str, "%d", SENATOR(s).idnr);
+                        DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextRight, ((Vector2){1, -8}));
+                        DrawFont2(SENATOR(s).name, ((Rectangle){r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH}), COLOR_BLACKCARDTEXT, TextLeft, ((Vector2){0, 0}));
+                        if (0 < SENATOR(s).offi)
+                        {
+                            Rectangle r_office = {r_senator.x + RECT_SEN_OFF_X, r_senator.y, RECT_SEN_OFF_WIDTH, r_senator.height};
+                            DrawRectangleRec(r_office, COLOR_OFFICE);
+                            DrawFont2(OFFICE(SENATOR(s).offi).snam, r_office, COLOR_OFFICETEXT, TextCenter, ((Vector2){0, 0}));
+                        }
+                        sprintf(str, "%d", SENATOR(s).mil1);
+                        DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                        sprintf(str, "%d", SENATOR(s).ora1);
+                        DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                        sprintf(str, "%d", SENATOR(s).loy1);
+                        DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                        sprintf(str, "%d", SENATOR(s).inf1);
+                        DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                        if (SENATOR(s).pop1 != 0) {sprintf(str, "%i", SENATOR(s).pop1); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
+                        if (0 < SENATOR(s).pric) DrawFont2("PC", ((Rectangle){r_senator.x + RECT_SEN_PRIC_X, r_senator.y, RECT_SEN_PRIC_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                    }
+                    r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
+                }
+
+                // STATESMEN
+                Rectangle r_tooltip = r_header;
+                r_header.x += r_header.width + PAD + 4 * UNIT;
+                r_header.y = (r_title.height + PAD) + 3 * UNIT;
+                r_header.width = RECT_SEN_WIDTH - (RECT_SEN_OFF_WIDTH + PAD);
+                r_header.height = Font2RectH;
+                r_senator.x = r_header.x;
+                r_senator.y = r_header.y + 1 * (Font2RectH + PAD) + 2 * UNIT;
+                r_senator.width = r_header.width;
+                r_senator.height = Font2RectH;
+                r_tooltip.width += 4 * UNIT + r_header.width + PAD;
+                r_tooltip.height = 5 * (Font2RectH + PAD) - PAD;
+                r_tooltip.x -= RECT_SEN_HRAO_WIDTH;
+                r_tooltip.width += RECT_SEN_HRAO_WIDTH;
+                DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
+                DrawFont2("STATESMEN", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                r_header.x -= (RECT_SEN_OFF_WIDTH + PAD);  // statesmen list does not have office column, so I applied this dirty shift trick
+                DrawFont2("M", ((Rectangle){r_header.x + RECT_SEN_M_X, r_header.y, RECT_SEN_M_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("O", ((Rectangle){r_header.x + RECT_SEN_O_X, r_header.y, RECT_SEN_O_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("L", ((Rectangle){r_header.x + RECT_SEN_L_X, r_header.y, RECT_SEN_L_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("I", ((Rectangle){r_header.x + RECT_SEN_I_X, r_header.y, RECT_SEN_I_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                DrawFont2("P", ((Rectangle){r_header.x + RECT_SEN_P_X, r_header.y, RECT_SEN_P_WIDTH, r_header.height}), COLOR_FACTIONHEADERTEXT, TextCenter, ((Vector2){0, 0}));
+                r_header.x = r_senator.x;
+                for (int e = 1; e <= ITEMCOUNT(rordata, Era); e++)
+                {
+                    r_senator.x = r_header.x;
+                    DrawRectangleRec(r_senator, COLOR_ERAHEADER);
+                    DrawFont2(TextToUpper(ERA(e).name), r_senator, COLOR_ERAHEADERTEXT, TextLeft, ((Vector2){0, 0}));
+                    for (int m = 1; m <= ITEMCOUNT(rordata, Statesman); m++)
+                    {
+                        if (STATESMAN(m).eran != e) continue;
+                        bool loy0 = ( (0 < STATESMAN(m).lo0w[0]) || (0 < STATESMAN(m).lo0w[1]) || (0 < STATESMAN(m).lo0w[2]) || (0 < STATESMAN(m).lo0w[3]) || (0 < STATESMAN(m).lo0n[0]) || (0 < STATESMAN(m).lo0n[1]) );
+                        r_senator.x = r_header.x;
+                        r_senator.y += (Font2RectH + PAD);
+                        DrawRectangleRec(r_senator, COLOR_STATESMANBACKGROUND);
+                        sprintf(str, "%d", STATESMAN(m).idnr);
+                        DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y + Font2RectH - Font1RectH, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextRight, ((Vector2){1, -8}));
+                        DrawFont1(STATESMAN(m).idch, ((Rectangle){r_senator.x + RECT_SEN_ID_X, r_senator.y, RECT_SEN_ID_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextRight, ((Vector2){1, -4}));
+                        Rectangle r_name = {r_senator.x + RECT_SEN_NAME_X, r_senator.y, RECT_SEN_NAME_WIDTH, Font2RectH};
+                        DrawFont2(STATESMAN(m).snam, r_name, COLOR_STATESMANTEXT, TextLeft, ((Vector2){0, 0}));
+                        if (CheckCollisionPointRec(mouse, r_name))
+                        {
+                            r_tooltip.y = r_senator.y - 5 * (Font2RectH + PAD);
+                            DrawRectangleRec(r_tooltip, COLOR_TOOLTIPBACKGROUND);
+                            DrawRectangleLinesEx(((Rectangle){r_tooltip.x - 1, r_tooltip.y - 1, r_tooltip.width + 2, r_tooltip.height + 2}), 1.0f, COLOR_TOOLTIPOUTLINE);
+                            DrawFont2(STATESMAN(m).name, ((Rectangle){r_tooltip.x, r_tooltip.y, r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                            DrawFont2(STATESMAN(m).time, ((Rectangle){r_tooltip.x, r_tooltip.y + 1 * (Font2RectH + PAD), r_tooltip.width, Font2RectH}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                            DrawTextBoxed(font2, STATESMAN(m).spec, ((Rectangle){r_tooltip.x + Font2PaddingX, r_tooltip.y + 2 * (Font2RectH + PAD) - PAD, r_tooltip.width - Font2PaddingX, 3 * (Font2RectH + PAD) - PAD}), Font2H, Font2Spacing, true, COLOR_TOOLTIPTEXT, Font2H - 2);
+                        }
+                        r_senator.x -= (RECT_SEN_OFF_WIDTH + PAD);  // statesmen list does not have office column, so I applied this dirty shift trick
+                        if (0x10 <= STATESMAN(m).mil1)
+                        {
+                            if (1 < (STATESMAN(m).mil1 >> 4)) sprintf(str, "%dd6", (STATESMAN(m).mil1 >> 4));
+                            else strcpy(str, "d6");
+                            DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextCenter, ((Vector2){0, -4}));
+                            sprintf(str, "+%d", (STATESMAN(m).mil1 & 0x0F));
+                            DrawFont1(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_STATESMANTEXT, TextCenter, ((Vector2){0, 4}));
+                        }
+                        else
+                        {
+                            sprintf(str, "%d", STATESMAN(m).mil1);
+                            DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_M_X, r_senator.y, RECT_SEN_M_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                        }
+                        sprintf(str, "%d", STATESMAN(m).ora1);
+                        DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_O_X, r_senator.y, RECT_SEN_O_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                        sprintf(str, "%d", STATESMAN(m).loy1);
+                        DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_L_X, r_senator.y, RECT_SEN_L_WIDTH, r_senator.height}), (loy0) ? COLOR_STATESMANTEXT : COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                        sprintf(str, "%d", STATESMAN(m).inf1);
+                        DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_I_X, r_senator.y, RECT_SEN_I_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));
+                        if (STATESMAN(m).pop1 != 0) {sprintf(str, "%i", STATESMAN(m).pop1); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
+                    }
+                    r_senator.y += 1 * (Font2RectH + PAD) + 2 * UNIT;
+                }
+
+
             } break;
 
         }
