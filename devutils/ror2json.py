@@ -118,31 +118,3 @@ if __name__ == "__main__":
             i += size
     with pr.with_suffix(".ror.json").open("w", encoding="utf8") as _f:
         json.dump(J, _f, **default_dump_kwargs)
-
-
-
-
-#for p0 in pathlib.Path(".").glob("*.json"):
-#    if p0.stem.startswith("ror-"): continue
-#    p1 = p0.resolve().parent.parent / f'{p0.stem}.ror'
-#    with p0.open("r", encoding="utf8") as _f:
-#        O0 = json.load(_f)
-#    O1 = copy.deepcopy(O0)
-#    itemcount = sum((1 if k.endswith("Item") else 0) for k in F)
-#    O1["ItemTypeInfo"] = [[0, 0] for _ in range(itemcount)]
-#    B = {}
-#    B["Header"] = struct.pack(">" + "".join(flat(F["Header"])), *structprep(flat(O1["Header"])))
-#    B["Temp"] = b'\0' * TEMPSIZE
-#    B["ItemTypeInfo"] = b''.join(struct.pack(">" + "".join(flat(F["ItemTypeInfo"])), *structprep(flat(lis))) for lis in O1["ItemTypeInfo"])  # temporary
-#    adr0 = O1["ItemTypeInfo"][0][1] = len(B["Header"]) + len(B["Temp"]) + len(B["ItemTypeInfo"])
-#    for i, k in enumerate([k for k in ORDER if k.endswith("Item")]):
-#        _cnt = O1["ItemTypeInfo"][i][0] = len(O1[k])
-#        B[k] = b''
-#        for j in range(_cnt):
-#            B[k] += struct.pack(">" + "".join(flat(F[k])), *structprep(flat(O1[k][j])))
-#        if i + 1 < itemcount:
-#            O1["ItemTypeInfo"][i+1][1] = O1["ItemTypeInfo"][i][1] + len(B[k])
-#    B["ItemTypeInfo"] = b''.join(struct.pack(">" + "".join(flat(F["ItemTypeInfo"])), *structprep(flat(lis))) for lis in O1["ItemTypeInfo"])
-#    b = b''.join(B[k] for k in ORDER)
-#    with p1.open("wb") as _f:
-#        _f.write(b)

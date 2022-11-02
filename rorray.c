@@ -1,3 +1,15 @@
+// VSCode Folding
+// Ctrl+K Ctrl+0
+// cursor to: int main(void) block
+// Ctrl+K Ctrl+ú
+// Ctrl+K Ctrl+4 (or Ctrl+K Ctrl+5 to show regions inside)
+// cursor to: switch (header->phse)
+// Ctrl+K Ctrl+ő
+// Preamble Show/Hide: Ctrl+K Ctrl+9 and Ctrl+K Ctrl+8
+// Fold All Regions: Ctrl+k Ctrl+8
+
+#pragma region preamb
+
 #include <math.h>
 #include <stdint.h>
 
@@ -325,6 +337,129 @@ Rectangle DrawTextEx2(Font font, const char *text, Rectangle box, float fontSize
     return ((Rectangle){position.x, position.y, textsize.x, textsize.y});
 }
 
+// Draw text using font inside rectangle limits
+static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
+{
+    int length = TextLength(text);  // Total length in bytes of the text, scanned by codepoints in loop
+
+    float textOffsetY = 0;          // Offset between lines (on line break '\n')
+    float textOffsetX = 0.0f;       // Offset X to next character to draw
+
+    float scaleFactor = fontSize/(float)font.baseSize;     // Character rectangle scaling factor
+
+    // Word/character wrapping mechanism variables
+    enum { MEASURE_STATE = 0, DRAW_STATE = 1 };
+    int state = wordWrap? MEASURE_STATE : DRAW_STATE;
+
+    int startLine = -1;         // Index where to begin drawing (where a line begins)
+    int endLine = -1;           // Index where to stop drawing (where a line ends)
+    int lastk = -1;             // Holds last value of the character position
+
+    if (lineHeight == 0) lineHeight = (font.baseSize + font.baseSize/2)*scaleFactor;  // Apply default if 0 lineHeight
+
+    for (int i = 0, k = 0; i < length; i++, k++)
+    {
+        // Get next codepoint from byte string and glyph index in font
+        int codepointByteCount = 0;
+        int codepoint = GetCodepoint(&text[i], &codepointByteCount);
+        int index = GetGlyphIndex(font, codepoint);
+
+        // NOTE: Normally we exit the decoding sequence as soon as a bad byte is found (and return 0x3f)
+        // but we need to draw all of the bad bytes using the '?' symbol moving one byte
+        if (codepoint == 0x3f) codepointByteCount = 1;
+        i += (codepointByteCount - 1);
+
+        float glyphWidth = 0;
+        if (codepoint != '\n')
+        {
+            glyphWidth = (font.glyphs[index].advanceX == 0) ? font.recs[index].width*scaleFactor : font.glyphs[index].advanceX*scaleFactor;
+
+            if (i + 1 < length) glyphWidth = glyphWidth + spacing;
+        }
+
+        // NOTE: When wordWrap is ON we first measure how much of the text we can draw before going outside of the rec container
+        // We store this info in startLine and endLine, then we change states, draw the text between those two variables
+        // and change states again and again recursively until the end of the text (or until we get outside of the container).
+        // When wordWrap is OFF we don't need the measure state so we go to the drawing state immediately
+        // and begin drawing on the next line before we can get outside the container.
+        if (state == MEASURE_STATE)
+        {
+            // TODO: There are multiple types of spaces in UNICODE, maybe it's a good idea to add support for more
+            // Ref: http://jkorpela.fi/chars/spaces.html
+            if ((codepoint == ' ') || (codepoint == '\t') || (codepoint == '\n')) endLine = i;
+
+            if ((textOffsetX + glyphWidth) > rec.width)
+            {
+                endLine = (endLine < 1)? i : endLine;
+                if (i == endLine) endLine -= codepointByteCount;
+                if ((startLine + codepointByteCount) == endLine) endLine = (i - codepointByteCount);
+
+                state = !state;
+            }
+            else if ((i + 1) == length)
+            {
+                endLine = i;
+                state = !state;
+            }
+            else if (codepoint == '\n') state = !state;
+
+            if (state == DRAW_STATE)
+            {
+                textOffsetX = 0;
+                i = startLine;
+                glyphWidth = 0;
+
+                // Save character position when we switch states
+                int tmp = lastk;
+                lastk = k - 1;
+                k = tmp;
+            }
+        }
+        else
+        {
+            if (codepoint == '\n')
+            {
+                if (!wordWrap)
+                {
+                    textOffsetY += lineHeight;
+                    textOffsetX = 0;
+                }
+            }
+            else
+            {
+                if (!wordWrap && ((textOffsetX + glyphWidth) > rec.width))
+                {
+                    textOffsetY += lineHeight;
+                    textOffsetX = 0;
+                }
+
+                // When text overflows rectangle height limit, just stop drawing
+                // if ((textOffsetY + font.baseSize*scaleFactor) > rec.height) break;
+
+                // Draw current character glyph
+                if ((codepoint != ' ') && (codepoint != '\t'))
+                {
+                    DrawTextCodepoint(font, codepoint, (Vector2){ rec.x + textOffsetX, rec.y + textOffsetY}, fontSize, tint);
+                }
+            }
+
+            if (wordWrap && (i == endLine))
+            {
+                textOffsetY += lineHeight;
+                textOffsetX = 0;
+                startLine = endLine;
+                endLine = -1;
+                glyphWidth = 0;
+                k = lastk;
+
+                state = !state;
+            }
+        }
+
+        if ((textOffsetX != 0) || (codepoint != ' ')) textOffsetX += glyphWidth; // avoid leading spaces
+    }
+}
+
 
 bool save(rordata, length)
 {
@@ -333,6 +468,7 @@ bool save(rordata, length)
     return SaveFileData(fileName, rordata, length);
 }
 
+#pragma endregion preamb
 
 int main(void)
 {
@@ -536,11 +672,12 @@ int main(void)
             case 0:
             case PhTakeFactions:
             {
-                // TITLE
+                #pragma region TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("NAME THE PLAYING FACTIONS OR DELETE NAMES FOR EXCLUSION", r_title, COLOR_TITLETEXT, TextLeft);
-                // FACTIONS
+                #pragma endregion TITLE
+                #pragma region FACTIONS
                 int factclicked = -1;
                 uint8_t maxLetterCount = MEMBER_SIZE(RoR_FactionItem_t, name) - 1; // -1 because of the trailin null character
                 uint8_t fcnt = 0;
@@ -617,6 +754,8 @@ int main(void)
                     selected = -1;
                     framesCounter = 0;
                 }
+                #pragma endregion FACTIONS
+                #pragma region NEXT BUTTON
                 // NEXT BUTTON
                 Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
                 if (CheckCollisionPointRec(mouse, r_button))
@@ -688,15 +827,17 @@ int main(void)
                 else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
                 DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                 DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                #pragma endregion NEXT BUTTON
             } break;
 
             case PhSetGamename:
             {
-                // TITLE
+                #pragma region TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("GAMENAME", r_title, COLOR_TITLETEXT, TextLeft);
-                // INPUT
+                #pragma endregion TITLE
+                #pragma region INPUT
                 uint8_t maxLetterCount = MEMBER_SIZE(RoR_Header_t, name) - 1; // -1 because of the trailin null character
                 uint16_t numLines = 1;
                 Rectangle r_centerlistelem = {0, 0, UNIT + UNITCLAMP((maxLetterCount + 1) * font3Em.x + ((maxLetterCount + 1) - 1) * Font3Spacing + 2 * Font3PaddingX + Font3PaddingX), Font3RectH}; // "UNIT +" is required for unknown reason; (maxLetterCount + 1) because of the shown input cursor: "_"
@@ -747,7 +888,8 @@ int main(void)
                 }
                 DrawFont3(str, r, COLOR_BEINGEDITEDTEXT, TextLeft, ((Vector2){0, 0}));
                 framesCounter++;
-                // NEXT
+                #pragma endregion INPUT
+                #pragma region NEXT BUTTON
                 if ((header->name)[0] != '\0')
                 {
                     Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
@@ -769,15 +911,17 @@ int main(void)
                     DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                     DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
                 }
+                #pragma endregion NEXT BUTTON
             } break;
 
             case PhSetupRules:
             {
-                // TITLE
+                #pragma region TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("RULES", r_title, COLOR_TITLETEXT, TextLeft);
-                // ERA
+                #pragma endregion TITLE
+                #pragma region ERA
                 uint8_t ecnt = ITEMCOUNT(rordata, Era);
                 uint8_t *pe = (uint8_t*)(p_TEMP(rordata)+0);
                 if (*pe < 1 || ecnt < *pe) *pe = 1; // ensure range
@@ -802,7 +946,8 @@ int main(void)
                     DrawRectangleRec(r_subtitle, COLOR_SUBTITLEBACKGROUND);
                     DrawFont3(str, r_subtitle, COLOR_SUBTITLETEXT, TextCenter, ((Vector2){0, 0}));
                 }
-                // RULES
+                #pragma endregion ERA
+                #pragma region RULES
                 int current = 1;
                 int clicked = -1;
                 uint8_t maxLetterCount;
@@ -919,8 +1064,6 @@ int main(void)
                 }
                 current += 1;
                 r_section.y = r.y + (r.height + PAD) + 6 * UNIT;
-
-
 
                 DrawFont3("ERA START DRAW OF FAMILY CARDS", r_section, COLOR_BACKGOUNDSECTIONTEXT, TextLeft, ((Vector2){0, 0}));
                 r.x = r_section.x + Font3PaddingX - Font2PaddingX;
@@ -1064,7 +1207,8 @@ int main(void)
                     selected = -1;
                     framesCounter = 0;
                 }
-                // NEXT BUTTON
+                #pragma endregion RULES
+                #pragma region NEXT BUTTON
                 Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
                 if (CheckCollisionPointRec(mouse, r_button))
                 {
@@ -1082,11 +1226,12 @@ int main(void)
                 else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
                 DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                 DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                #pragma endregion NEXT BUTTON
             } break;
 
             case PhDealSenators:
             {
-                // PREP
+                #pragma region PREP
                 uint8_t *stage = (uint8_t*)(p_TEMP(rordata)+0);
                 uint8_t *change = (uint8_t*)(p_TEMP(rordata)+1);
                 *change = 0;
@@ -1153,17 +1298,18 @@ int main(void)
                 }
                 uint8_t targetf = 1;
                 if (0 < (dealstatus & 0x03)) for (targetf = 1; (targetf <= ITEMCOUNT(rordata, Faction)) && ((FACTION(targetf).type & FactionUsed) != 0) && ((factsenacnt[targetf] != minfactsenacnt) || ((factsenacnt[targetf] >= ERA(HEADER.eran).nsen + FACTION(targetf).xsen))); targetf++);
-                // TITLE
+                Vector2 selectedvector;
+                Rectangle r_header = {0, 0, RECT_SEN_WIDTH, Font2RectH};
+                Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
+                #pragma endregion PREP
+                #pragma region TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 if (*stage == 0) sprintf(str, "DEAL %i SENATORS TO EACH FACTION", ERA(HEADER.eran).nsen);
                 else strcpy(str, "DEAL THE EXTRA SENATORS");
                 DrawTitle(str, r_title, COLOR_TITLETEXT, TextLeft);
-                // SENATORS AND FACTIONS PREP
-                Vector2 selectedvector;
-                Rectangle r_header = {0, 0, RECT_SEN_WIDTH, Font2RectH};
-                Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
-                // SENATORS
+                #pragma endregion TITLE
+                #pragma region SENATORS
                 r_header.x = UNITCLAMP(screenWidth / 2) - (r_header.width + PAD) - 2 * UNIT;
                 r_header.y = (r_title.height + PAD) + 3 * UNIT;
                 Rectangle r_seantorarea = {r_header.x, r_header.y, r_header.width, screenHeight - r_header.y};
@@ -1231,7 +1377,8 @@ int main(void)
                     if (SENATOR(s).pop0 != 0) {sprintf(str, "%i", SENATOR(s).pop0); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
                     r_senator.y += (Font2RectH + PAD);
                 }
-                // FACTIONS
+                #pragma endregion SENATORS
+                #pragma region FACTIONS
                 r_header.x = UNITCLAMP(screenWidth / 2) + 2 * UNIT;
                 DrawRectangleRec(r_header, COLOR_FACTIONHEADER);
                 DrawFont2("SENATE", r_header, COLOR_FACTIONHEADERTEXT, TextLeft, ((Vector2){0, 0}));
@@ -1321,7 +1468,8 @@ int main(void)
                     }
                     r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
                 }
-                // NEXT BUTTON
+                #pragma endregion FACTIONS
+                #pragma region NEXT BUTTON
                 Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
                 if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
                 {
@@ -1342,7 +1490,8 @@ int main(void)
                 else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
                 DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                 DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
-                // RANDOM BUTTON
+                #pragma endregion NEXT BUTTON
+                #pragma region RANDOM BUTTON
                 if (0 < decksenacnt && 0 < (dealstatus & 0x0B))
                 {
                     r_button.width = UNITCLAMP(6 * Font3HUnit);
@@ -1449,6 +1598,8 @@ int main(void)
                     }
                 }
                 else if (selected == -501000) selected = -1;
+                #pragma endregion RANDOM BUTTON
+                #pragma region SELECTION
                 // SELECTION
                 if (0 <= selected) // draw selected senator on top off all other
                 {
@@ -1473,7 +1624,9 @@ int main(void)
                         if (SENATOR(s).pop0 != 0) {sprintf(str, "%i", SENATOR(s).pop0); DrawFont2(str, ((Rectangle){r_senator.x + RECT_SEN_P_X, r_senator.y, RECT_SEN_P_WIDTH, r_senator.height}), COLOR_BLACKCARDTEXT, TextCenter, ((Vector2){0, 0}));}
                     }
                 }
-                // UPDATE dealstatus
+                #pragma endregion SELECTION
+                #pragma region FINAL
+                // update dealstatus
                 if (*change == 1)
                 {
                     dealstatus = 0;
@@ -1499,19 +1652,6 @@ int main(void)
                 {
                     *stage = 0;
                     save(rordata, rordataLength);
-                }
-                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
-                {
-                    sprintf(str, "%d %d %d %d", FACTION(f).ast1, FACTION(f).ast2, FACTION(f).ast3, FACTION(f).ast4);
-                    DrawText(str, 30, 200 + f * 20, 10, WHITE);
-                    void *p = &(((RoR_FactionItem_t_unordered *)p_ITEM(rordata, Faction) + (f-1))->ast1);
-                    sprintf(str, "%p", p);
-                    DrawText(str, 100, 200 + f * 20, 10, ORANGE);
-                    for (uint8_t i=0; i < 4; i++)
-                    {
-                        sprintf(str, "%d", *(uint8_t*)(p+i));
-                        DrawText(str, 200 + 20 * i, 200 + f * 20, 10, WHITE);
-                    }
                 }
                 // REALLOCATE NEUTRAL FACTIONS
                 if (*stage == 0 && *change == 1)
@@ -1598,11 +1738,12 @@ int main(void)
                     *change = 0;
                     save(rordata, rordataLength);
                 }
+                #pragma endregion FINAL
             } break;
 
             case PhTemporaryRomeConsul:
             {
-                // PREP
+                #pragma region PREP
                 uint8_t o;
                 for(o = 1; o <= ITEMCOUNT(rordata, Office) && OFFICE(o).type != RomeConsul; o++);  // find rome consul
                 uint8_t src = 0;
@@ -1696,11 +1837,13 @@ int main(void)
                     }
                     save(rordata, rordataLength);
                 }
-                // TITLE
+                #pragma endregion PREP
+                #pragma region TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("(TEMPORARY) ROME CONSUL", r_title, COLOR_TITLETEXT, TextLeft);
-                // FACTIONS
+                #pragma endregion TITLE
+                #pragma region FACTIONS
                 Vector2 selectedvector;
                 Rectangle r_header = {0, 0, RECT_SEN_WIDTH2, Font2RectH};
                 Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
@@ -1806,7 +1949,8 @@ int main(void)
                     }
                     r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
                 }
-                // NEXT BUTTON
+                #pragma endregion FACTIONS
+                #pragma region NEXT BUTTON
                 Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
                 if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
                 {
@@ -1826,7 +1970,8 @@ int main(void)
                 else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
                 DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
                 DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
-                // RANDOM BUTTON
+                #pragma endregion NEXT BUTTON
+                #pragma region RANDOM BUTTON
                 if ((ERA(HEADER.eran).terc & 0x82) == 0x00)
                 {
                     r_button.width = UNITCLAMP(6 * Font3HUnit);
@@ -1934,11 +2079,12 @@ int main(void)
                     }
                 }
                 else if (selected == -501000) selected = -1;
+                #pragma endregion RANDOM BUTTON
             } break;
 
             case PhSelectFactionLeaders:
             {
-                // PREP
+                #pragma region PREP
                 uint8_t o;
                 for(o = 1; o <= ITEMCOUNT(rordata, Office) && OFFICE(o).type != RomeConsul; o++);  // find rome consul
                 uint8_t src = 0;
@@ -1955,11 +2101,13 @@ int main(void)
                     }
                     else sat[s-1] = 0;
                 }
-                // TITLE
+                #pragma endregion PREP
+                #pragma region TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("NOMINATE LEADERS FOR EACH FACTION", r_title, COLOR_TITLETEXT, TextLeft);
-                // FACTIONS
+                #pragma endregion TITLE
+                #pragma region FACTIONS
                 Rectangle r_header = {0, 0, RECT_SEN_WIDTH2, Font2RectH};
                 Rectangle r_senator = {0, 0, r_header.width, Font2RectH};
                 r_header.x = UNITCLAMP((screenWidth - (RECT_SEN_HRAO_WIDTH + RECT_SEN_WIDTH2 + PAD + 4 * UNIT + RECT_SEN_WIDTH + PAD - (RECT_SEN_OFF_WIDTH + PAD))) / 2 + RECT_SEN_HRAO_WIDTH);
@@ -2029,8 +2177,8 @@ int main(void)
                     }
                     r_senator.y = r_faction.y + r_faction.height + 2 * UNIT + PAD;
                 }
-
-                // STATESMEN
+                #pragma endregion FACTIONS
+                #pragma region STATESMEN
                 Rectangle r_tooltip = r_header;
                 r_header.x += r_header.width + PAD + 4 * UNIT;
                 r_header.y = (r_title.height + PAD) + 3 * UNIT;
@@ -2103,10 +2251,8 @@ int main(void)
                     }
                     r_senator.y += 1 * (Font2RectH + PAD) + 2 * UNIT;
                 }
-
-
+                #pragma endregion STATESMEN
             } break;
-
         }
 
         EndDrawing();
@@ -2120,129 +2266,4 @@ int main(void)
     //--------------------------------------------------------------------------------------
 
     return 0;
-}
-
-
-
-// Draw text using font inside rectangle limits
-static void DrawTextBoxed(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, float lineHeight)
-{
-    int length = TextLength(text);  // Total length in bytes of the text, scanned by codepoints in loop
-
-    float textOffsetY = 0;          // Offset between lines (on line break '\n')
-    float textOffsetX = 0.0f;       // Offset X to next character to draw
-
-    float scaleFactor = fontSize/(float)font.baseSize;     // Character rectangle scaling factor
-
-    // Word/character wrapping mechanism variables
-    enum { MEASURE_STATE = 0, DRAW_STATE = 1 };
-    int state = wordWrap? MEASURE_STATE : DRAW_STATE;
-
-    int startLine = -1;         // Index where to begin drawing (where a line begins)
-    int endLine = -1;           // Index where to stop drawing (where a line ends)
-    int lastk = -1;             // Holds last value of the character position
-
-    if (lineHeight == 0) lineHeight = (font.baseSize + font.baseSize/2)*scaleFactor;  // Apply default if 0 lineHeight
-
-    for (int i = 0, k = 0; i < length; i++, k++)
-    {
-        // Get next codepoint from byte string and glyph index in font
-        int codepointByteCount = 0;
-        int codepoint = GetCodepoint(&text[i], &codepointByteCount);
-        int index = GetGlyphIndex(font, codepoint);
-
-        // NOTE: Normally we exit the decoding sequence as soon as a bad byte is found (and return 0x3f)
-        // but we need to draw all of the bad bytes using the '?' symbol moving one byte
-        if (codepoint == 0x3f) codepointByteCount = 1;
-        i += (codepointByteCount - 1);
-
-        float glyphWidth = 0;
-        if (codepoint != '\n')
-        {
-            glyphWidth = (font.glyphs[index].advanceX == 0) ? font.recs[index].width*scaleFactor : font.glyphs[index].advanceX*scaleFactor;
-
-            if (i + 1 < length) glyphWidth = glyphWidth + spacing;
-        }
-
-        // NOTE: When wordWrap is ON we first measure how much of the text we can draw before going outside of the rec container
-        // We store this info in startLine and endLine, then we change states, draw the text between those two variables
-        // and change states again and again recursively until the end of the text (or until we get outside of the container).
-        // When wordWrap is OFF we don't need the measure state so we go to the drawing state immediately
-        // and begin drawing on the next line before we can get outside the container.
-        if (state == MEASURE_STATE)
-        {
-            // TODO: There are multiple types of spaces in UNICODE, maybe it's a good idea to add support for more
-            // Ref: http://jkorpela.fi/chars/spaces.html
-            if ((codepoint == ' ') || (codepoint == '\t') || (codepoint == '\n')) endLine = i;
-
-            if ((textOffsetX + glyphWidth) > rec.width)
-            {
-                endLine = (endLine < 1)? i : endLine;
-                if (i == endLine) endLine -= codepointByteCount;
-                if ((startLine + codepointByteCount) == endLine) endLine = (i - codepointByteCount);
-
-                state = !state;
-            }
-            else if ((i + 1) == length)
-            {
-                endLine = i;
-                state = !state;
-            }
-            else if (codepoint == '\n') state = !state;
-
-            if (state == DRAW_STATE)
-            {
-                textOffsetX = 0;
-                i = startLine;
-                glyphWidth = 0;
-
-                // Save character position when we switch states
-                int tmp = lastk;
-                lastk = k - 1;
-                k = tmp;
-            }
-        }
-        else
-        {
-            if (codepoint == '\n')
-            {
-                if (!wordWrap)
-                {
-                    textOffsetY += lineHeight;
-                    textOffsetX = 0;
-                }
-            }
-            else
-            {
-                if (!wordWrap && ((textOffsetX + glyphWidth) > rec.width))
-                {
-                    textOffsetY += lineHeight;
-                    textOffsetX = 0;
-                }
-
-                // When text overflows rectangle height limit, just stop drawing
-                // if ((textOffsetY + font.baseSize*scaleFactor) > rec.height) break;
-
-                // Draw current character glyph
-                if ((codepoint != ' ') && (codepoint != '\t'))
-                {
-                    DrawTextCodepoint(font, codepoint, (Vector2){ rec.x + textOffsetX, rec.y + textOffsetY}, fontSize, tint);
-                }
-            }
-
-            if (wordWrap && (i == endLine))
-            {
-                textOffsetY += lineHeight;
-                textOffsetX = 0;
-                startLine = endLine;
-                endLine = -1;
-                glyphWidth = 0;
-                k = lastk;
-
-                state = !state;
-            }
-        }
-
-        if ((textOffsetX != 0) || (codepoint != ' ')) textOffsetX += glyphWidth; // avoid leading spaces
-    }
 }
