@@ -61,388 +61,406 @@ rorray.c: In function 'main':
 rorray.c:498:12: warning: assignment to 'RoR_Header_t *' from pointer type 'void *' with incompatible scalar storage order [-Wscalar-storage-order]
   498 |     header = MemAlloc(sizeof(RoR_Header_t));
       |            ^
-rorray.c:595:49: warning: initialization of 'RoR_Header_t *' from pointer type 'unsigned char *' with incompatible scalar storage order [-Wscalar-storage-order]
-  595 |                         RoR_Header_t *header2 = LoadFileData(droppedfiles.paths[0], &readLength);
+rorray.c:597:49: warning: initialization of 'RoR_Header_t *' from pointer type 'unsigned char *' with incompatible scalar storage order [-Wscalar-storage-order]
+  597 |                         RoR_Header_t *header2 = LoadFileData(droppedfiles.paths[0], &readLength);
       |                                                 ^~~~~~~~~~~~
-rorray.c:595:49: warning: initialization of 'RoR_Header_t *' from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
-rorray.c:596:25: warning: implicit declaration of function 'strncpy' [-Wimplicit-function-declaration]
-  596 |                         strncpy(str, &(header2->sign), 3);
+rorray.c:597:49: warning: initialization of 'RoR_Header_t *' from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
+rorray.c:598:25: warning: implicit declaration of function 'strncpy' [-Wimplicit-function-declaration]
+  598 |                         strncpy(str, &(header2->sign), 3);
       |                         ^~~~~~~
-rorray.c:596:25: note: include '<string.h>' or provide a declaration of 'strncpy'
-rorray.c:596:25: warning: incompatible implicit declaration of built-in function 'strncpy' [-Wbuiltin-declaration-mismatch]
-rorray.c:596:25: note: include '<string.h>' or provide a declaration of 'strncpy'
-rorray.c:596:38: warning: passing argument 2 of 'strncpy' from incompatible pointer type [-Wincompatible-pointer-types]
-  596 |                         strncpy(str, &(header2->sign), 3);
+rorray.c:598:25: note: include '<string.h>' or provide a declaration of 'strncpy'
+rorray.c:598:25: warning: incompatible implicit declaration of built-in function 'strncpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:598:25: note: include '<string.h>' or provide a declaration of 'strncpy'
+rorray.c:598:38: warning: passing argument 2 of 'strncpy' from incompatible pointer type [-Wincompatible-pointer-types]
+  598 |                         strncpy(str, &(header2->sign), 3);
       |                                      ^~~~~~~~~~~~~~~~
       |                                      |
       |                                      char (*)[3]
-rorray.c:596:38: note: expected 'const char *' but argument is of type 'char (*)[3]'
-rorray.c:598:30: warning: implicit declaration of function 'strcmp' [-Wimplicit-function-declaration]
-  598 |                         if ((strcmp(str, RORFILESIGN) == 0) && (header2->vers == RORFILEVERS))
+rorray.c:598:38: note: expected 'const char *' but argument is of type 'char (*)[3]'
+rorray.c:600:30: warning: implicit declaration of function 'strcmp' [-Wimplicit-function-declaration]
+  600 |                         if ((strcmp(str, RORFILESIGN) == 0) && (header2->vers == RORFILEVERS))
       |                              ^~~~~~
-rorray.c:598:30: note: include '<string.h>' or provide a declaration of 'strcmp'
-rorray.c:602:37: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
-  602 |                             MemFree(header);
+rorray.c:600:30: note: include '<string.h>' or provide a declaration of 'strcmp'
+rorray.c:604:37: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
+  604 |                             MemFree(header);
       |                                     ^~~~~~
-rorray.c:608:40: warning: passing argument 1 of 'UnloadFileData' from incompatible scalar storage order [-Wscalar-storage-order]
-  608 |                         UnloadFileData(header2);
+rorray.c:610:40: warning: passing argument 1 of 'UnloadFileData' from incompatible scalar storage order [-Wscalar-storage-order]
+  610 |                         UnloadFileData(header2);
       |                                        ^~~~~~~
-rorray.c:608:40: warning: passing argument 1 of 'UnloadFileData' from incompatible pointer type [-Wincompatible-pointer-types]
-  608 |                         UnloadFileData(header2);
+rorray.c:610:40: warning: passing argument 1 of 'UnloadFileData' from incompatible pointer type [-Wincompatible-pointer-types]
+  610 |                         UnloadFileData(header2);
       |                                        ^~~~~~~
       |                                        |
       |                                        RoR_Header_t *
 C:\raylib\raylib\src/raylib.h:1057:42: note: expected 'unsigned char *' but argument is of type 'RoR_Header_t *'
  1057 | RLAPI void UnloadFileData(unsigned char *data);                   // Unload file data allocated by LoadFileData()
       |                           ~~~~~~~~~~~~~~~^~~~
-rorray.c:624:53: warning: initialization of 'RoR_Header_t *' from pointer type 'unsigned char *' with incompatible scalar storage order [-Wscalar-storage-order]
-  624 |                             RoR_Header_t *header2 = LoadFileData(files.paths[i], &readLength);
+rorray.c:628:53: warning: initialization of 'RoR_Header_t *' from pointer type 'unsigned char *' with incompatible scalar storage order [-Wscalar-storage-order]
+  628 |                             RoR_Header_t *header2 = LoadFileData(files.paths[i], &readLength);
       |                                                     ^~~~~~~~~~~~
-rorray.c:624:53: warning: initialization of 'RoR_Header_t *' from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
-rorray.c:627:29: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
-  627 |                             strcpy(descriptions[count], header2->desc);
+rorray.c:628:53: warning: initialization of 'RoR_Header_t *' from incompatible pointer type 'unsigned char *' [-Wincompatible-pointer-types]
+rorray.c:631:29: warning: implicit declaration of function 'strcpy' [-Wimplicit-function-declaration]
+  631 |                             strcpy(descriptions[count], header2->desc);
       |                             ^~~~~~
-rorray.c:627:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:627:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-rorray.c:627:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:629:44: warning: passing argument 1 of 'UnloadFileData' from incompatible scalar storage order [-Wscalar-storage-order]
-  629 |                             UnloadFileData(header2);
+rorray.c:631:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:631:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:631:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:633:44: warning: passing argument 1 of 'UnloadFileData' from incompatible scalar storage order [-Wscalar-storage-order]
+  633 |                             UnloadFileData(header2);
       |                                            ^~~~~~~
-rorray.c:629:44: warning: passing argument 1 of 'UnloadFileData' from incompatible pointer type [-Wincompatible-pointer-types]
-  629 |                             UnloadFileData(header2);
+rorray.c:633:44: warning: passing argument 1 of 'UnloadFileData' from incompatible pointer type [-Wincompatible-pointer-types]
+  633 |                             UnloadFileData(header2);
       |                                            ^~~~~~~
       |                                            |
       |                                            RoR_Header_t *
 C:\raylib\raylib\src/raylib.h:1057:42: note: expected 'unsigned char *' but argument is of type 'RoR_Header_t *'
  1057 | RLAPI void UnloadFileData(unsigned char *data);                   // Unload file data allocated by LoadFileData()
       |                           ~~~~~~~~~~~~~~~^~~~
-rorray.c:653:41: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
-  653 |                                 MemFree(header);
+rorray.c:657:41: warning: passing argument 1 of 'MemFree' from incompatible scalar storage order [-Wscalar-storage-order]
+  657 |                                 MemFree(header);
       |                                         ^~~~~~
-rorray.c:665:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  665 |                         sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
+rorray.c:669:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  669 |                         sprintf(str, "[%s] %s", GetFileName(files.paths[i]), descriptions[i]);
       |                         ^~~~~~~
-rorray.c:665:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:675: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
-  675 |                 #pragma region TITLE
+rorray.c:669:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:590:22: warning: variable 'descriptionsalloc' set but not used [-Wunused-but-set-variable]
+  590 |                 bool descriptionsalloc = false;
+      |                      ^~~~~~~~~~~~~~~~~
+rorray.c:587:22: warning: variable 'filesalloc' set but not used [-Wunused-but-set-variable]
+  587 |                 bool filesalloc = false;
+      |                      ^~~~~~~~~~
+rorray.c:679: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
+  679 |                 #pragma region TITLE
       | 
-rorray.c:679: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
-  679 |                 #pragma endregion TITLE
+rorray.c:683: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
+  683 |                 #pragma endregion TITLE
       | 
-rorray.c:680: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
-  680 |                 #pragma region FACTIONS
+rorray.c:684: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
+  684 |                 #pragma region FACTIONS
       | 
-rorray.c:692:21: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  692 |                     strcpy(str, FACTION(f).name);  // displayed cursor character will be added to str
+rorray.c:696:21: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  696 |                     strcpy(str, FACTION(f).name);  // displayed cursor character will be added to str
       |                     ^~~~~~
-rorray.c:692:21: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:706:43: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
-  706 |                         int letterCount = strlen(str);
+rorray.c:696:21: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:710:43: warning: implicit declaration of function 'strlen' [-Wimplicit-function-declaration]
+  710 |                         int letterCount = strlen(str);
       |                                           ^~~~~~
-rorray.c:706:43: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:706:43: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-rorray.c:706:43: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:757: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
-  757 |                 #pragma endregion FACTIONS
+rorray.c:710:43: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:710:43: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+rorray.c:710:43: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:761: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
+  761 |                 #pragma endregion FACTIONS
       | 
-rorray.c:758: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
-  758 |                 #pragma region NEXT BUTTON
+rorray.c:762: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
+  762 |                 #pragma region NEXT BUTTON
       | 
-rorray.c:783:37: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
-  783 |                                     memcpy(&FACTION(f), &FACTION(fa), sizeof(RoR_FactionItem_t));  // copy
+rorray.c:787:37: warning: implicit declaration of function 'memcpy' [-Wimplicit-function-declaration]
+  787 |                                     memcpy(&FACTION(f), &FACTION(fa), sizeof(RoR_FactionItem_t));  // copy
       |                                     ^~~~~~
-rorray.c:783:37: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:783:37: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
-rorray.c:783:37: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:808:41: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
-  808 |                                         memcpy(&faction, &FACTION(fnextused), sizeof(RoR_FactionItem_t));
+rorray.c:787:37: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:787:37: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+rorray.c:787:37: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:812:41: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+  812 |                                         memcpy(&faction, &FACTION(fnextused), sizeof(RoR_FactionItem_t));
       |                                         ^~~~~~
-rorray.c:808:41: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:830: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
-  830 |                 #pragma endregion NEXT BUTTON
+rorray.c:812:41: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:834: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
+  834 |                 #pragma endregion NEXT BUTTON
       | 
-rorray.c:835: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
-  835 |                 #pragma region TITLE
+rorray.c:839: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
+  839 |                 #pragma region TITLE
       | 
-rorray.c:839: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
-  839 |                 #pragma endregion TITLE
+rorray.c:843: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
+  843 |                 #pragma endregion TITLE
       | 
-rorray.c:840: warning: ignoring '#pragma region INPUT' [-Wunknown-pragmas]
-  840 |                 #pragma region INPUT
+rorray.c:844: warning: ignoring '#pragma region INPUT' [-Wunknown-pragmas]
+  844 |                 #pragma region INPUT
       | 
-rorray.c:847:17: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
-  847 |                 strcpy(str, header->name);  // displayed cursor character will be added to str
+rorray.c:851:17: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+  851 |                 strcpy(str, header->name);  // displayed cursor character will be added to str
       |                 ^~~~~~
-rorray.c:847:17: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:848:35: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
-  848 |                 int letterCount = strlen(str);
+rorray.c:851:17: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:852:35: warning: incompatible implicit declaration of built-in function 'strlen' [-Wbuiltin-declaration-mismatch]
+  852 |                 int letterCount = strlen(str);
       |                                   ^~~~~~
-rorray.c:848:35: note: include '<string.h>' or provide a declaration of 'strlen'
-rorray.c:891: warning: ignoring '#pragma endregion INPUT' [-Wunknown-pragmas]
-  891 |                 #pragma endregion INPUT
+rorray.c:852:35: note: include '<string.h>' or provide a declaration of 'strlen'
+rorray.c:895: warning: ignoring '#pragma endregion INPUT' [-Wunknown-pragmas]
+  895 |                 #pragma endregion INPUT
       | 
-rorray.c:892: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
-  892 |                 #pragma region NEXT BUTTON
+rorray.c:896: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
+  896 |                 #pragma region NEXT BUTTON
       | 
-rorray.c:914: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
-  914 |                 #pragma endregion NEXT BUTTON
+rorray.c:918: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
+  918 |                 #pragma endregion NEXT BUTTON
       | 
-rorray.c:919: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
-  919 |                 #pragma region TITLE
+rorray.c:923: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
+  923 |                 #pragma region TITLE
       | 
-rorray.c:923: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
-  923 |                 #pragma endregion TITLE
+rorray.c:927: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
+  927 |                 #pragma endregion TITLE
       | 
-rorray.c:924: warning: ignoring '#pragma region ERA' [-Wunknown-pragmas]
-  924 |                 #pragma region ERA
+rorray.c:928: warning: ignoring '#pragma region ERA' [-Wunknown-pragmas]
+  928 |                 #pragma region ERA
       | 
-rorray.c:929:31: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  929 |                 if (*pe == 1) sprintf(str, "%s (first era)", TextToUpper(ERA(*pe).name));
+rorray.c:933:31: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  933 |                 if (*pe == 1) sprintf(str, "%s (first era)", TextToUpper(ERA(*pe).name));
       |                               ^~~~~~~
-rorray.c:929:31: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:930:22: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  930 |                 else sprintf(str, "%s (after %s)", TextToUpper((ERA(*pe).name)), ERA(*pe-1).name); // Subsequent TextToUpper(); results should be cached first.
+rorray.c:933:31: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:934:22: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  934 |                 else sprintf(str, "%s (after %s)", TextToUpper((ERA(*pe).name)), ERA(*pe-1).name); // Subsequent TextToUpper(); results should be cached first.
       |                      ^~~~~~~
-rorray.c:930:22: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:949: warning: ignoring '#pragma endregion ERA' [-Wunknown-pragmas]
-  949 |                 #pragma endregion ERA
+rorray.c:934:22: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:953: warning: ignoring '#pragma endregion ERA' [-Wunknown-pragmas]
+  953 |                 #pragma endregion ERA
       | 
-rorray.c:950: warning: ignoring '#pragma region RULES' [-Wunknown-pragmas]
-  950 |                 #pragma region RULES
+rorray.c:954: warning: ignoring '#pragma region RULES' [-Wunknown-pragmas]
+  954 |                 #pragma region RULES
       | 
-rorray.c:966:17: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
-  966 |                 sprintf(str, "%d", (ERA(*pe).trig & 0x0FFF));
+rorray.c:970:17: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+  970 |                 sprintf(str, "%d", (ERA(*pe).trig & 0x0FFF));
       |                 ^~~~~~~
-rorray.c:966:17: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:982:25: warning: unused variable 'letterCount' [-Wunused-variable]
-  982 |                     int letterCount = 1;
+rorray.c:970:17: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:986:25: warning: unused variable 'letterCount' [-Wunused-variable]
+  986 |                     int letterCount = 1;
       |                         ^~~~~~~~~~~
-rorray.c:1009:52: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1009 |                 if ((ERA(*pe).trig & 0x1000) == 0) strcpy(str, "OR");
+rorray.c:1013:52: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1013 |                 if ((ERA(*pe).trig & 0x1000) == 0) strcpy(str, "OR");
       |                                                    ^~~~~~
-rorray.c:1009:52: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1010:22: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1010 |                 else strcpy(str, "AND");
+rorray.c:1013:52: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1014:22: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1014 |                 else strcpy(str, "AND");
       |                      ^~~~~~
-rorray.c:1010:22: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1015:39: warning: operation on '((RoR_EraItem_t *)(rordata + ((sizetype)((RoR_ItemTypeInfo_t *)(rordata + 128))->adr + (sizetype)((unsigned int)*pe * 20) + 4294967276)))->trig' may be undefined [-Wsequence-point]
- 1015 |                         ERA(*pe).trig = BIT_FLIP(ERA(*pe).trig, 12);
-rorray.c:1034:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1034 |                     case 0: {strcpy(str, "NEVER");} break;
-      |                              ^~~~~~
-rorray.c:1034:30: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1035:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1035 |                     case 1: {strcpy(str, "DECK WITH THIS ERA COMES NEXT");} break;
-      |                              ^~~~~~
-rorray.c:1035:30: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1036:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1036 |                     case 5: {strcpy(str, "CARD IS DRAWN FROM DECK WITH THIS ERA");} break;
-      |                              ^~~~~~
-rorray.c:1036:30: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1037:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1037 |                     case 6: {strcpy(str, "CARD WITH THIS ERA IS DRAWN");} break;
-      |                              ^~~~~~
-rorray.c:1037:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1014:22: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1019:39: warning: operation on '((RoR_EraItem_t *)(rordata + ((sizetype)((RoR_ItemTypeInfo_t *)(rordata + 128))->adr + (sizetype)((unsigned int)*pe * 20) + 4294967276)))->trig' may be undefined [-Wsequence-point]
+ 1019 |                         ERA(*pe).trig = BIT_FLIP(ERA(*pe).trig, 12);
 rorray.c:1038:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1038 |                     case 7: {strcpy(str, "CARD WITH THIS ERA IS DRAWN FROM DECK WITH THIS ERA");} break;
+ 1038 |                     case 0: {strcpy(str, "NEVER");} break;
       |                              ^~~~~~
 rorray.c:1038:30: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1092:25: warning: unused variable 'letterCount' [-Wunused-variable]
- 1092 |                     int letterCount = 1;
+rorray.c:1039:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1039 |                     case 1: {strcpy(str, "DECK WITH THIS ERA COMES NEXT");} break;
+      |                              ^~~~~~
+rorray.c:1039:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1040:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1040 |                     case 5: {strcpy(str, "CARD IS DRAWN FROM DECK WITH THIS ERA");} break;
+      |                              ^~~~~~
+rorray.c:1040:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1041:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1041 |                     case 6: {strcpy(str, "CARD WITH THIS ERA IS DRAWN");} break;
+      |                              ^~~~~~
+rorray.c:1041:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1042:30: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1042 |                     case 7: {strcpy(str, "CARD WITH THIS ERA IS DRAWN FROM DECK WITH THIS ERA");} break;
+      |                              ^~~~~~
+rorray.c:1042:30: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1096:25: warning: unused variable 'letterCount' [-Wunused-variable]
+ 1096 |                     int letterCount = 1;
       |                         ^~~~~~~~~~~
-rorray.c:1210: warning: ignoring '#pragma endregion RULES' [-Wunknown-pragmas]
- 1210 |                 #pragma endregion RULES
+rorray.c:1214: warning: ignoring '#pragma endregion RULES' [-Wunknown-pragmas]
+ 1214 |                 #pragma endregion RULES
       | 
-rorray.c:1211: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
- 1211 |                 #pragma region NEXT BUTTON
+rorray.c:1215: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
+ 1215 |                 #pragma region NEXT BUTTON
       | 
-rorray.c:1219:25: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
- 1219 |                         memset(p_TEMP(rordata), 0, TEMPSIZE);
+rorray.c:1223:25: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+ 1223 |                         memset(p_TEMP(rordata), 0, TEMPSIZE);
       |                         ^~~~~~
-rorray.c:1219:25: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:1229: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
- 1229 |                 #pragma endregion NEXT BUTTON
+rorray.c:1223:25: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:1233: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
+ 1233 |                 #pragma endregion NEXT BUTTON
       | 
-rorray.c:953:25: warning: unused variable 'maxLetterCount' [-Wunused-variable]
-  953 |                 uint8_t maxLetterCount;
+rorray.c:957:25: warning: unused variable 'maxLetterCount' [-Wunused-variable]
+  957 |                 uint8_t maxLetterCount;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1234: warning: ignoring '#pragma region PREP' [-Wunknown-pragmas]
- 1234 |                 #pragma region PREP
+rorray.c:1238: warning: ignoring '#pragma region PREP' [-Wunknown-pragmas]
+ 1238 |                 #pragma region PREP
       | 
-rorray.c:1240:39: warning: suggest parentheses around '&&' within '||' [-Wparentheses]
- 1240 |                 for (d = dcnt; d <= 1 && DECK(d).eran != HEADER.eran || DECK(d).type != EraStartSenatorPool; d--);
+rorray.c:1244:39: warning: suggest parentheses around '&&' within '||' [-Wparentheses]
+ 1244 |                 for (d = dcnt; d <= 1 && DECK(d).eran != HEADER.eran || DECK(d).type != EraStartSenatorPool; d--);
       |                                ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-rorray.c:1242:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
- 1242 |                 memset(sat, 0, ITEMCOUNT(rordata, Senator) + 1);  // zero
+rorray.c:1246:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+ 1246 |                 memset(sat, 0, ITEMCOUNT(rordata, Senator) + 1);  // zero
       |                 ^~~~~~
-rorray.c:1242:17: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:1304: warning: ignoring '#pragma endregion PREP' [-Wunknown-pragmas]
- 1304 |                 #pragma endregion PREP
+rorray.c:1246:17: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:1308: warning: ignoring '#pragma endregion PREP' [-Wunknown-pragmas]
+ 1308 |                 #pragma endregion PREP
       | 
-rorray.c:1305: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
- 1305 |                 #pragma region TITLE
+rorray.c:1309: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
+ 1309 |                 #pragma region TITLE
       | 
-rorray.c:1308:34: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1308 |                 if (*stage == 0) sprintf(str, "DEAL %i SENATORS TO EACH FACTION", ERA(HEADER.eran).nsen);
+rorray.c:1312:34: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1312 |                 if (*stage == 0) sprintf(str, "DEAL %i SENATORS TO EACH FACTION", ERA(HEADER.eran).nsen);
       |                                  ^~~~~~~
-rorray.c:1308:34: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1309:22: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1309 |                 else strcpy(str, "DEAL THE EXTRA SENATORS");
+rorray.c:1312:34: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1313:22: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1313 |                 else strcpy(str, "DEAL THE EXTRA SENATORS");
       |                      ^~~~~~
-rorray.c:1309:22: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1311: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
- 1311 |                 #pragma endregion TITLE
+rorray.c:1313:22: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1315: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
+ 1315 |                 #pragma endregion TITLE
       | 
-rorray.c:1312: warning: ignoring '#pragma region SENATORS' [-Wunknown-pragmas]
- 1312 |                 #pragma region SENATORS
+rorray.c:1316: warning: ignoring '#pragma region SENATORS' [-Wunknown-pragmas]
+ 1316 |                 #pragma region SENATORS
       | 
-rorray.c:1366:21: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1366 |                     sprintf(str, "%d", SENATOR(s).idnr);
+rorray.c:1370:21: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1370 |                     sprintf(str, "%d", SENATOR(s).idnr);
       |                     ^~~~~~~
-rorray.c:1366:21: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1380: warning: ignoring '#pragma endregion SENATORS' [-Wunknown-pragmas]
- 1380 |                 #pragma endregion SENATORS
+rorray.c:1370:21: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1384: warning: ignoring '#pragma endregion SENATORS' [-Wunknown-pragmas]
+ 1384 |                 #pragma endregion SENATORS
       | 
-rorray.c:1381: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
- 1381 |                 #pragma region FACTIONS
+rorray.c:1385: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
+ 1385 |                 #pragma region FACTIONS
       | 
-rorray.c:1431:21: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1431 |                     sprintf(str, "%d", FACTION(f).tmil);
+rorray.c:1435:21: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1435 |                     sprintf(str, "%d", FACTION(f).tmil);
       |                     ^~~~~~~
-rorray.c:1431:21: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1471: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
- 1471 |                 #pragma endregion FACTIONS
+rorray.c:1435:21: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1475: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
+ 1475 |                 #pragma endregion FACTIONS
       | 
-rorray.c:1472: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
- 1472 |                 #pragma region NEXT BUTTON
+rorray.c:1476: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
+ 1476 |                 #pragma region NEXT BUTTON
       | 
-rorray.c:1493: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
- 1493 |                 #pragma endregion NEXT BUTTON
+rorray.c:1495: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
+ 1495 |                 #pragma endregion NEXT BUTTON
       | 
-rorray.c:1494: warning: ignoring '#pragma region RANDOM' [-Wunknown-pragmas]
- 1494 |                 #pragma region RANDOM BUTTON
+rorray.c:1496: warning: ignoring '#pragma region RANDOM' [-Wunknown-pragmas]
+ 1496 |                 #pragma region RANDOM BUTTON
       | 
-rorray.c:1513:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1513 |                             strcpy(str, "drag this for random draw");
+rorray.c:1515:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1515 |                             strcpy(str, "drag this for random draw");
       |                             ^~~~~~
-rorray.c:1513:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:1601: warning: ignoring '#pragma endregion RANDOM' [-Wunknown-pragmas]
- 1601 |                 #pragma endregion RANDOM BUTTON
+rorray.c:1515:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:1603: warning: ignoring '#pragma endregion RANDOM' [-Wunknown-pragmas]
+ 1603 |                 #pragma endregion RANDOM BUTTON
       | 
-rorray.c:1602: warning: ignoring '#pragma region SELECTION' [-Wunknown-pragmas]
- 1602 |                 #pragma region SELECTION
+rorray.c:1604: warning: ignoring '#pragma region SELECTION' [-Wunknown-pragmas]
+ 1604 |                 #pragma region SELECTION
       | 
-rorray.c:1613:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1613 |                         sprintf(str, "%d", SENATOR(s).idnr);
+rorray.c:1615:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1615 |                         sprintf(str, "%d", SENATOR(s).idnr);
       |                         ^~~~~~~
-rorray.c:1613:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1627: warning: ignoring '#pragma endregion SELECTION' [-Wunknown-pragmas]
- 1627 |                 #pragma endregion SELECTION
+rorray.c:1615:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1629: warning: ignoring '#pragma endregion SELECTION' [-Wunknown-pragmas]
+ 1629 |                 #pragma endregion SELECTION
       | 
-rorray.c:1628: warning: ignoring '#pragma region FINAL' [-Wunknown-pragmas]
- 1628 |                 #pragma region FINAL
+rorray.c:1630: warning: ignoring '#pragma region FINAL' [-Wunknown-pragmas]
+ 1630 |                 #pragma region FINAL
       | 
-rorray.c:1697:41: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1697 |                                         sprintf(str, "a: %d f: %d i: %d ast: %d mul: %d w: %d", a, f, i, ast, mul, factweight);
+rorray.c:1699:41: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1699 |                                         sprintf(str, "a: %d f: %d i: %d ast: %d mul: %d w: %d", a, f, i, ast, mul, factweight);
       |                                         ^~~~~~~
-rorray.c:1697:41: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1709:37: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
- 1709 |                                     memcpy(&faction, &FACTION(fa), sizeof(RoR_FactionItem_t));
+rorray.c:1699:41: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1711:37: warning: incompatible implicit declaration of built-in function 'memcpy' [-Wbuiltin-declaration-mismatch]
+ 1711 |                                     memcpy(&faction, &FACTION(fa), sizeof(RoR_FactionItem_t));
       |                                     ^~~~~~
-rorray.c:1709:37: note: include '<string.h>' or provide a declaration of 'memcpy'
-rorray.c:1741: warning: ignoring '#pragma endregion FINAL' [-Wunknown-pragmas]
- 1741 |                 #pragma endregion FINAL
+rorray.c:1711:37: note: include '<string.h>' or provide a declaration of 'memcpy'
+rorray.c:1745: warning: ignoring '#pragma endregion FINAL' [-Wunknown-pragmas]
+ 1745 |                 #pragma endregion FINAL
       | 
-rorray.c:1746: warning: ignoring '#pragma region PREP' [-Wunknown-pragmas]
- 1746 |                 #pragma region PREP
+rorray.c:1750: warning: ignoring '#pragma region PREP' [-Wunknown-pragmas]
+ 1750 |                 #pragma region PREP
       | 
-rorray.c:1752:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
- 1752 |                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
+rorray.c:1756:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+ 1756 |                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
       |                 ^~~~~~
-rorray.c:1752:17: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:1840: warning: ignoring '#pragma endregion PREP' [-Wunknown-pragmas]
- 1840 |                 #pragma endregion PREP
+rorray.c:1756:17: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:1844: warning: ignoring '#pragma endregion PREP' [-Wunknown-pragmas]
+ 1844 |                 #pragma endregion PREP
       | 
-rorray.c:1841: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
- 1841 |                 #pragma region TITLE
+rorray.c:1845: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
+ 1845 |                 #pragma region TITLE
       | 
-rorray.c:1845: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
- 1845 |                 #pragma endregion TITLE
+rorray.c:1849: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
+ 1849 |                 #pragma endregion TITLE
       | 
-rorray.c:1846: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
- 1846 |                 #pragma region FACTIONS
+rorray.c:1850: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
+ 1850 |                 #pragma region FACTIONS
       | 
-rorray.c:1930:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 1930 |                         sprintf(str, "%d", SENATOR(s).idnr);
+rorray.c:1934:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 1934 |                         sprintf(str, "%d", SENATOR(s).idnr);
       |                         ^~~~~~~
-rorray.c:1930:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:1952: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
- 1952 |                 #pragma endregion FACTIONS
+rorray.c:1934:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:1956: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
+ 1956 |                 #pragma endregion FACTIONS
       | 
-rorray.c:1953: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
- 1953 |                 #pragma region NEXT BUTTON
+rorray.c:1957: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
+ 1957 |                 #pragma region NEXT BUTTON
       | 
-rorray.c:1973: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
- 1973 |                 #pragma endregion NEXT BUTTON
+rorray.c:1975: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
+ 1975 |                 #pragma endregion NEXT BUTTON
       | 
-rorray.c:1974: warning: ignoring '#pragma region RANDOM' [-Wunknown-pragmas]
- 1974 |                 #pragma region RANDOM BUTTON
+rorray.c:1976: warning: ignoring '#pragma region RANDOM' [-Wunknown-pragmas]
+ 1976 |                 #pragma region RANDOM BUTTON
       | 
-rorray.c:1993:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 1993 |                             strcpy(str, "drag this for random draw");
+rorray.c:1995:29: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 1995 |                             strcpy(str, "drag this for random draw");
       |                             ^~~~~~
-rorray.c:1993:29: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:2082: warning: ignoring '#pragma endregion RANDOM' [-Wunknown-pragmas]
- 2082 |                 #pragma endregion RANDOM BUTTON
+rorray.c:1995:29: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:2084: warning: ignoring '#pragma endregion RANDOM' [-Wunknown-pragmas]
+ 2084 |                 #pragma endregion RANDOM BUTTON
       | 
-rorray.c:2087: warning: ignoring '#pragma region PREP' [-Wunknown-pragmas]
- 2087 |                 #pragma region PREP
+rorray.c:2085: warning: ignoring '#pragma region FINAL' [-Wunknown-pragmas]
+ 2085 |                 #pragma region FINAL
       | 
-rorray.c:2093:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
- 2093 |                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
+rorray.c:2088: warning: ignoring '#pragma endregion FINAL' [-Wunknown-pragmas]
+ 2088 |                 #pragma endregion FINAL
+      | 
+rorray.c:2093: warning: ignoring '#pragma region PREP' [-Wunknown-pragmas]
+ 2093 |                 #pragma region PREP
+      | 
+rorray.c:2099:17: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+ 2099 |                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
       |                 ^~~~~~
-rorray.c:2093:17: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:2144: warning: ignoring '#pragma endregion PREP' [-Wunknown-pragmas]
- 2144 |                 #pragma endregion PREP
+rorray.c:2099:17: note: include '<string.h>' or provide a declaration of 'memset'
+rorray.c:2150: warning: ignoring '#pragma endregion PREP' [-Wunknown-pragmas]
+ 2150 |                 #pragma endregion PREP
       | 
-rorray.c:2145: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
- 2145 |                 #pragma region TITLE
+rorray.c:2151: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
+ 2151 |                 #pragma region TITLE
       | 
-rorray.c:2149: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
- 2149 |                 #pragma endregion TITLE
+rorray.c:2155: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
+ 2155 |                 #pragma endregion TITLE
       | 
-rorray.c:2150: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
- 2150 |                 #pragma region FACTIONS
+rorray.c:2156: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
+ 2156 |                 #pragma region FACTIONS
       | 
-rorray.c:2198:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 2198 |                         sprintf(str, "%d", SENATOR(s).idnr);
+rorray.c:2204:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 2204 |                         sprintf(str, "%d", SENATOR(s).idnr);
       |                         ^~~~~~~
-rorray.c:2198:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:2220: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
- 2220 |                 #pragma endregion FACTIONS
+rorray.c:2204:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:2226: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
+ 2226 |                 #pragma endregion FACTIONS
       | 
-rorray.c:2221: warning: ignoring '#pragma region STATESMEN' [-Wunknown-pragmas]
- 2221 |                 #pragma region STATESMEN
+rorray.c:2227: warning: ignoring '#pragma region STATESMEN' [-Wunknown-pragmas]
+ 2227 |                 #pragma region STATESMEN
       | 
-rorray.c:2256:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 2256 |                         sprintf(str, "%d", STATESMAN(m).idnr);
+rorray.c:2262:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 2262 |                         sprintf(str, "%d", STATESMAN(m).idnr);
       |                         ^~~~~~~
-rorray.c:2256:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:2274:34: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 2274 |                             else strcpy(str, "d6");
+rorray.c:2262:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:2280:34: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 2280 |                             else strcpy(str, "d6");
       |                                  ^~~~~~
-rorray.c:2274:34: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:2294: warning: ignoring '#pragma endregion STATESMEN' [-Wunknown-pragmas]
- 2294 |                 #pragma endregion STATESMEN
+rorray.c:2280:34: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:2300: warning: ignoring '#pragma endregion STATESMEN' [-Wunknown-pragmas]
+ 2300 |                 #pragma endregion STATESMEN
       | 
-rorray.c:2295: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
- 2295 |                 #pragma region NEXT BUTTON
+rorray.c:2301: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
+ 2301 |                 #pragma region NEXT BUTTON
       | 
-rorray.c:2318: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
- 2318 |                 #pragma endregion NEXT BUTTON
+rorray.c:2322: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
+ 2322 |                 #pragma endregion NEXT BUTTON
       | 
-rorray.c:2090:25: warning: variable 'src' set but not used [-Wunused-but-set-variable]
- 2090 |                 uint8_t src = 0;
+rorray.c:2323: warning: ignoring '#pragma region FINAL' [-Wunknown-pragmas]
+ 2323 |                 #pragma region FINAL
+      | 
+rorray.c:2326: warning: ignoring '#pragma endregion FINAL' [-Wunknown-pragmas]
+ 2326 |                 #pragma endregion FINAL
+      | 
+rorray.c:2096:25: warning: variable 'src' set but not used [-Wunused-but-set-variable]
+ 2096 |                 uint8_t src = 0;
       |                         ^~~
 rorray.c:525:13: warning: unused variable 'font3Ex' [-Wunused-variable]
   525 |     Vector2 font3Ex = MeasureTextEx(font1, "x", font3.baseSize, 0);
@@ -474,38 +492,38 @@ rorray.c:477:10: warning: unused variable 'debugstr' [-Wunused-variable]
 rorray.c:476:9: warning: unused variable 'debugvar' [-Wunused-variable]
   476 |     int debugvar = 0;
       |         ^~~~~~~~
-rorray.c:2006:62: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
- 2006 |                         r_button.y = mouse.y - selectedvector.y;
+rorray.c:2008:62: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+ 2008 |                         r_button.y = mouse.y - selectedvector.y;
       |                                                ~~~~~~~~~~~~~~^~
-rorray.c:1847:25: note: 'selectedvector.y' was declared here
- 1847 |                 Vector2 selectedvector;
+rorray.c:1851:25: note: 'selectedvector.y' was declared here
+ 1851 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:2005:62: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
- 2005 |                         r_button.x = mouse.x - selectedvector.x;
+rorray.c:2007:62: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+ 2007 |                         r_button.x = mouse.x - selectedvector.x;
       |                                                ~~~~~~~~~~~~~~^~
-rorray.c:1847:25: note: 'selectedvector.x' was declared here
- 1847 |                 Vector2 selectedvector;
+rorray.c:1851:25: note: 'selectedvector.x' was declared here
+ 1851 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1611:63: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
- 1611 |                         r_senator.y = mouse.y - selectedvector.y;
+rorray.c:1613:63: warning: 'selectedvector.y' may be used uninitialized [-Wmaybe-uninitialized]
+ 1613 |                         r_senator.y = mouse.y - selectedvector.y;
       |                                                 ~~~~~~~~~~~~~~^~
-rorray.c:1301:25: note: 'selectedvector.y' was declared here
- 1301 |                 Vector2 selectedvector;
+rorray.c:1305:25: note: 'selectedvector.y' was declared here
+ 1305 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1610:63: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
- 1610 |                         r_senator.x = mouse.x - selectedvector.x;
+rorray.c:1612:63: warning: 'selectedvector.x' may be used uninitialized [-Wmaybe-uninitialized]
+ 1612 |                         r_senator.x = mouse.x - selectedvector.x;
       |                                                 ~~~~~~~~~~~~~~^~
-rorray.c:1301:25: note: 'selectedvector.x' was declared here
- 1301 |                 Vector2 selectedvector;
+rorray.c:1305:25: note: 'selectedvector.x' was declared here
+ 1305 |                 Vector2 selectedvector;
       |                         ^~~~~~~~~~~~~~
-rorray.c:1792:28: warning: 'maxsenaweight' may be used uninitialized [-Wmaybe-uninitialized]
- 1792 |                         if (maxsenaweight < senaweight)
+rorray.c:1796:28: warning: 'maxsenaweight' may be used uninitialized [-Wmaybe-uninitialized]
+ 1796 |                         if (maxsenaweight < senaweight)
       |                            ^
-rorray.c:1781:29: note: 'maxsenaweight' was declared here
- 1781 |                     int32_t maxsenaweight;
+rorray.c:1785:29: note: 'maxsenaweight' was declared here
+ 1785 |                     int32_t maxsenaweight;
       |                             ^~~~~~~~~~~~~
-rorray.c:2328:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
- 2328 |     UnloadFileData(rordata);      // Free memory from loaded file
+rorray.c:2336:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
+ 2336 |     UnloadFileData(rordata);      // Free memory from loaded file
       |     ^~~~~~~~~~~~~~~~~~~~~~~
 rorray.c:495:20: note: 'rordata' was declared here
   495 |     unsigned char *rordata;

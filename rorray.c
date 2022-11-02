@@ -584,8 +584,10 @@ int main(void)
                 // PREP
                 static bool searched = false;
                 static int count = 0;
+                bool filesalloc = false;
                 static FilePathList files;
                 static char **descriptions;
+                bool descriptionsalloc = false;
                 static unsigned int readLength = sizeof(RoR_Header_t);
                 if (IsFileDropped())
                 {
@@ -615,8 +617,10 @@ int main(void)
                 {
                     if (!searched)
                     {
+                        filesalloc = true;
                         files = LoadDirectoryFiles(".");
                         descriptions = (char**)MemAlloc(files.count * sizeof(char *));
+                        descriptionsalloc = true;
                         for(int i=0; i<files.count; i++)
                         {
                             if (IsPathFile(files.paths[i]) == false) continue;
@@ -653,10 +657,10 @@ int main(void)
                                 MemFree(header);
                                 header = p_HEADER(rordata);
                                 rordataLoaded = true;
-                                UnloadDirectoryFiles(files);
+                                searched = false;
                                 for (int j=0; j<count; j++ ) MemFree(descriptions[count]);
                                 MemFree(descriptions);
-                                searched = false;
+                                UnloadDirectoryFiles(files);
                                 DrawRectangleRec(r, COLOR_CLICKED);
                             }
                             else DrawRectangleRec(r, COLOR_MOUSEHOVER_CLICKABLE);
@@ -1480,8 +1484,6 @@ int main(void)
                         else header->phse = PhSelectFactionLeaders;
                         memset(p_TEMP(rordata), 0, TEMPSIZE);
                         save(rordata, rordataLength);
-                        MemFree(sat);
-                        MemFree(factsenacnt);
                         selected = -1;
                         framesCounter = 0;
                     }
@@ -1738,6 +1740,8 @@ int main(void)
                     *change = 0;
                     save(rordata, rordataLength);
                 }
+                MemFree(sat);
+                MemFree(factsenacnt);
                 #pragma endregion FINAL
             } break;
 
@@ -1960,8 +1964,6 @@ int main(void)
                         if ((ERA(HEADER.eran).terc & 0x05) == 0x01) header->phse = PhSelectFactionLeaders;
                         else header->phse = PhInitialFactionPhase;
                         save(rordata, rordataLength);
-                        MemFree(sat);
-                        MemFree(factsenacnt);
                         selected = -1;
                         framesCounter = 0;
                     }
@@ -2080,6 +2082,10 @@ int main(void)
                 }
                 else if (selected == -501000) selected = -1;
                 #pragma endregion RANDOM BUTTON
+                #pragma region FINAL
+                MemFree(sat);
+                MemFree(factsenacnt);
+                #pragma endregion FINAL
             } break;
 
             case PhSelectFactionLeaders:
@@ -2304,8 +2310,6 @@ int main(void)
                             if ((ERA(HEADER.eran).terc & 0x85) == 0x05) header->phse = PhTemporaryRomeConsul;
                             else header->phse = PhInitialFactionPhase;
                             save(rordata, rordataLength);
-                            MemFree(sat);
-                            MemFree(factsenacnt);
                             selected = -1;
                             framesCounter = 0;
                         }
@@ -2316,6 +2320,10 @@ int main(void)
                     DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
                 }
                 #pragma endregion NEXT BUTTON
+                #pragma region FINAL
+                MemFree(sat);
+                MemFree(factsenacnt);
+                #pragma endregion FINAL
             } break;
         }
 
