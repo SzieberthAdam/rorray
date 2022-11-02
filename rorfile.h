@@ -140,8 +140,8 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
                             //      bit1: Loyalty adds to senator weight
                             //      bit0: Influence adds to senator weight
     uint8_t     xsen;       //  Number of extra senators to deal to the faction at era start
-    uint8_t     ledr;       //  Faction Leader assignment (highest weight value wins it; tie-breaker is random)
-                            //      bit0: automatic(1) / Owner or Dominant Player decides (0)
+    uint8_t     ledr;       //  Faction Leader assignment (highest weight value wins it; tie-breaker is the lower ID)
+                            //      bit0: automatic(1: weight=1) / Owner or Dominant Player decides (0)
                             //      bit1=1: Military to weight value
                             //      bit2=1: Oratory to weight value
                             //      bit3=1: Loyalty to weight value

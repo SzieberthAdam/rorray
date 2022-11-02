@@ -402,38 +402,44 @@ rorray.c:2093:17: warning: incompatible implicit declaration of built-in functio
  2093 |                 memset(factsenacnt, 0, ITEMCOUNT(rordata, Faction) + 1);  // zero
       |                 ^~~~~~
 rorray.c:2093:17: note: include '<string.h>' or provide a declaration of 'memset'
-rorray.c:2104: warning: ignoring '#pragma endregion PREP' [-Wunknown-pragmas]
- 2104 |                 #pragma endregion PREP
+rorray.c:2144: warning: ignoring '#pragma endregion PREP' [-Wunknown-pragmas]
+ 2144 |                 #pragma endregion PREP
       | 
-rorray.c:2105: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
- 2105 |                 #pragma region TITLE
+rorray.c:2145: warning: ignoring '#pragma region TITLE' [-Wunknown-pragmas]
+ 2145 |                 #pragma region TITLE
       | 
-rorray.c:2109: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
- 2109 |                 #pragma endregion TITLE
+rorray.c:2149: warning: ignoring '#pragma endregion TITLE' [-Wunknown-pragmas]
+ 2149 |                 #pragma endregion TITLE
       | 
-rorray.c:2110: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
- 2110 |                 #pragma region FACTIONS
+rorray.c:2150: warning: ignoring '#pragma region FACTIONS' [-Wunknown-pragmas]
+ 2150 |                 #pragma region FACTIONS
       | 
-rorray.c:2158:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 2158 |                         sprintf(str, "%d", SENATOR(s).idnr);
+rorray.c:2198:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 2198 |                         sprintf(str, "%d", SENATOR(s).idnr);
       |                         ^~~~~~~
-rorray.c:2158:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:2180: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
- 2180 |                 #pragma endregion FACTIONS
+rorray.c:2198:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:2220: warning: ignoring '#pragma endregion FACTIONS' [-Wunknown-pragmas]
+ 2220 |                 #pragma endregion FACTIONS
       | 
-rorray.c:2181: warning: ignoring '#pragma region STATESMEN' [-Wunknown-pragmas]
- 2181 |                 #pragma region STATESMEN
+rorray.c:2221: warning: ignoring '#pragma region STATESMEN' [-Wunknown-pragmas]
+ 2221 |                 #pragma region STATESMEN
       | 
-rorray.c:2216:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
- 2216 |                         sprintf(str, "%d", STATESMAN(m).idnr);
+rorray.c:2256:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+ 2256 |                         sprintf(str, "%d", STATESMAN(m).idnr);
       |                         ^~~~~~~
-rorray.c:2216:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
-rorray.c:2234:34: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
- 2234 |                             else strcpy(str, "d6");
+rorray.c:2256:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+rorray.c:2274:34: warning: incompatible implicit declaration of built-in function 'strcpy' [-Wbuiltin-declaration-mismatch]
+ 2274 |                             else strcpy(str, "d6");
       |                                  ^~~~~~
-rorray.c:2234:34: note: include '<string.h>' or provide a declaration of 'strcpy'
-rorray.c:2254: warning: ignoring '#pragma endregion STATESMEN' [-Wunknown-pragmas]
- 2254 |                 #pragma endregion STATESMEN
+rorray.c:2274:34: note: include '<string.h>' or provide a declaration of 'strcpy'
+rorray.c:2294: warning: ignoring '#pragma endregion STATESMEN' [-Wunknown-pragmas]
+ 2294 |                 #pragma endregion STATESMEN
+      | 
+rorray.c:2295: warning: ignoring '#pragma region NEXT' [-Wunknown-pragmas]
+ 2295 |                 #pragma region NEXT BUTTON
+      | 
+rorray.c:2318: warning: ignoring '#pragma endregion NEXT' [-Wunknown-pragmas]
+ 2318 |                 #pragma endregion NEXT BUTTON
       | 
 rorray.c:2090:25: warning: variable 'src' set but not used [-Wunused-but-set-variable]
  2090 |                 uint8_t src = 0;
@@ -498,8 +504,8 @@ rorray.c:1792:28: warning: 'maxsenaweight' may be used uninitialized [-Wmaybe-un
 rorray.c:1781:29: note: 'maxsenaweight' was declared here
  1781 |                     int32_t maxsenaweight;
       |                             ^~~~~~~~~~~~~
-rorray.c:2264:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
- 2264 |     UnloadFileData(rordata);      // Free memory from loaded file
+rorray.c:2328:5: warning: 'rordata' may be used uninitialized [-Wmaybe-uninitialized]
+ 2328 |     UnloadFileData(rordata);      // Free memory from loaded file
       |     ^~~~~~~~~~~~~~~~~~~~~~~
 rorray.c:495:20: note: 'rordata' was declared here
   495 |     unsigned char *rordata;

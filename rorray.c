@@ -2101,6 +2101,46 @@ int main(void)
                     }
                     else sat[s-1] = 0;
                 }
+                bool resolved = true;
+                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).type & FactionUsed) != 0); f++)
+                {
+                    uint8_t ledr = FACTION(f).ledr;
+                    if ((FACTION(f).leit == 0) || (FACTION(f).lenr == 0))
+                    {
+                        if (0 < ledr)
+                        {
+                            int32_t maxweight = -2147483648;
+                            uint8_t s_pick = 0;
+                            for(uint8_t s = 1; s <= ITEMCOUNT(rordata, Senator); s++)
+                            {
+                                if ((sat[s-1] & 0x3F) != f) continue;  // not in faction
+                                // TODO: aligned statesman
+                                int32_t weight = 0xFF - SENATOR(s).idnr;
+                                if (0 < (ledr & 0x02)) weight += 0xFFFF * SENATOR(s).mil1;
+                                if (0 < (ledr & 0x04)) weight += 0xFFFF * SENATOR(s).ora1;
+                                if (0 < (ledr & 0x08)) weight += 0xFFFF * SENATOR(s).loy1;
+                                if (0 < (ledr & 0x10)) weight += 0xFFFF * SENATOR(s).inf1;
+                                if (0 < (ledr & 0x20)) weight += 0xFFFF * SENATOR(s).pop1;
+                                //if (0 < (ledr & 0x40)) weight += SENATOR(s).knig;
+                                //if (0 < (ledr & 0x80)) weight += SENATOR(s).tale;
+                                if (maxweight < weight)
+                                {
+                                    s_pick = s;
+                                    maxweight = weight;
+                                }
+                            }
+                            if (0 < s_pick)
+                            {
+                                uint8_t s = s_pick;  // for code coherence
+                                FACTION(f).leit = SenatorItem;
+                                FACTION(f).lenr = s;
+                                save(rordata, rordataLength);
+                            }
+                            else resolved = false;
+                        }
+                        else resolved = false;
+                    }
+                }
                 #pragma endregion PREP
                 #pragma region TITLE
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
@@ -2252,6 +2292,30 @@ int main(void)
                     r_senator.y += 1 * (Font2RectH + PAD) + 2 * UNIT;
                 }
                 #pragma endregion STATESMEN
+                #pragma region NEXT BUTTON
+                if (resolved)
+                {
+                    Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+                    if (selected == -1 && CheckCollisionPointRec(mouse, r_button))
+                    {
+                        if (currentGesture == GESTURE_TAP)
+                        {
+                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
+                            if ((ERA(HEADER.eran).terc & 0x85) == 0x05) header->phse = PhTemporaryRomeConsul;
+                            else header->phse = PhInitialFactionPhase;
+                            save(rordata, rordataLength);
+                            MemFree(sat);
+                            MemFree(factsenacnt);
+                            selected = -1;
+                            framesCounter = 0;
+                        }
+                        else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                    }
+                    else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                    DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                    DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                }
+                #pragma endregion NEXT BUTTON
             } break;
         }
 
