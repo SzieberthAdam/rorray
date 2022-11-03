@@ -86,7 +86,9 @@ enum ItemType {
     OfficeItem,
     MagistrateItem,
     SenatorItem,
-    StatesmanItem
+    StatesmanItem,
+    ConcessionItem,
+    IntrigueItem
 };
 
 
@@ -382,6 +384,25 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 } RoR_StatesmanItem_t;
 
 
+typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
+    char        name[32];   //  Name
+    uint8_t     eran;       //  Era number
+    uint8_t     type;       //  Type
+    uint16_t    loit;       //  Location ItemType (0: Null / Deck / Discard / Forum (In Rome) / Repopulation Rome / Province / War)
+    uint16_t    lonr;       //  Location ElemNr
+} RoR_ConcessionItem_t;
+
+
+typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian"))) {
+    char        name[32];   //  Name
+    char        note[32];   //  Note
+    uint8_t     eran;       //  Era number
+    uint8_t     type;       //  Type
+    uint16_t    loit;       //  Location ItemType (0: Null / Deck / Discard / Forum (In Rome) / Repopulation Rome / Province / War)
+    uint16_t    lonr;       //  Location ElemNr
+} RoR_IntrigueItem_t;
+
+
 #define p_HEADER(rordata)  ((RoR_Header_t*)(rordata))
 #define p_TEMP(rordata)  ((void*)(rordata+sizeof(RoR_Header_t)))
 #define p_ITEMTYPEINFO(rordata)  ((RoR_ItemTypeInfo_t*)(rordata+sizeof(RoR_Header_t)+TEMPSIZE))
@@ -398,6 +419,8 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
 #define MAGISTRATE(n)   (p_ITEM(rordata, Magistrate )[n-1])
 #define SENATOR(n)      (p_ITEM(rordata, Senator    )[n-1])
 #define STATESMAN(n)    (p_ITEM(rordata, Statesman  )[n-1])
+#define CONCESSION(n)   (p_ITEM(rordata, Concession )[n-1])
+#define INTRIGUE(n)     (p_ITEM(rordata, Intrigue   )[n-1])
 
 
 #endif  /* #ifndef __DEFINE_RORHFILE__ */

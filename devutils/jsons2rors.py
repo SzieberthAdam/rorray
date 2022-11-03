@@ -15,6 +15,8 @@ ORDER = [
     "MagistrateItem",
     "SenatorItem",
     "StatesmanItem",
+    "ConcessionItem",
+    "IntrigueItem",
 ]
 
 TEMPSIZE = 12
