@@ -44,6 +44,7 @@ enum Phase {
     PhPickScenario          = (SetupPhase << 28)        + 300000,
     PhTakeFactions          = (SetupPhase << 28)        + 301200,
     PhDealSenators          = (SetupPhase << 28)        + 301420,
+    PhDealFactionCards      = (SetupPhase << 28)        + 301430,
     PhTemporaryRomeConsul   = (SetupPhase << 28)        + 301600,
     PhSelectFactionLeaders  = (SetupPhase << 28)        + 301700,
     PhInitialFactionPhase   = (SetupPhase << 28)        + 301900
@@ -99,13 +100,15 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
                             //      bit13..15=6 : card with this era is drawn [1 card (with this=1 era) drawn from deck with any=0 era: 110]
                             //      bit13..15=7 : card with this era is drawn from deck with this era [1 card (with this=1 era) drawn from deck with this=1 era: 111]
                             //  NOTE(Adam): for ERA end card, use value of 4096 (TURN 0 AND NEVER)
-    uint8_t     nsen;       //  number of senators per faction to deal at era start
+    uint8_t     nsen;       //  minimum number of senators to ensure at era start
+    uint8_t     ncar;       //  minimum number of faction cards to ensure at era start
     uint8_t     terc;       //  temporary rome consul protocol at era start
                             //      bit0: no TERC (0) / TERC (1)
                             //      bit1: random draw (0) / lowest senator ID (1)
                             //      bit2: before(0) / after(1) faction leaders
                             //      bit3: repeat if dies in first mortality phase (1)
                             //      bit7: not resolved (0) / resolved (1)
+    char        pad;
 } RoR_EraItem_t;
 
 
@@ -141,7 +144,7 @@ typedef struct __attribute__((__packed__, __scalar_storage_order__("big-endian")
                             //      bit0: Influence adds to senator weight
     uint8_t     xsen;       //  Number of extra senators to deal to the faction at era start
     uint8_t     ledr;       //  Faction Leader assignment (highest weight value wins it; tie-breaker is the lower ID)
-                            //      bit0: automatic(1: weight=1) / Owner or Dominant Player decides (0)
+                            //      bit0: automatic(1) / Owner or Dominant Player decides (0)
                             //      bit1=1: Military to weight value
                             //      bit2=1: Oratory to weight value
                             //      bit3=1: Loyalty to weight value

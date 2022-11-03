@@ -471,7 +471,7 @@ bool save(rordata, length)
 #pragma endregion preamb
 
 int main(void)
-{
+    {
     SetTraceLogLevel(LOG_DEBUG); // TODO: DEBUG
     int debugvar = 0;
     char debugstr[256][256] = {0};
@@ -640,7 +640,7 @@ int main(void)
                     DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                     DrawTitle("SCENARIO", r_title, COLOR_TITLETEXT, TextLeft);
                     Rectangle r_subtitle ={r_title.x, r_title.y + r_title.height + PAD + 1 * UNIT, r_title.width, Font2RectH};
-                    DrawFont2("NOTE: Drag & drop a .ror file onto this window to load", r_subtitle, COLOR_SUBTITLETEXT, TextLeft, ((Vector2){Font3PaddingX + 1* UNIT, 0}));
+                    DrawFont2("HINT: Drag & drop a .ror file onto this window to load", r_subtitle, COLOR_SUBTITLETEXT, TextLeft, ((Vector2){Font3PaddingX + 1* UNIT, 0}));
                     // LIST
                     Rectangle r_centerlistelem = {0, 0, 60 * Font2HUnit, Font2RectH};
                     r_centerlistelem.x = (uint16_t)(UNITCLAMP((screenWidth - r_centerlistelem.width) / 2));
@@ -680,6 +680,12 @@ int main(void)
                 Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
                 DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
                 DrawTitle("NAME THE PLAYING FACTIONS OR DELETE NAMES FOR EXCLUSION", r_title, COLOR_TITLETEXT, TextLeft);
+                Rectangle r_subtitle ={r_title.x, r_title.y + r_title.height + PAD + 1 * UNIT, r_title.width, Font2RectH};
+                DrawFont2("HINT: Hit Delete key to clear a name", r_subtitle, COLOR_SUBTITLETEXT, TextLeft, ((Vector2){Font3PaddingX + 1* UNIT, 0}));
+                r_subtitle.y += (Font2RectH + PAD);
+                DrawFont2("HINT: Delete all faction names but 1 for a Solitaire game", r_subtitle, COLOR_SUBTITLETEXT, TextLeft, ((Vector2){Font3PaddingX + 1* UNIT, 0}));
+                r_subtitle.y += (Font2RectH + PAD);
+                DrawFont2("HINT: Delete all faction names but 2 for a Two Player Rules game", r_subtitle, COLOR_SUBTITLETEXT, TextLeft, ((Vector2){Font3PaddingX + 1* UNIT, 0}));
                 #pragma endregion TITLE
                 #pragma region FACTIONS
                 int factclicked = -1;
@@ -709,7 +715,30 @@ int main(void)
                     {
                         int letterCount = strlen(str);
                         DrawRectangleRec(r, COLOR_MOUSEHOVER_EDITABLE);
-                        int key = GetCharPressed();
+                        int key = GetKeyPressed();
+                        while (key > 0)
+                        {
+                            switch (key)
+                            {
+                                case KEY_BACKSPACE: {
+                                    if (0 < letterCount)
+                                    {
+                                        letterCount--;
+                                        (FACTION(f).name)[letterCount] = '\0';
+                                    }
+                                } break;
+
+                                case KEY_DELETE: {
+                                    while (0 < letterCount)
+                                    {
+                                        letterCount--;
+                                        (FACTION(f).name)[letterCount] = '\0';
+                                    }
+                                } break;
+                            }
+                            key = GetKeyPressed();  // Check next key in the queue
+                        }
+                        key = GetCharPressed();
                         while (key > 0)
                         {
                             if
@@ -729,13 +758,23 @@ int main(void)
                                 (FACTION(f).name)[letterCount+1] = '\0'; // Add null terminator at the end of the string.
                                 letterCount++;
                             }
+                            else
+                            {
+                                switch (key)
+                                {
+                                    case KEY_BACKSPACE: {
+                                        letterCount--;
+                                        if (letterCount < 0) letterCount = 0;
+                                        (FACTION(f).name)[letterCount] = '\0';
+                                    } break;
+
+                                    case KEY_DELETE: {
+                                        (FACTION(f).name)[letterCount] = '\0';
+                                        letterCount--;
+                                    } break;
+                                }
+                            }
                             key = GetCharPressed();  // Check next character in the queue
-                        }
-                        if (IsKeyPressed(KEY_BACKSPACE))
-                        {
-                            letterCount--;
-                            if (letterCount < 0) letterCount = 0;
-                            (FACTION(f).name)[letterCount] = '\0';
                         }
                         if ((letterCount <= maxLetterCount) && (((framesCounter/10)%2) == 0))
                         {
@@ -761,76 +800,85 @@ int main(void)
                 #pragma endregion FACTIONS
                 #pragma region NEXT BUTTON
                 // NEXT BUTTON
-                Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
-                if (CheckCollisionPointRec(mouse, r_button))
+                uint8_t pcnt = 0;
+                uint8_t f_lastp = 0;
+                for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++)
                 {
-                    if (currentGesture == GESTURE_TAP)
+                    if ((FACTION(f).name[0] != '\0') && ((FACTION(f).type & FactionNeutral) == 0))
                     {
-                        DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
-                        uint8_t pcnt = 0;
-                        for (uint8_t f = 1; f <= ITEMCOUNT(rordata, Faction); f++) if ((FACTION(f).name[0] != '\0') && ((FACTION(f).type & FactionNeutral) == 0)) pcnt++;
-                        uint8_t assign = 0;
-                        switch (pcnt)
-                        {
-                            case 0: break;
-                            case 1: assign = SOLITAIRE_FCNT - pcnt; // fallthrough
-                            case 2: assign = TWOPLAYERS_FCNT - pcnt; // fallthrough
-                            default:
-                            {
-                                // assign neutral factions
-                                for (uint8_t a = 1; a <= assign; a++)
-                                {
-                                    uint8_t f;
-                                    for (f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).name[0] != '\0') || ((FACTION(f).type & FactionNeutral) != 0)); f++);
-                                    uint8_t fa;
-                                    for (fa = 1; (fa < (ITEMCOUNT(rordata, Faction)) && !(((FACTION(fa).type & FactionNeutral) != 0) && (FACTION(fa).asor == a)) ); fa++);
-                                    memcpy(&FACTION(f), &FACTION(fa), sizeof(RoR_FactionItem_t));  // copy
-                                    FACTION(f).type = FactionUsed | FactionNeutral;
-                                }
-                                // set type flags
-                                for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)); f++)
-                                {
-                                    if (FACTION(f).type == FactionNeutral) FACTION(f).type = FactionSet | FactionNeutral;
-                                    else if ((FACTION(f).type & FactionNeutral) == 0)
-                                    {
-                                        if (FACTION(f).name[0] != '\0') FACTION(f).type = FactionSet | FactionUsed;
-                                        else FACTION(f).type = FactionSet;
-                                    }
-                                    // note that we skip the already assigned Neutrals which has the FActionUsed flag set
-                                }
-                                // eliminate gaps
-                                bool done = false;
-                                while (!done)
-                                {
-                                    uint8_t ffirstunused;
-                                    for (ffirstunused = 1; (ffirstunused <= ITEMCOUNT(rordata, Faction)) && ((FACTION(ffirstunused).type & FactionUsed) != 0); ffirstunused++);
-                                    uint8_t fnextused;
-                                    for (fnextused = ffirstunused + 1; (fnextused <= ITEMCOUNT(rordata, Faction)) &&((FACTION(fnextused).type & FactionUsed) == 0); fnextused++);
-                                    if (fnextused <= ITEMCOUNT(rordata, Faction))
-                                    {
-                                        RoR_FactionItem_t faction;
-                                        memcpy(&faction, &FACTION(fnextused), sizeof(RoR_FactionItem_t));
-                                        memcpy(&FACTION(fnextused), &FACTION(ffirstunused), sizeof(RoR_FactionItem_t));
-                                        memcpy(&FACTION(ffirstunused), &faction, sizeof(RoR_FactionItem_t));
-                                    }
-                                    else done = true;
-                                }
-                            }
-                        }
-                        selected = -1;
-                        framesCounter = 0;
-                        randval = 0;
-                        randbitreq = -1;
-                        header->phse = PhSetGamename;
-                    }
-                    else
-                    {
-                        DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                        pcnt++;
+                        f_lastp = f;
                     }
                 }
-                else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
-                DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
-                DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                if (0 < pcnt)
+                {
+                    Rectangle r_button = {screenWidth - 4 * UNIT - 4 * Font3HUnit, 2 * UNIT, UNITCLAMP(4 * Font3HUnit), TITLEHEIGHT - 4 * UNIT};
+                    if (CheckCollisionPointRec(mouse, r_button))
+                    {
+                        if (currentGesture == GESTURE_TAP)
+                        {
+                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_CLICKED);
+                            uint8_t assign = 0;
+                            switch (pcnt)
+                            {
+                                case 1: {assign = SOLITAIRE_FCNT - pcnt;} break;
+                                case 2: {assign = TWOPLAYERS_FCNT - pcnt;} break;
+                            }
+                            // assign neutral factions
+                            for (uint8_t a = 1; a <= assign; a++)
+                            {
+                                uint8_t f;
+                                for (f = 1; (f <= ITEMCOUNT(rordata, Faction)) && ((FACTION(f).name[0] != '\0') || ((FACTION(f).type & FactionNeutral) != 0)); f++);
+                                uint8_t fa;
+                                for (fa = 1; (fa < (ITEMCOUNT(rordata, Faction)) && !(((FACTION(fa).type & FactionNeutral) != 0) && (FACTION(fa).asor == a)) ); fa++);
+                                memcpy(&FACTION(f), &FACTION(fa), sizeof(RoR_FactionItem_t));  // copy
+                                FACTION(f).type = FactionUsed | FactionNeutral;
+                            }
+                            // if only one human player, set its hand open
+                            if (pcnt == 1) FACTION(f_lastp).open = 0xFF;
+                            // set type flags
+                            for (uint8_t f = 1; (f <= ITEMCOUNT(rordata, Faction)); f++)
+                            {
+                                if (FACTION(f).type == FactionNeutral) FACTION(f).type = FactionSet | FactionNeutral;
+                                else if ((FACTION(f).type & FactionNeutral) == 0)
+                                {
+                                    if (FACTION(f).name[0] != '\0') FACTION(f).type = FactionSet | FactionUsed;
+                                    else FACTION(f).type = FactionSet;
+                                }
+                                // note that we skip the already assigned Neutrals which has the FActionUsed flag set
+                            }
+                            // eliminate gaps
+                            bool done = false;
+                            while (!done)
+                            {
+                                uint8_t ffirstunused;
+                                for (ffirstunused = 1; (ffirstunused <= ITEMCOUNT(rordata, Faction)) && ((FACTION(ffirstunused).type & FactionUsed) != 0); ffirstunused++);
+                                uint8_t fnextused;
+                                for (fnextused = ffirstunused + 1; (fnextused <= ITEMCOUNT(rordata, Faction)) &&((FACTION(fnextused).type & FactionUsed) == 0); fnextused++);
+                                if (fnextused <= ITEMCOUNT(rordata, Faction))
+                                {
+                                    RoR_FactionItem_t faction;
+                                    memcpy(&faction, &FACTION(fnextused), sizeof(RoR_FactionItem_t));
+                                    memcpy(&FACTION(fnextused), &FACTION(ffirstunused), sizeof(RoR_FactionItem_t));
+                                    memcpy(&FACTION(ffirstunused), &faction, sizeof(RoR_FactionItem_t));
+                                }
+                                else done = true;
+                            }
+                            selected = -1;
+                            framesCounter = 0;
+                            randval = 0;
+                            randbitreq = -1;
+                            header->phse = PhSetGamename;
+                        }
+                        else
+                        {
+                            DrawRectangleRounded(r_button, 0.2f, 10, COLOR_MOUSEHOVER_CLICKABLE);
+                        }
+                    }
+                    else DrawRectangleRounded(r_button, 0.2f, 10, COLOR_BUTTONBACKGROUND);
+                    DrawRectangleRoundedLines(r_button, 0.2f, 10, 2, COLOR_BUTTONOUTLINE);
+                    DrawFont3("NEXT", r_button, COLOR_BUTTONTEXT, TextCenter, ((Vector2){0, 1}));
+                }
                 #pragma endregion NEXT BUTTON
             } break;
 
@@ -1069,12 +1117,12 @@ int main(void)
                 current += 1;
                 r_section.y = r.y + (r.height + PAD) + 6 * UNIT;
 
-                DrawFont3("ERA START DRAW OF FAMILY CARDS", r_section, COLOR_BACKGOUNDSECTIONTEXT, TextLeft, ((Vector2){0, 0}));
+                DrawFont3("ERA START DRAW OF CARDS", r_section, COLOR_BACKGOUNDSECTIONTEXT, TextLeft, ((Vector2){0, 0}));
                 r.x = r_section.x + Font3PaddingX - Font2PaddingX;
                 r.width = r_section.width - (Font3PaddingX - Font2PaddingX);
                 r.height = Font2RectH;
                 r.y = r_section.y + r_section.height + PAD + 2 * UNIT;
-                r_text = DrawFont2("FACTION MINIMUM NUMBER OF SENATORS: ", r, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+                r_text = DrawFont2("NUMBER OF SENATORS TO ENSURE AT A FACITION: ", r, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
                 r.x = r_text.x + r_text.width + Font2Spacing - Font2PaddingX;
                 r.width = font2E0.x + 2 * Font2PaddingX;
                 sprintf(str, "%d", ERA(*pe).nsen);
@@ -1102,6 +1150,48 @@ int main(void)
                         if (('0' <= key) && (key <= '9'))
                         {
                             ERA(*pe).nsen = key - '0';
+                            save(rordata, rordataLength);
+                        }
+                        key = GetCharPressed();  // Check next character in the queue
+                    }
+                }
+                else
+                {
+                    DrawRectangleRec(r, COLOR_BACKGROUNDAREA);
+                    DrawFont2(str, r, COLOR_EDITABLETEXT, TextCenter, ((Vector2){1, 0}));
+                }
+                current += 1;
+                r.x = r_section.x + Font3PaddingX - Font2PaddingX;
+                r.width = r_section.width - (Font3PaddingX - Font2PaddingX);
+                r.y += Font2RectH + PAD;
+                r_text = DrawFont2("NUMBER OF FACTION CARDS TO ENSURE AT A FACITION: ", r, COLOR_BACKGOUNDTEXT, TextLeft, ((Vector2){0, 0}));
+                r.x = r_text.x + r_text.width + Font2Spacing - Font2PaddingX;
+                r.width = font2E0.x + 2 * Font2PaddingX;
+                sprintf(str, "%d", ERA(*pe).ncar);
+                if (CheckCollisionPointRec(mouse, r) && current != selected)
+                {
+                    if (currentGesture == GESTURE_TAP)
+                    {
+                        clicked = current;
+                        selected = current;
+                        framesCounter = 0;
+                        DrawRectangleRec(r, COLOR_CLICKED);
+                        DrawFont2(str, r, COLOR_CLICKEDTEXT, TextCenter, ((Vector2){1, 0}));
+                    }
+                    else DrawRectangleRec(r, COLOR_MOUSEHOVER_EDITABLE);
+                    DrawFont2(str, r, COLOR_MOUSEHOVER_EDITABLETEXT, TextCenter, ((Vector2){1, 0}));
+                }
+                else if (current == selected)
+                {
+                    int letterCount = 1;
+                    DrawRectangleRec(r, COLOR_BEINGEDITED);
+                    DrawFont2(str, r, COLOR_BEINGEDITEDTEXT, TextCenter, ((Vector2){1, 0}));
+                    int key = GetCharPressed();
+                    while (key > 0)
+                    {
+                        if (('0' <= key) && (key <= '9'))
+                        {
+                            ERA(*pe).ncar = key - '0';
                             save(rordata, rordataLength);
                         }
                         key = GetCharPressed();  // Check next character in the queue
@@ -1743,6 +1833,16 @@ int main(void)
                 MemFree(sat);
                 MemFree(factsenacnt);
                 #pragma endregion FINAL
+            } break;
+
+            case PhDealFactionCards:
+            {
+                #pragma region TITLE
+                Rectangle r_title = {0, 0, screenWidth, TITLEHEIGHT};
+                DrawRectangleRec(r_title, COLOR_TITLEBACKGROUND);
+                sprintf(str, "DEAL %i FACTION CARDS TO EACH FACTION", ERA(HEADER.eran).ncar);
+                DrawTitle(str, r_title, COLOR_TITLETEXT, TextLeft);
+                #pragma endregion TITLE
             } break;
 
             case PhTemporaryRomeConsul:
